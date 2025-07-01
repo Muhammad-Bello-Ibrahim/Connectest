@@ -1,74 +1,53 @@
 "use client"
 
-import type React from "react"
-
-import { useEffect } from "react"
-import { useRouter, usePathname } from "next/navigation"
 import { useAuth } from "@/hooks/use-auth"
+import { useRouter, usePathname } from "next/navigation"
+import { useEffect } from "react"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
-import { DashboardHeader } from "@/components/dashboard-header"
 import { DeanSidebar } from "@/components/dean-sidebar"
 import { AdminSidebar } from "@/components/admin-sidebar"
+import { DashboardHeader } from "@/components/dashboard-header"
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading, getRedirectPath } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
 
   useEffect(() => {
-    if (!isLoading && !user) {
-      router.push("/login")
-      return
-    }
+    if (isLoading) return
 
-    if (!isLoading && user) {
+    if (!user) {
+      router.replace("/auth/login")
+    } else {
       const correctPath = getRedirectPath()
-
-      // Only redirect if user is on the wrong dashboard
-      if (user.role === "dean" && !pathname.includes("/dashboard/dean")) {
-        router.push(correctPath)
-      } else if (user.role === "admin" && !pathname.includes("/dashboard/admin")) {
-        router.push(correctPath)
-      } else if (
-        user.role === "student" &&
-        (pathname.includes("/dashboard/dean") || pathname.includes("/dashboard/admin"))
+      if (
+        (user.role === "admin" && !pathname.startsWith("/dashboard/admin")) ||
+        (user.role === "dean" && !pathname.startsWith("/dashboard/dean")) ||
+        (user.role === "student" && pathname !== "/dashboard")
       ) {
-        router.push(correctPath)
+        router.replace(correctPath)
       }
     }
-  }, [user, isLoading, router, pathname, getRedirectPath])
+  }, [user, isLoading, pathname, router])
 
-  if (isLoading || !user) {
+  const renderSidebar = () => {
+    if (user?.role === "admin") return <AdminSidebar />
+    if (user?.role === "dean") return <DeanSidebar />
+    return <DashboardSidebar />
+  }
+
+  if (!user || isLoading) {
     return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+      <div className="flex items-center justify-center h-screen w-screen">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto my-auto" />
       </div>
     )
   }
 
-  // Render different sidebar based on user role
-  const renderSidebar = () => {
-    if (user.role === "dean") {
-      return <DeanSidebar />
-    } else if (user.role === "admin") {
-      return <AdminSidebar />
-    } else {
-      return <DashboardSidebar />
-    }
-  }
-
   return (
-    <div className="flex min-h-screen flex-col">
-      <DashboardHeader />
-      <div className="flex flex-1">
-        {renderSidebar()}
-        <main className="flex-1 p-4 md:p-6 overflow-auto">{children}</main>
-      </div>
+    <div className="flex min-h-screen">
+      {renderSidebar()}
+      <main className="flex-1 p-4">{children}</main>
     </div>
   )
 }
-

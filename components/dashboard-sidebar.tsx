@@ -12,7 +12,7 @@ import {
   SidebarMenuButton,
 } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
-import { LayoutDashboard, Users, Calendar, CreditCard, Vote, BookOpen, Settings, LogOut, Bell } from "lucide-react"
+import { LayoutDashboard, Users, Calendar, CreditCard, Vote, BookOpen, LogOut, Bell, MapPin } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 
 export function DashboardSidebar() {
@@ -49,10 +49,10 @@ export function DashboardSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive("/dashboard/events")}>
-              <Link href="/dashboard/events">
-                <Calendar className="h-4 w-4" />
-                <span>Events</span>
+            <SidebarMenuButton asChild isActive={isActive("/dashboard/campus-map")}> 
+              <Link href="/dashboard/campus-map">
+                <MapPin className="h-4 w-4" />
+                <span>Campus Map</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -73,7 +73,7 @@ export function DashboardSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive("/dashboard/resources")}>
+            <SidebarMenuButton asChild isActive={isActive("/dashboard/resources")}> 
               <Link href="/dashboard/resources">
                 <BookOpen className="h-4 w-4" />
                 <span>Resources</span>
@@ -81,18 +81,10 @@ export function DashboardSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive("/dashboard/notifications")}>
-              <Link href="/dashboard/notifications">
-                <Bell className="h-4 w-4" />
-                <span>Notifications</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive("/dashboard/settings")}>
-              <Link href="/dashboard/settings">
-                <Settings className="h-4 w-4" />
-                <span>Settings</span>
+            <SidebarMenuButton asChild isActive={isActive("/dashboard/profile")}> 
+              <Link href="/dashboard/profile">
+                <Users className="h-4 w-4" />
+                <span>Profile</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

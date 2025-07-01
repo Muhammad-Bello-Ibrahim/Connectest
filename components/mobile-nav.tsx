@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Users, Calendar, Bell, Settings } from "lucide-react"
+import { Home, Users, BookOpen, MapPin, Plus } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export function MobileNav() {
@@ -17,16 +17,8 @@ export function MobileNav() {
       <Link
         href="/dashboard"
         className={cn(
-          "flex flex-col items-center justify-center text-xs",
-          isActive("/dashboard") &&
-            !isActive("/dashboard/clubs") &&
-            !isActive("/dashboard/resources") &&
-            !isActive("/dashboard/campus-map") &&
-            !isActive("/dashboard/events") &&
-            !isActive("/dashboard/notifications") &&
-            !isActive("/dashboard/settings")
-            ? "text-primary"
-            : "text-muted-foreground",
+          "flex flex-col items-center justify-center text-xs flex-1",
+          isActive("/dashboard") ? "text-primary" : "text-muted-foreground",
         )}
       >
         <Home className="mb-1 h-5 w-5" />
@@ -35,42 +27,43 @@ export function MobileNav() {
       <Link
         href="/dashboard/clubs"
         className={cn(
-          "flex flex-col items-center justify-center text-xs",
+          "flex flex-col items-center justify-center text-xs flex-1",
           isActive("/dashboard/clubs") ? "text-primary" : "text-muted-foreground",
         )}
       >
         <Users className="mb-1 h-5 w-5" />
         <span>Clubs</span>
       </Link>
+      {/* Plus Icon in Center */}
       <Link
-        href="/dashboard/events"
+        href="/dashboard/create-post"
         className={cn(
-          "flex flex-col items-center justify-center text-xs",
-          isActive("/dashboard/events") ? "text-primary" : "text-muted-foreground",
+          "flex flex-col items-center justify-center flex-1",
         )}
       >
-        <Calendar className="mb-1 h-5 w-5" />
-        <span>Events</span>
+        <span className="flex items-center justify-center bg-primary text-white rounded-full w-12 h-12 -mt-8 shadow-lg border-4 border-background">
+          <Plus className="h-7 w-7" />
+        </span>
       </Link>
       <Link
-        href="/dashboard/notifications"
+        href="/dashboard/resources"
         className={cn(
-          "flex flex-col items-center justify-center text-xs",
-          isActive("/dashboard/notifications") ? "text-primary" : "text-muted-foreground",
+          "flex flex-col items-center justify-center text-xs flex-1",
+          isActive("/dashboard/resources") ? "text-primary" : "text-muted-foreground",
         )}
       >
-        <Bell className="mb-1 h-5 w-5" />
-        <span>Alerts</span>
+        <BookOpen className="mb-1 h-5 w-5" />
+        <span>Resources</span>
       </Link>
       <Link
-        href="/dashboard/settings"
+        href="/dashboard/campus-map"
         className={cn(
-          "flex flex-col items-center justify-center text-xs",
-          isActive("/dashboard/settings") ? "text-primary" : "text-muted-foreground",
+          "flex flex-col items-center justify-center text-xs flex-1",
+          isActive("/dashboard/campus-map") ? "text-primary" : "text-muted-foreground",
         )}
       >
-        <Settings className="mb-1 h-5 w-5" />
-        <span>Settings</span>
+        <MapPin className="mb-1 h-5 w-5" />
+        <span>Map</span>
       </Link>
     </div>
   )

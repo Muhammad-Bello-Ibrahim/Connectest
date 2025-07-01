@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import { useContext } from "react"
-import { AuthContext } from "@/components/auth-provider"
+import { useContext, useMemo } from "react";
+import { AuthContext } from "@/components/auth-provider";
 
 export function useAuth() {
-  const context = useContext(AuthContext)
+  const context = useContext(AuthContext);
 
   if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider")
+    throw new Error("useAuth must be used within an AuthProvider");
   }
 
-  return context
+  // Memoize context to avoid unnecessary rerenders
+  return useMemo(() => context, [context]);
 }
-

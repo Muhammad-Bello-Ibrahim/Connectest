@@ -172,7 +172,7 @@ export default function Home() {
             />
           </div>
 
-          <div className="container relative z-20">
+          <div className="container relative z-20 px-4 sm:px-6 lg:px-8">
             <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
               <div className="flex flex-col justify-center space-y-4 animate-fade-in">
                 <div className="space-y-2">
@@ -186,7 +186,7 @@ export default function Home() {
                   <Link href="/register">
                     <Button
                       size="lg"
-                      className="px-8 group transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg"
+                      className="px-8 group transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg w-full sm:w-auto"
                     >
                       Get Started
                       <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -194,13 +194,13 @@ export default function Home() {
                   </Link>
                 </div>
               </div>
-              <div className="hidden lg:block">
+              <div className="hidden lg:flex items-center justify-center">
                 {/* Placeholder for hero image or animation */}
-                <div className="rounded-xl overflow-hidden shadow-2xl">
+                <div className="rounded-xl overflow-hidden shadow-2xl w-full max-w-xs mx-auto">
                   <img
                     src="/userphone.png"
                     alt="Connectrix dashboard preview"
-                    className="w-2/4"
+                    className="w-full object-contain"
                   />
                 </div>
               </div>

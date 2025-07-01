@@ -35,102 +35,59 @@ export function DashboardHeader() {
         <div className="md:hidden mr-2">
           <SidebarTrigger />
         </div>
-        {showSearch ? (
-          <div className="flex-1 flex items-center">
-            <div className="relative flex-1">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search..."
-                className="pl-8"
-                autoFocus
-                onBlur={() => setShowSearch(false)}
-              />
-            </div>
-            <Button variant="ghost" size="sm" onClick={() => setShowSearch(false)} className="ml-2">
-              Cancel
-            </Button>
-          </div>
-        ) : (
-          <>
-            <div className="flex items-center">
-              <Link href={getDashboardLink()} className="font-semibold text-lg text-primary">
-                Connectrix
-              </Link>
-              {user?.role && (
-                <Badge
-                  className={`ml-2 ${
-                    user.role === "dean"
-                      ? "bg-green-100 text-green-800"
-                      : user.role === "admin"
-                        ? "bg-blue-100 text-blue-800"
-                        : "bg-gray-100 text-gray-800"
-                  }`}
-                >
-                  {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                </Badge>
-              )}
-            </div>
-            <div className="flex-1 flex justify-end md:justify-between">
-              <div className="hidden md:flex md:flex-1 md:max-w-md">
-                <div className="relative w-full max-w-sm mx-auto">
-                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input type="search" placeholder="Search..." className="pl-8" />
+        <div className="flex-1 flex items-center">
+          <span className="font-semibold text-lg text-primary hidden sm:block">Dashboard</span>
+        </div>
+        <div className="flex items-center gap-2 ml-auto">
+          <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setShowSearch(true)}>
+            <Search className="h-5 w-5" />
+            <span className="sr-only">Search</span>
+          </Button>
+          <Button variant="ghost" size="icon" className="relative">
+            <Bell className="h-5 w-5" />
+            <span className="sr-only">Notifications</span>
+            <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-primary"></span>
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage
+                    src={user?.avatar || "/placeholder.svg?height=32&width=32"}
+                    alt={user?.name || "User"}
+                  />
+                  <AvatarFallback>{user?.name?.charAt(0) || "U"}</AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">{user?.name}</p>
+                  <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+                  {user?.role && (
+                    <p className="text-xs leading-none text-muted-foreground capitalize">Role: {user.role}</p>
+                  )}
                 </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setShowSearch(true)}>
-                  <Search className="h-5 w-5" />
-                  <span className="sr-only">Search</span>
-                </Button>
-                <Button variant="ghost" size="icon" className="relative">
-                  <Bell className="h-5 w-5" />
-                  <span className="sr-only">Notifications</span>
-                  <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-primary"></span>
-                </Button>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage
-                          src={user?.avatar || "/placeholder.svg?height=32&width=32"}
-                          alt={user?.name || "User"}
-                        />
-                        <AvatarFallback>{user?.name?.charAt(0) || "U"}</AvatarFallback>
-                      </Avatar>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="end" forceMount>
-                    <DropdownMenuLabel className="font-normal">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{user?.name}</p>
-                        <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
-                        {user?.role && (
-                          <p className="text-xs leading-none text-muted-foreground capitalize">Role: {user.role}</p>
-                        )}
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/dashboard/profile">
-                        <User className="mr-2 h-4 w-4" />
-                        <span>Profile</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href={`${getDashboardLink()}/settings`}>
-                        <Settings className="mr-2 h-4 w-4" />
-                        <span>Settings</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={logout}>Log out</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </div>
-          </>
-        )}
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/profile">
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href={`${getDashboardLink()}/settings`}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={logout}>Log out</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
     </header>
   )

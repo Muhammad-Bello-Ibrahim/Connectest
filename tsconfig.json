@@ -13,15 +13,68 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    },
     "plugins": [
       {
         "name": "next"
       }
-    ],
-    "paths": {
-      "@/*": ["./*"]
-    }
+    ]
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
 }
+// This file is used by Next.js to configure TypeScript settings.
+// It specifies the compiler options, including the target ECMAScript version,
+// module resolution strategy, and paths for module resolution.
+// The "include" and "exclude" fields define which files are included in the compilation process
+// and which ones are ignored, respectively.
+// The "plugins" section includes the Next.js plugin for TypeScript support.
+// The "baseUrl" and "paths" options allow for easier imports within the project.
+// The "incremental" option enables faster builds by storing information about the previous compilation.
+// The "strict" option enables all strict type-checking options.
+// The "skipLibCheck" option skips type checking of declaration files, which can speed up
+// the compilation process, especially in large projects.
+// The "resolveJsonModule" option allows importing JSON files as modules.
+// The "isolatedModules" option ensures that each file can be safely transpiled independently,
+// which is useful for projects that use Babel or other transpilers alongside TypeScript.
+// The "jsx" option is set to "preserve" to keep JSX syntax in the output files,
+// allowing Next.js to handle JSX transformation during the build process.
+// The "allowJs" option allows JavaScript files to be included in the compilation,
+// which is useful for projects that mix TypeScript and JavaScript files.
+// The "noEmit" option prevents TypeScript from emitting output files, as Next.js handles
+// the compilation and bundling process internally.
+// The "target" option specifies the ECMAScript version to which the TypeScript code will
+// be transpiled, in this case, ES6.
+// The "module" option specifies the module system to be used, in this case, "esnext",
+// which is compatible with modern JavaScript module systems.
+// The "lib" option specifies the libraries to be included in the compilation,
+// allowing the use of modern JavaScript features and DOM APIs.
+// The "skipLibCheck" option is set to true to skip type checking of declaration files
+// to speed up the compilation process, especially in large projects.
+// The "noEmit" option is set to true to prevent TypeScript from emitting output files
+// since Next.js handles the compilation and bundling process internally.
+// The "esModuleInterop" option is set to true to enable compatibility with CommonJS modules
+// when importing them in TypeScript files.
+// The "moduleResolution" option is set to "bundler" to use the module resolution strategy
+// that is compatible with modern bundlers like Webpack and Rollup.
+// The "incremental" option is set to true to enable incremental compilation,
+// which speeds up the build process by reusing information from previous compilations.
+// The "resolveJsonModule" option is set to true to allow importing JSON files as modules
+// in TypeScript files, enabling easier handling of configuration and data files.
+// The "isolatedModules" option is set to true to ensure that each file can be
+// safely transpiled independently, which is useful for projects that use Babel or other
+// transpilers alongside TypeScript.
+// The "jsx" option is set to "preserve" to keep JSX syntax in the output files,
+// allowing Next.js to handle JSX transformation during the build process.
+// The "plugins" section includes the Next.js plugin for TypeScript support,
+// which provides additional features and optimizations for Next.js projects.
+// The "baseUrl" option is set to the current directory, allowing for easier imports
+// within the project using the "paths" option.
+// The "paths" option maps module paths to specific directories, allowing for cleaner imports
+// and avoiding relative paths like "../../components/MyComponent".
+// The "include" field specifies the files to be included in the TypeScript compilation,
+// including TypeScript files, Next.js environment types, and types from the .next directory.
+// The "exclude" field specifies the directories to be excluded from the TypeScript compilation,    
