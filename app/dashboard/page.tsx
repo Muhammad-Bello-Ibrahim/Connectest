@@ -62,17 +62,15 @@ export default function DashboardPage() {
   return (
     <div className="w-full min-h-screen flex flex-col items-center bg-background px-2">
       <div className="w-full max-w-2xl flex-1 flex flex-col gap-0 px-0 sm:px-0 pt-0 mx-auto">
-        {/* User avatar at top left */}
-        <div className="flex items-left gap-3 pt-4 pb-2 px-4">
-          <Avatar className="h-8 w-8 border-2 rounded-full border-primary">
+        {/* User avatar at top left (mobile: leftmost, rounded) */}
+        <div className="flex justify-start pt-4 pb-2 px-4">
+          <Avatar className="h-10 w-10 border-2 border-primary rounded-full">
             {user.avatar ? (
               <img src={user.avatar} alt={user.name} className="h-full w-full object-cover rounded-full" />
             ) : (
-             <AvatarFallback>{user.name?.charAt(0) || "U"}</AvatarFallback>
-            )
-            }
+              <AvatarFallback>{user.name?.charAt(0) || "U"}</AvatarFallback>
+            )}
           </Avatar>
-          {/* <div className="font-semibold text-lg">{user.name}</div> */}
         </div>
         {/* Toggle for Following/General */}
         <div className="flex justify-center pb-2">
