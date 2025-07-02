@@ -99,6 +99,9 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
         <p className="text-sm text-center">
           Don't have an account? <Link href="/register" className="underline">Register</Link>
         </p>
+        <p className="text-sm text-center mt-2">
+          <Link href="/forgot-password" className="underline text-primary">Forgot Password?</Link>
+        </p>
       </div>
     </div>
   )

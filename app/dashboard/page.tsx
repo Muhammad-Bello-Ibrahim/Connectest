@@ -20,6 +20,7 @@ import {
   Paperclip,
 } from "lucide-react"
 import { MobileNav } from "@/components/mobile-nav"
+import { toast } from "@/hooks/use-toast"
 
 // ✅ mock data moved here for brevity
 const mockNewsfeed = [/* ... your feed data unchanged ... */]
