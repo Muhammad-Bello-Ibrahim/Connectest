@@ -17,7 +17,7 @@ export async function middleware(request: NextRequest) {
 
   const token = request.cookies.get("connectrix-token")?.value
 
-  if (!token) return NextResponse.redirect(new URL("/auth/login", request.url))
+  if (!token) return NextResponse.redirect(new URL("/login", request.url))
 
   try {
     const { payload }: any = await jwtVerify(token, getJwtSecret())
@@ -32,7 +32,7 @@ export async function middleware(request: NextRequest) {
 
     return NextResponse.next()
   } catch (err) {
-    return NextResponse.redirect(new URL("/auth/login", request.url))
+    return NextResponse.redirect(new URL("/login", request.url))
   }
 }
 

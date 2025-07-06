@@ -17,13 +17,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (isLoading) return
 
     if (!user) {
-      router.replace("/auth/login")
+      router.replace("/login")
     } else {
       const correctPath = getRedirectPath()
       if (
         (user.role === "admin" && !pathname.startsWith("/dashboard/admin")) ||
         (user.role === "dean" && !pathname.startsWith("/dashboard/dean")) ||
-        (user.role === "student" && pathname !== "/dashboard")
+        (user.role === "student" && !pathname.startsWith("/dashboard"))
       ) {
         router.replace(correctPath)
       }

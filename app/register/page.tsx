@@ -25,6 +25,8 @@ import { cn } from "@/lib/utils"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { stateToLGAs } from "@/lib/data/lgas"
+import DatePicker from "react-datepicker"
+import "react-datepicker/dist/react-datepicker.css"
 
 const formSchema = z.object({
   name: z.string().min(2, 'Name is required'),
@@ -39,6 +41,7 @@ const formSchema = z.object({
   religion: z.string(),
   gender: z.string(),
   dob: z.date({ required_error: "Select your date of birth." }),
+  level: z.string().min(1, 'Level is required'),
   password: z.string().min(8),
   confirmPassword: z.string()
 }).refine((data) => data.password === data.confirmPassword, {
@@ -72,6 +75,7 @@ export default function RegisterPage() {
         body: JSON.stringify({
           ...values,
           dob: values.dob.toISOString(), // Ensure DOB is in correct format
+          level: values.level,
         }),
       })
 
@@ -150,7 +154,24 @@ export default function RegisterPage() {
               )} />
             </div>
             <FormField control={form.control} name="dob" render={({ field }) => (
-              <FormItem><FormLabel>Date of Birth</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant="outline" className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>{field.value ? format(field.value, "PPP") : "Pick a date"}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date("1950-01-01") } initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+              <FormItem>
+                <FormLabel>Date of Birth</FormLabel>
+                <FormControl>
+                  <DatePicker
+                    selected={field.value}
+                    onChange={field.onChange}
+                    dateFormat="yyyy-MM-dd"
+                    showMonthDropdown
+                    showYearDropdown
+                    dropdownMode="select"
+                    maxDate={new Date()}
+                    minDate={new Date("1950-01-01")}
+                    placeholderText="Pick a date"
+                    className="w-full border rounded px-3 py-2"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )} />
             <div className="flex gap-2">
               <FormField control={form.control} name="password" render={({ field }) => (
@@ -160,6 +181,29 @@ export default function RegisterPage() {
                 <FormItem className="flex-1"><FormLabel>Confirm Password</FormLabel><FormControl><Input type="password" {...field} autoComplete="new-password" /></FormControl><FormMessage /></FormItem>
               )} />
             </div>
+            <FormField control={form.control} name="level" render={({ field }) => (
+              <FormItem>
+                <FormLabel>Level</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select level" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="100">100</SelectItem>
+                    <SelectItem value="200">200</SelectItem>
+                    <SelectItem value="300">300</SelectItem>
+                    <SelectItem value="400">400</SelectItem>
+                    <SelectItem value="500">500</SelectItem>
+                    <SelectItem value="600">600</SelectItem>
+                    <SelectItem value="700">700</SelectItem>
+                    <SelectItem value="800">800</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )} />
             <Button type="submit" className="w-full rounded-full font-semibold text-base py-3 mt-2" disabled={isLoading}>
               {isLoading ? "Creating account..." : "Create Account"}
             </Button>

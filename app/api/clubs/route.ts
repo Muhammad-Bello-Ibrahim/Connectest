@@ -1,31 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import Club from "@/lib/models/Club";
-import { verifyToken } from "@/lib/auth"; // your JWT util
+import connectDB from "@/lib/db";
 
 export async function GET(req: NextRequest) {
-  // Optionally get user info from token
-  const token = req.cookies.get('connectrix-token')?.value;
-  let student = null;
-  if (token) {
-    const payload = await verifyToken(token);
-    student = payload; // contains faculty, department, etc.
+  await connectDB();
+  try {
+    const clubs = await Club.find({});
+    return NextResponse.json(clubs);
+  } catch (error) {
+    console.error('Error in GET /api/clubs:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  // Fetch all clubs, or filter by student details
-  let clubs;
-  if (student) {
-    clubs = await Club.find({
-      $or: [
-        { faculty: student.faculty },
-        { department: student.department },
-        { state: student.state },
-        { religion: student.religion },
-        { type: "general" }
-      ]
-    });
-  } else {
-    clubs = await Club.find({});
-  }
-
-  return NextResponse.json(clubs);
 }

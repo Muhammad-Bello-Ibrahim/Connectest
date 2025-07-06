@@ -40,3 +40,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: err.message || "Failed to create club" }, { status: 500 })
   }
 }
+
+export async function GET() {
+  await connectDB()
+  try {
+    const clubs = await Club.find({})
+    return NextResponse.json(clubs)
+  } catch (err: any) {
+    console.error("Error fetching clubs:", err)
+    return NextResponse.json({ error: err.message || "Failed to fetch clubs" }, { status: 500 })
+  }
+}

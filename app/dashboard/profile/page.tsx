@@ -94,7 +94,9 @@ export default function ProfilePage() {
           <CardContent className="flex flex-col items-center">
             <Avatar className="h-32 w-32">
               <AvatarImage src={user.avatar || "/placeholder.svg?height=128&width=128"} alt={user.name} />
-              <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+              <AvatarFallback>
+                {user?.name?.charAt?.(0) || "U"}
+              </AvatarFallback>
             </Avatar>
             <h2 className="mt-4 text-xl font-bold">{user.name}</h2>
             <p className="text-sm text-muted-foreground capitalize">{user.role}</p>
@@ -317,6 +319,7 @@ export default function ProfilePage() {
                           <p>Good</p>
                         </div>
                       </div>
+                  
                     </div>
                   ) : (
                     <div className="text-center py-4">

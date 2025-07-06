@@ -28,21 +28,33 @@ interface Club {
 export default function ClubsPage() {
   const { user } = useAuth()
   const [clubs, setClubs] = useState<Club[]>([])
+  const [allClubs, setAllClubs] = useState<Club[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [activeTab, setActiveTab] = useState("my-clubs")
 
   useEffect(() => {
-    const fetchClubs = async () => {
+    const fetchMyClubs = async () => {
       try {
-        const res = await fetch("/api/user/clubs", { credentials: "include" })
+        const res = await fetch("/api/auth/user/clubs", { credentials: "include" })
         const data = await res.json()
         setClubs(data.clubs || [])
       } catch (err) {
         console.error("Failed to fetch clubs:", err)
       }
     }
-
-    if (user) fetchClubs()
+    const fetchAllClubs = async () => {
+      try {
+        const res = await fetch("/api/clubs", { credentials: "include" })
+        const data = await res.json()
+        setAllClubs(data || [])
+      } catch (err) {
+        console.error("Failed to fetch all clubs:", err)
+      }
+    }
+    if (user) {
+      fetchMyClubs()
+      fetchAllClubs()
+    }
   }, [user])
 
   const filtered = clubs.filter((club) =>
@@ -85,18 +97,63 @@ export default function ClubsPage() {
       <Tabs defaultValue="my-clubs" className="space-y-4" onValueChange={setActiveTab}>
         <TabsList className="flex flex-wrap">
           <TabsTrigger value="my-clubs">My Clubs</TabsTrigger>
-          <TabsTrigger value="pending">Pending</TabsTrigger>
+          <TabsTrigger value="all">All Clubs</TabsTrigger>
         </TabsList>
 
-        <TabsContent value={activeTab} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <TabsContent value="my-clubs" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.length > 0 ? (
-            filtered
-              .filter((club) => {
-                if (activeTab === "pending") return club.status === "pending"
-                return true
-              })
+            filtered.map((club) => (
+              <Card key={club._id || club.id}>
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <CardTitle>{club.name}</CardTitle>
+                    <Badge variant="outline">
+                      {club.status === "pending" ? "Pending" : "Active"}
+                    </Badge>
+                  </div>
+                  <CardDescription>{club.description}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <Users className="mr-1 h-4 w-4" />
+                    {club.members} members
+                  </div>
+                  <div className="mt-2">
+                    <Badge variant="secondary">{club.category}</Badge>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button variant="outline" className="w-full" asChild>
+                    <Link href={`/dashboard/clubs/${club._id || club.id}`}>
+                      {club.status === "active" ? "View Details" : "Awaiting Approval"}
+                    </Link>
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))
+          ) : (
+            <Card>
+              <CardContent className="flex flex-col items-center justify-center py-8 text-center">
+                <Users className="h-12 w-12 text-muted-foreground/50" />
+                <h3 className="mt-4 text-lg font-medium">No clubs found</h3>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  You haven't joined any clubs yet.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+        <TabsContent value="all" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {allClubs.length > 0 ? (
+            allClubs
+              // Exclude clubs the user is already a member of
+              .filter((club) =>
+                !clubs.some((myClub) => (myClub._id || myClub.id) === (club._id || club.id)) &&
+                (club.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  club.description.toLowerCase().includes(searchQuery.toLowerCase()))
+              )
               .map((club) => (
-                <Card key={club.id}>
+                <Card key={club._id || club.id}>
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
                       <CardTitle>{club.name}</CardTitle>
@@ -117,7 +174,7 @@ export default function ClubsPage() {
                   </CardContent>
                   <CardFooter>
                     <Button variant="outline" className="w-full" asChild>
-                      <Link href={`/dashboard/clubs/${club.id}`}>
+                      <Link href={`/dashboard/clubs/${club._id || club.id}`}>
                         {club.status === "active" ? "View Details" : "Awaiting Approval"}
                       </Link>
                     </Button>
@@ -130,9 +187,7 @@ export default function ClubsPage() {
                 <Users className="h-12 w-12 text-muted-foreground/50" />
                 <h3 className="mt-4 text-lg font-medium">No clubs found</h3>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  {activeTab === "pending"
-                    ? "You have no clubs awaiting approval."
-                    : "You haven't joined any clubs yet."}
+                  No clubs available.
                 </p>
               </CardContent>
             </Card>

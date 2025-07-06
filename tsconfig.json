@@ -2,13 +2,13 @@
   "compilerOptions": {
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
-    "target": "ES6",
+    "target": "es2020",
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
@@ -47,7 +47,7 @@
 // The "noEmit" option prevents TypeScript from emitting output files, as Next.js handles
 // the compilation and bundling process internally.
 // The "target" option specifies the ECMAScript version to which the TypeScript code will
-// be transpiled, in this case, ES6.
+// be transpiled, in this case, ES2020.
 // The "module" option specifies the module system to be used, in this case, "esnext",
 // which is compatible with modern JavaScript module systems.
 // The "lib" option specifies the libraries to be included in the compilation,
@@ -58,8 +58,8 @@
 // since Next.js handles the compilation and bundling process internally.
 // The "esModuleInterop" option is set to true to enable compatibility with CommonJS modules
 // when importing them in TypeScript files.
-// The "moduleResolution" option is set to "bundler" to use the module resolution strategy
-// that is compatible with modern bundlers like Webpack and Rollup.
+// The "moduleResolution" option is set to "node" to use the module resolution strategy
+// that is compatible with Node.js and modern bundlers like Webpack and Rollup.
 // The "incremental" option is set to true to enable incremental compilation,
 // which speeds up the build process by reusing information from previous compilations.
 // The "resolveJsonModule" option is set to true to allow importing JSON files as modules
@@ -77,4 +77,4 @@
 // and avoiding relative paths like "../../components/MyComponent".
 // The "include" field specifies the files to be included in the TypeScript compilation,
 // including TypeScript files, Next.js environment types, and types from the .next directory.
-// The "exclude" field specifies the directories to be excluded from the TypeScript compilation,    
+// The "exclude" field specifies the directories to be excluded from the TypeScript compilation,

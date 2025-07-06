@@ -1,10 +1,10 @@
-import { NextResponse } from 'next/server'
-import connectDB from '@/lib/db'
-import User from '@/lib/models/User'
+import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
-import { SignJWT } from 'jose'
+import User from '@/lib/models/User'
+import connectDB from '@/lib/db'
+import { signToken } from '@/lib/auth'
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   await connectDB()
 
   try {
@@ -16,49 +16,55 @@ export async function POST(req: Request) {
 
     const user = await User.findOne({
       $or: [{ email: userId }, { studentId: userId }],
-    }).select('+password')
+    })
+      .select('+password')
+      .populate('clubs')
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      return NextResponse.json(
-        { error: 'Invalid email/ID or password' },
-        { status: 401 }
-      )
+    if (!user) {
+      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
     }
 
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET!)
-    const token = await new SignJWT({
-      id: user._id,
-      role: user.role,
-      name: user.name,
-      email: user.email
-    })
-      .setProtectedHeader({ alg: 'HS256' })
-      .setExpirationTime('7d')
-      .sign(secret)
+    const isMatch = await bcrypt.compare(password, user.password)
+    if (!isMatch) {
+      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
+    }
 
-    const response = NextResponse.json({
-      message: 'Login successful',
+    const token = await signToken({ id: user._id, role: user.role })
+
+    const res = NextResponse.json({
       user: {
-        id: user._id,
+        _id: user._id,
         name: user.name,
         email: user.email,
+        studentId: user.studentId,
+        phone: user.phone,
+        state: user.state,
+        localGovt: user.localGovt,
+        address: user.address,
+        religion: user.religion,
+        gender: user.gender,
+        dob: user.dob,
         role: user.role,
+        level: user.level,
+        faculty: user.faculty,
+        facultyFull: user.facultyFull,
+        department: user.department,
+        departmentFull: user.departmentFull,
+        bio: user.bio,
+        avatar: user.avatar,
+        // clubs: user.clubs, // optional
       },
     })
-
-    response.cookies.set({
-      name: 'connectrix-token',
-      value: token,
+    res.cookies.set('connectrix-token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax',
       path: '/',
       maxAge: 60 * 60 * 24 * 7, // 7 days
     })
-
-    return response
+    return res
   } catch (err) {
-    console.error('Login error:', err)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error("LOGIN ERROR:", err); // Add this line
+    return NextResponse.json({ error: 'Server error', details: err?.message || err }, { status: 500 })
   }
 }

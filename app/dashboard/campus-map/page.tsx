@@ -1,12 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Search, MapPin, Navigation, Building, Info } from "lucide-react"
 import { MobileNav } from "@/components/mobile-nav"
+import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api"
 
 // Mock data for campus locations
 const mockCampusLocations = [
@@ -72,9 +73,16 @@ const mockCampusLocations = [
   },
 ]
 
+const mapContainerStyle = { width: "100%", height: "350px", borderRadius: "0.5rem" }
+const center = { lat: 9.0768, lng: 7.3986 }
+
 export default function CampusMapPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null)
+
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+  })
 
   // Filter locations based on search query
   const filteredLocations = mockCampusLocations.filter(
@@ -85,6 +93,10 @@ export default function CampusMapPage() {
   )
 
   const selectedLocationData = selectedLocation ? mockCampusLocations.find((loc) => loc.id === selectedLocation) : null
+
+  const handleMarkerClick = useCallback((id: string) => {
+    setSelectedLocation(id)
+  }, [])
 
   return (
     <div className="space-y-6 pb-20 md:pb-0">
@@ -109,34 +121,25 @@ export default function CampusMapPage() {
               <CardDescription>Find your way around campus</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="relative aspect-[4/3] w-full bg-muted rounded-md overflow-hidden">
-                {/* This would be replaced with an actual map component in a real app */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <img
-                    src="/placeholder.svg?height=400&width=600"
-                    alt="Campus Map"
-                    className="w-full h-full object-cover"
-                  />
-                  {/* Map pins would be positioned absolutely based on coordinates */}
-                  {mockCampusLocations.map((location) => (
-                    <Button
-                      key={location.id}
-                      variant={selectedLocation === location.id ? "default" : "outline"}
-                      size="icon"
-                      className={`absolute h-8 w-8 rounded-full ${
-                        selectedLocation === location.id ? "bg-primary text-primary-foreground" : "bg-background"
-                      }`}
-                      style={{
-                        // These would be calculated based on actual coordinates in a real app
-                        left: `${Math.random() * 80 + 10}%`,
-                        top: `${Math.random() * 80 + 10}%`,
-                      }}
-                      onClick={() => setSelectedLocation(location.id)}
-                    >
-                      <MapPin className="h-4 w-4" />
-                    </Button>
-                  ))}
-                </div>
+              <div className="relative w-full bg-muted rounded-md overflow-hidden" style={{ minHeight: 350 }}>
+                {isLoaded ? (
+                  <GoogleMap
+                    mapContainerStyle={mapContainerStyle}
+                    center={center}
+                    zoom={17}
+                  >
+                    {mockCampusLocations.map((location) => (
+                      <Marker
+                        key={location.id}
+                        position={location.coordinates}
+                        onClick={() => handleMarkerClick(location.id)}
+                        icon={selectedLocation === location.id ? undefined : undefined}
+                      />
+                    ))}
+                  </GoogleMap>
+                ) : (
+                  <div className="flex items-center justify-center h-full">Loading map...</div>
+                )}
               </div>
               <div className="mt-4 flex justify-between">
                 <Button variant="outline" size="sm">
