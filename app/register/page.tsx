@@ -82,7 +82,16 @@ export default function RegisterPage() {
       const data = await res.json()
 
       if (!res.ok) {
-        throw new Error(data.error || "Registration failed.")
+        if (data.field) {
+          form.setError(data.field, { message: data.error });
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Registration failed",
+            description: data.error || "Registration failed.",
+          });
+        }
+        return;
       }
 
       toast({

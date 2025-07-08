@@ -1,4 +1,5 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, models, model } from "mongoose";
+import Club from "./Club";
 
 export interface IUser extends Document {
   name: string;
@@ -18,7 +19,7 @@ export interface IUser extends Document {
   department?: string;
   bio?: string;
   avatar?: string;
-  // clubs?: any[]
+  clubs?: any[];
 }
 
 const UserSchema = new Schema<IUser>(
@@ -40,9 +41,10 @@ const UserSchema = new Schema<IUser>(
     department: String,
     bio: String,
     avatar: String,
-    // clubs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Club" }],
+    clubs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Club" }],
   },
   { timestamps: true }
 );
 
-export default mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
+const User = models.User || model<IUser>("User", UserSchema);
+export default User;

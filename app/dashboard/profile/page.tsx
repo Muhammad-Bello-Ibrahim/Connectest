@@ -14,6 +14,7 @@ import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Pencil, Save, User, Mail, Phone, MapPin, School, Building, Calendar } from "lucide-react"
+import { MobileNav } from "@/components/mobile-nav"
 
 const profileFormSchema = z.object({
   name: z.string().min(2, {
@@ -372,6 +373,7 @@ export default function ProfilePage() {
           </Tabs>
         </div>
       </div>
+      <MobileNav />
     </div>
   )
 }

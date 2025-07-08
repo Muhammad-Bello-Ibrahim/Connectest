@@ -7,84 +7,74 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Search, MapPin, Navigation, Building, Info } from "lucide-react"
 import { MobileNav } from "@/components/mobile-nav"
-import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api"
+import { GoogleMap, Marker, useJsApiLoader, InfoWindow } from "@react-google-maps/api"
 
-// Mock data for campus locations
+// Updated mock data for Gombe State University (GSU) locations
 const mockCampusLocations = [
   {
     id: "1",
-    name: "Science Complex",
-    type: "Academic Building",
-    description: "Houses the departments of Computer Science, Physics, and Chemistry",
-    floors: 4,
-    facilities: ["Lecture Halls", "Laboratories", "Faculty Offices"],
-    coordinates: { lat: 9.0765, lng: 7.3986 },
+    name: "Main Campus",
+    type: "Administrative",
+    description: "Primary campus housing the VC's office, registry, and main lecture halls",
+    floors: 3,
+    facilities: ["Lecture Halls", "Admin Offices", "ICT Center"],
+    coordinates: { lat: 10.2904, lng: 11.1719 }, // Exact GSU coordinates
     image: "/placeholder.svg?height=200&width=300",
   },
   {
     id: "2",
-    name: "University Library",
+    name: "GSU Library",
     type: "Library",
-    description: "Main library with study spaces and extensive collection of books",
-    floors: 3,
-    facilities: ["Reading Rooms", "Computer Lab", "Group Study Rooms"],
-    coordinates: { lat: 9.0768, lng: 7.399 },
+    description: "Central library with over 50,000 academic resources",
+    floors: 2,
+    facilities: ["Reading Rooms", "E-Library", "Research Section"],
+    coordinates: { lat: 10.2910, lng: 11.1725 },
     image: "/placeholder.svg?height=200&width=300",
   },
   {
     id: "3",
-    name: "Student Center",
-    type: "Administrative",
-    description: "Central hub for student services and activities",
-    floors: 2,
-    facilities: ["Cafeteria", "Student Affairs Office", "Club Meeting Rooms"],
-    coordinates: { lat: 9.077, lng: 7.3995 },
+    name: "Science Complex",
+    type: "Academic Building",
+    description: "Faculties of Science, Agriculture, and Computing",
+    floors: 4,
+    facilities: ["Labs", "Lecture Theaters", "Faculty Offices"],
+    coordinates: { lat: 10.2900, lng: 11.1705 },
     image: "/placeholder.svg?height=200&width=300",
   },
   {
     id: "4",
-    name: "Engineering Building",
-    type: "Academic Building",
-    description: "Home to all engineering departments and labs",
-    floors: 5,
-    facilities: ["Workshops", "Design Studios", "Research Labs"],
-    coordinates: { lat: 9.0775, lng: 7.398 },
+    name: "Student Hostels",
+    type: "Residential",
+    description: "On-campus accommodation for students",
+    floors: 2,
+    facilities: ["Common Rooms", "Laundry", "24/7 Security"],
+    coordinates: { lat: 10.2895, lng: 11.1730 },
     image: "/placeholder.svg?height=200&width=300",
   },
   {
     id: "5",
-    name: "Sports Complex",
-    type: "Recreational",
-    description: "Sports facilities including stadium, courts, and gym",
-    floors: 2,
-    facilities: ["Stadium", "Basketball Courts", "Gym", "Swimming Pool"],
-    coordinates: { lat: 9.078, lng: 7.4 },
-    image: "/placeholder.svg?height=200&width=300",
-  },
-  {
-    id: "6",
-    name: "Medical Center",
-    type: "Healthcare",
-    description: "Campus medical facility providing healthcare services",
-    floors: 3,
-    facilities: ["Emergency Room", "Pharmacy", "Consultation Rooms"],
-    coordinates: { lat: 9.076, lng: 7.3975 },
+    name: "Health Center",
+    type: "Medical",
+    description: "University clinic providing basic healthcare services",
+    floors: 1,
+    facilities: ["Pharmacy", "Consultation Rooms", "Emergency Care"],
+    coordinates: { lat: 10.2915, lng: 11.1710 },
     image: "/placeholder.svg?height=200&width=300",
   },
 ]
 
 const mapContainerStyle = { width: "100%", height: "350px", borderRadius: "0.5rem" }
-const center = { lat: 9.0768, lng: 7.3986 }
+const center = { lat: 10.2904, lng: 11.1719 } // GSU's central coordinates
 
 export default function CampusMapPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null)
+  const [activeMarker, setActiveMarker] = useState<string | null>(null)
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
   })
 
-  // Filter locations based on search query
   const filteredLocations = mockCampusLocations.filter(
     (location) =>
       location.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -92,10 +82,17 @@ export default function CampusMapPage() {
       location.description.toLowerCase().includes(searchQuery.toLowerCase()),
   )
 
-  const selectedLocationData = selectedLocation ? mockCampusLocations.find((loc) => loc.id === selectedLocation) : null
+  const selectedLocationData = selectedLocation 
+    ? mockCampusLocations.find((loc) => loc.id === selectedLocation) 
+    : null
 
   const handleMarkerClick = useCallback((id: string) => {
     setSelectedLocation(id)
+    setActiveMarker(id)
+  }, [])
+
+  const handleCloseInfoWindow = useCallback(() => {
+    setActiveMarker(null)
   }, [])
 
   return (
@@ -105,7 +102,7 @@ export default function CampusMapPage() {
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Search campus locations..."
+            placeholder="Search GSU locations..."
             className="pl-8"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -117,8 +114,8 @@ export default function CampusMapPage() {
         <div className="space-y-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle>Campus Map</CardTitle>
-              <CardDescription>Find your way around campus</CardDescription>
+              <CardTitle>Gombe State University Map</CardTitle>
+              <CardDescription>Navigate the campus</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="relative w-full bg-muted rounded-md overflow-hidden" style={{ minHeight: 350 }}>
@@ -126,15 +123,31 @@ export default function CampusMapPage() {
                   <GoogleMap
                     mapContainerStyle={mapContainerStyle}
                     center={center}
-                    zoom={17}
+                    zoom={16}
                   >
                     {mockCampusLocations.map((location) => (
-                      <Marker
-                        key={location.id}
-                        position={location.coordinates}
-                        onClick={() => handleMarkerClick(location.id)}
-                        icon={selectedLocation === location.id ? undefined : undefined}
-                      />
+                      <>
+                        <Marker
+                          key={location.id}
+                          position={location.coordinates}
+                          onClick={() => handleMarkerClick(location.id)}
+                          icon={{
+                            url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+                            scaledSize: new window.google.maps.Size(32, 32),
+                          }}
+                        />
+                        {activeMarker === location.id && (
+                          <InfoWindow
+                            position={location.coordinates}
+                            onCloseClick={handleCloseInfoWindow}
+                          >
+                            <div className="text-sm">
+                              <h3 className="font-bold">{location.name}</h3>
+                              <p>{location.type}</p>
+                            </div>
+                          </InfoWindow>
+                        )}
+                      </>
                     ))}
                   </GoogleMap>
                 ) : (
@@ -188,7 +201,12 @@ export default function CampusMapPage() {
                     </div>
                   </div>
                 </div>
-                <Button className="w-full mt-4">
+                <Button 
+                  className="w-full mt-4"
+                  onClick={() => window.open(
+                    `https://www.google.com/maps/dir/?api=1&destination=${selectedLocationData.coordinates.lat},${selectedLocationData.coordinates.lng}`
+                  )}
+                >
                   <Navigation className="mr-2 h-4 w-4" />
                   Get Directions
                 </Button>
@@ -201,7 +219,7 @@ export default function CampusMapPage() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle>Campus Buildings</CardTitle>
-              <CardDescription>Browse all campus locations</CardDescription>
+              <CardDescription>All GSU locations</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
@@ -235,7 +253,7 @@ export default function CampusMapPage() {
                   <div className="text-center py-8">
                     <Building className="mx-auto h-12 w-12 text-muted-foreground/50" />
                     <h3 className="mt-4 text-lg font-medium">No locations found</h3>
-                    <p className="mt-2 text-sm text-muted-foreground">Try adjusting your search query.</p>
+                    <p className="mt-2 text-sm text-muted-foreground">Try a different search term.</p>
                   </div>
                 )}
               </div>
@@ -244,9 +262,7 @@ export default function CampusMapPage() {
         </div>
       </div>
 
-      {/* Mobile navigation */}
       <MobileNav />
     </div>
   )
 }
-

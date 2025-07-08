@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import {
   Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription
 } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Search, Users, Plus, Filter } from "lucide-react"
@@ -93,14 +92,33 @@ export default function ClubsPage() {
           Filter
         </Button>
       </div>
+      <div className="flex justify-center my-4">
+        <div className="flex bg-white rounded-full border shadow-sm overflow-hidden mx-auto">
+          <button
+            className={`px-4 py-2 focus:outline-none transition rounded-full text-center min-w-[110px] ${
+              activeTab === "my-clubs"
+                ? "bg-green-700 text-white"
+                : "text-gray-700"
+            }`}
+            onClick={() => setActiveTab("my-clubs")}
+          >
+            My Clubs
+          </button>
+          <button
+            className={`px-4 py-2 focus:outline-none transition rounded-full text-center min-w-[110px] ${
+              activeTab === "all"
+                ? "bg-green-700 text-white"
+                : "text-gray-700"
+            }`}
+            onClick={() => setActiveTab("all")}
+          >
+            All Clubs
+          </button>
+        </div>
+      </div>
 
-      <Tabs defaultValue="my-clubs" className="space-y-4" onValueChange={setActiveTab}>
-        <TabsList className="flex flex-wrap">
-          <TabsTrigger value="my-clubs">My Clubs</TabsTrigger>
-          <TabsTrigger value="all">All Clubs</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="my-clubs" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {activeTab === "my-clubs" && (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.length > 0 ? (
             filtered.map((club) => (
               <Card key={club._id || club.id}>
@@ -142,8 +160,10 @@ export default function ClubsPage() {
               </CardContent>
             </Card>
           )}
-        </TabsContent>
-        <TabsContent value="all" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        </div>
+      )}
+      {activeTab === "all" && (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {allClubs.length > 0 ? (
             allClubs
               // Exclude clubs the user is already a member of
@@ -192,8 +212,8 @@ export default function ClubsPage() {
               </CardContent>
             </Card>
           )}
-        </TabsContent>
-      </Tabs>
+        </div>
+      )}
 
       <MobileNav />
     </div>

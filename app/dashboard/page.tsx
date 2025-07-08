@@ -21,6 +21,7 @@ import {
 } from "lucide-react"
 import { MobileNav } from "@/components/mobile-nav"
 import { toast } from "@/hooks/use-toast"
+import Link from "next/link"
 
 // ✅ mock data moved here for brevity
 const mockNewsfeed = [/* ... your feed data unchanged ... */]
@@ -65,13 +66,15 @@ export default function DashboardPage() {
       <div className="w-full max-w-2xl flex-1 flex flex-col gap-0 px-0 sm:px-0 pt-0 mx-auto">
         {/* User avatar at top left (mobile: leftmost, rounded) */}
         <div className="flex justify-start pt-4 pb-2 px-4">
-          <Avatar className="h-10 w-10 border-2 border-primary rounded-full">
-            {user.avatar ? (
-              <img src={user.avatar} alt={user.name} className="h-full w-full object-cover rounded-full" />
-            ) : (
-              <AvatarFallback>{user.name?.charAt(0) || "U"}</AvatarFallback>
-            )}
-          </Avatar>
+          <Link href="/dashboard/profile" className="focus:outline-none">
+            <Avatar className="h-10 w-10 border-2 border-primary rounded-full hover:opacity-80 transition">
+              {user.avatar ? (
+                <img src={user.avatar} alt={user.name} className="h-full w-full object-cover rounded-full" />
+              ) : (
+                <AvatarFallback>{user.name?.charAt(0) || "U"}</AvatarFallback>
+              )}
+            </Avatar>
+          </Link>
         </div>
         {/* Toggle for Following/General */}
         <div className="flex justify-center pb-2">

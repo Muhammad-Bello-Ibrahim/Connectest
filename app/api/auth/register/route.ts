@@ -106,11 +106,11 @@ export async function POST(req: NextRequest) {
   const hashedPassword = await bcrypt.hash(password, 10)
 
   // After extracting and normalizing
-  const facultyAbbr = extractedFaculty;
-  const facultyFull = FACULTY_MAP[facultyAbbr] || facultyAbbr;
+  const facultyAbbr = extractedFaculty; // e.g. "SC"
+  const facultyFull = FACULTY_MAP[facultyAbbr] || facultyAbbr; // e.g. "SCIENCE"
 
-  const departmentAbbr = extractedDepartment;
-  const departmentFull = DEPARTMENT_MAP[departmentAbbr] || departmentAbbr;
+  const departmentAbbr = extractedDepartment; // e.g. "CS"
+  const departmentFull = DEPARTMENT_MAP[departmentAbbr] || departmentAbbr; // e.g. "COMPUTER SCIENCE"
 
   // Automatch clubs
   const matchingClubs = await Club.find({
@@ -123,26 +123,90 @@ export async function POST(req: NextRequest) {
     ],
   })
 
-  const user = await User.create({
-    name,
-    email,
-    studentId,
-    phone,
-    state,
-    localGovt,
-    address,
-    religion,
-    gender,
-    dob,
-    password: hashedPassword,
-    role: role || "student",
-    level,
-    faculty: facultyAbbr,
-    facultyFull,
-    department: departmentAbbr,
-    departmentFull,
-    clubs: matchingClubs.map((club) => club._id),
+  const existing = await User.findOne({
+    $or: [{ email }, { studentId }]
   });
+  if (existing) {
+    return NextResponse.json({ error: "Email or Student ID already registered." }, { status: 409 });
+  }
 
-  return NextResponse.json({ user })
+  try {
+    const user = await User.create({
+      name,
+      email,
+      studentId,
+      phone,
+      state,
+      localGovt,
+      address,
+      religion,
+      gender,
+      dob,
+      password: hashedPassword,
+      role: role || "student",
+      level,
+      faculty: facultyAbbr,
+      facultyFull,
+      department: departmentAbbr,
+      departmentFull,
+      clubs: matchingClubs.map((club) => club._id),
+    });
+
+    // Log user details and club names
+    console.log("New user registered:", {
+      name: user.name,
+      email: user.email,
+      studentId: user.studentId,
+      faculty: user.faculty,
+      department: user.department,
+      clubs: matchingClubs.map((club) => club.name),
+    });
+    console.log({
+      facultyAbbr,
+      facultyFull,
+      departmentAbbr,
+      departmentFull,
+      state,
+      religion,
+      clubsFound: matchingClubs.map(c => ({
+        name: c.name,
+        type: c.type,
+        faculty: c.faculty,
+        department: c.department,
+        state: c.state,
+        religion: c.religion,
+      })),
+    });
+
+    const userObj = user.toObject();
+    delete userObj.password; // Remove password from response
+
+    return NextResponse.json({
+      user: {
+        _id: userObj._id,
+        name: userObj.name,
+        email: userObj.email,
+        studentId: userObj.studentId,
+        phone: userObj.phone,
+        state: userObj.state,
+        localGovt: userObj.localGovt,
+        address: userObj.address,
+        religion: userObj.religion,
+        gender: userObj.gender,
+        dob: userObj.dob,
+        role: userObj.role,
+        level: userObj.level,
+        faculty: userObj.faculty,
+        facultyFull: userObj.facultyFull,
+        department: userObj.department,
+        departmentFull: userObj.departmentFull,
+        bio: userObj.bio,
+        avatar: userObj.avatar,
+        // clubs: userObj.clubs, // if you want to return clubs
+      }
+    });
+  } catch (err) {
+    console.error("REGISTER ERROR:", err);
+    return NextResponse.json({ error: "Registration failed", details: err?.message || err }, { status: 500 });
+  }
 }

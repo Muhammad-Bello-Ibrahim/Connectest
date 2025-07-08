@@ -1,11 +1,11 @@
-import mongoose, { Schema, models, model, Document } from "mongoose";
+import mongoose, { Schema, Document, model, models } from "mongoose";
 
 export interface IClub extends Document {
   name: string;
   abbreviation?: string;
   description?: string;
   logo?: string;
-  type: string;
+  type: string; // e.g. "faculty", "department", "state", "religion", "general"
   faculty?: string;
   department?: string;
   state?: string;
@@ -22,7 +22,7 @@ const ClubSchema = new Schema<IClub>(
     abbreviation: { type: String },
     description: { type: String },
     logo: { type: String },
-    type: { type: String, required: true },
+    type: { type: String, required: true }, // lowercase: "faculty", "department", etc.
     faculty: { type: String, default: "" },
     department: { type: String, default: "" },
     state: { type: String, default: "" },
@@ -33,6 +33,7 @@ const ClubSchema = new Schema<IClub>(
   { timestamps: true }
 );
 
+// Pre-save hook to normalize fields
 ClubSchema.pre("save", function (next) {
   if (this.faculty) this.faculty = this.faculty.trim().toUpperCase();
   if (this.department) this.department = this.department.trim().toUpperCase();

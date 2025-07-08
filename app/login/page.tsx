@@ -52,7 +52,19 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
     })
 
     const data = await res.json()
-    if (!res.ok) throw new Error(data.error || 'Login failed')
+    if (!res.ok) {
+      // If your API returns a field, set it as a form error
+      if (data.field) {
+        form.setError(data.field, { message: data.error });
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Login failed',
+          description: data.error || 'Login failed',
+        });
+      }
+      return;
+    }
 
     toast({ title: 'Login successful', description: 'Redirecting...' })
     
