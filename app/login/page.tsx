@@ -15,8 +15,20 @@ import { useToast } from '@/components/ui/use-toast'
 import Link from 'next/link'
 
 const formSchema = z.object({
-  userId: z.string().min(2, { message: 'Email or Student ID is required' }),
-  password: z.string().min(8, { message: 'Password must be at least 8 characters.' }),
+  userId: z.string()
+    .min(2, 'Email or Student ID is required')
+    .max(100, 'Input too long')
+    .refine((val) => {
+      // Check if it's a valid email or student ID format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const studentIdRegex = /^UG\d{2}\/[A-Z]{2}[A-Z]{2}\/\d{4}$/i;
+      return emailRegex.test(val) || studentIdRegex.test(val);
+    }, {
+      message: 'Enter a valid email address or Student ID (e.g., UG20/SCCS/1026)'
+    }),
+  password: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(128, 'Password too long'),
 })
 
 export default function LoginPage() {
@@ -53,28 +65,48 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
 
     const data = await res.json()
     if (!res.ok) {
-      // If your API returns a field, set it as a form error
-      if (data.field) {
-        form.setError(data.field, { message: data.error });
-      } else {
+      // Handle validation errors from server
+      if (data.details && Array.isArray(data.details)) {
+        // Handle Zod validation errors
+        data.details.forEach((error: any) => {
+          if (error.path && error.path.length > 0) {
+            form.setError(error.path[0], { message: error.message });
+          }
+        });
         toast({
           variant: 'destructive',
-          title: 'Login failed',
-          description: data.error || 'Login failed',
+          title: 'Validation Error',
+          description: 'Please check your input and try again.',
+        });
+      } else if (data.field) {
+        // Handle specific field errors
+        form.setError(data.field, { message: data.error });
+      } else {
+        // Handle general errors
+        toast({
+          variant: 'destructive',
+          title: 'Login Failed',
+          description: data.error || 'Invalid credentials. Please try again.',
         });
       }
       return;
     }
 
-    toast({ title: 'Login successful', description: 'Redirecting...' })
+    toast({ 
+      title: 'Login Successful!', 
+      description: `Welcome back, ${data.user?.name || 'User'}!` 
+    })
     
     // Use window.location to ensure full page reload and auth state sync
-    window.location.href = getRedirectPath(data.user.role)
+    setTimeout(() => {
+      window.location.href = getRedirectPath(data.user.role)
+    }, 1000);
   } catch (err: any) {
+    console.error('Login error:', err);
     toast({
       variant: 'destructive',
-      title: 'Login failed',
-      description: err.message || 'Invalid credentials',
+      title: 'Network Error',
+      description: 'Unable to connect to server. Please check your internet connection.',
     })
   } finally {
     setIsLoading(false)
@@ -103,8 +135,8 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
                 <FormMessage />
               </FormItem>
             )} />
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Logging in...' : 'Login'}
+            <Button type="submit" className="w-full" loading={isLoading} loadingText="Signing in...">
+              {isLoading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
         </Form>
