@@ -20,7 +20,7 @@ import {
   Paperclip,
 } from "lucide-react"
 import { MobileNav } from "@/components/mobile-nav"
-import { toast } from "@/hooks/use-toast"
+import { toast } from "@/components/ui/use-toast"
 import Link from "next/link"
 
 // ✅ mock data moved here for brevity
