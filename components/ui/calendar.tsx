@@ -6,12 +6,12 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 
-// Placeholder Calendar component to avoid breaking imports
-export function Calendar() {
-  return <div>Calendar component is not available. Please use react-datepicker or another picker.</div>;
+export type CalendarProps = {
+  className?: string
+  classNames?: any
+  showOutsideDays?: boolean
+  [key: string]: any
 }
-
-export type CalendarProps = React.ComponentProps<typeof Calendar>
 
 function Calendar({
   className,

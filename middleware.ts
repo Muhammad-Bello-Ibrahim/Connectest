@@ -37,7 +37,13 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/dashboard"],
+  matcher: [
+    "/dashboard/:path*", 
+    "/dashboard",
+    "/dashboard/admin/:path*",
+    "/dashboard/dean/:path*",
+    "/clubs/:clubId/manage/:path*"
+  ],
 }
 // This middleware checks if the user is authenticated and authorized to access protected routes.
 // If not, it redirects them to the login page or the appropriate dashboard based on their role

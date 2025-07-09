@@ -22,13 +22,7 @@ const nextConfig = {
     parallelServerCompiles: true,
   },
 
-  // 👇 Ensure middleware applies to required routes
-  matcher: [
-    "/dashboard/:path*",
-    "/admin/:path*",
-    "/dean/:path*",
-    "/clubs/:clubId/manage/:path*",
-  ],
+
 }
 
 mergeConfig(nextConfig, userConfig)
