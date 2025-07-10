@@ -13,7 +13,8 @@ import {
   Bell,
   CreditCard,
   Settings,
-  Menu
+  Menu,
+  MessageCircle
 } from "lucide-react"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
@@ -39,6 +40,12 @@ export function MobileNav() {
       active: pathname === "/dashboard"
     },
     {
+      href: "/dashboard/newsfeed", 
+      icon: MessageCircle,
+      label: "Newsfeed",
+      active: isActive("/dashboard/newsfeed")
+    },
+    {
       href: "/dashboard/clubs", 
       icon: Users,
       label: "Clubs",
@@ -49,17 +56,17 @@ export function MobileNav() {
       icon: BookOpen, 
       label: "Resources",
       active: isActive("/dashboard/resources")
-    },
-    {
-      href: "/dashboard/campus-map",
-      icon: MapPin,
-      label: "Map", 
-      active: isActive("/dashboard/campus-map")
     }
   ]
 
   // Secondary navigation items (sheet menu)
   const secondaryNavItems = [
+    {
+      href: "/dashboard/campus-map",
+      icon: MapPin,
+      label: "Campus Map", 
+      active: isActive("/dashboard/campus-map")
+    },
     {
       href: "/dashboard/elections",
       icon: Vote,
