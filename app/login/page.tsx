@@ -12,6 +12,7 @@ import {
   FormLabel, FormMessage
 } from '@/components/ui/form'
 import { useToast } from '@/components/ui/use-toast'
+import { useAuth } from '@/hooks/use-auth'
 import Link from 'next/link'
 
 const formSchema = z.object({
@@ -35,6 +36,7 @@ export default function LoginPage() {
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const { login, getRedirectPath } = useAuth()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -44,70 +46,47 @@ export default function LoginPage() {
     }
   })
 
- // Add this function to your login page component
-const getRedirectPath = (role: string) => {
-  switch(role) {
-    case 'admin': return '/dashboard/admin'
-    case 'dean': return '/dashboard/dean'
-    default: return '/dashboard' // student
-  }
-}
-
-// Update your onSubmit function
+// Update your onSubmit function to use AuthProvider's login method
 const onSubmit = async (values: z.infer<typeof formSchema>) => {
   setIsLoading(true)
   try {
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(values),
-      credentials: 'include', // Important for cookies
-    })
-
-    const data = await res.json()
-    if (!res.ok) {
-      // Handle validation errors from server
-      if (data.details && Array.isArray(data.details)) {
-        // Handle Zod validation errors
-        data.details.forEach((error: any) => {
-          if (error.path && error.path.length > 0) {
-            form.setError(error.path[0], { message: error.message });
-          }
-        });
-        toast({
-          variant: 'destructive',
-          title: 'Validation Error',
-          description: 'Please check your input and try again.',
-        });
-      } else if (data.field) {
-        // Handle specific field errors
-        form.setError(data.field, { message: data.error });
-      } else {
-        // Handle general errors
-        toast({
-          variant: 'destructive',
-          title: 'Login Failed',
-          description: data.error || 'Invalid credentials. Please try again.',
-        });
-      }
-      return;
-    }
-
+    await login(values.userId, values.password)
+    
     toast({ 
       title: 'Login Successful!', 
-      description: `Welcome back, ${data.user?.name || 'User'}!` 
+      description: 'Welcome back!' 
     })
     
-    // Use Next.js router for proper navigation
-    const redirectPath = getRedirectPath(data.user.role)
+    // Navigate after AuthProvider state has been updated
+    const redirectPath = getRedirectPath()
     router.push(redirectPath)
   } catch (err: any) {
     console.error('Login error:', err);
-    toast({
-      variant: 'destructive',
-      title: 'Network Error',
-      description: 'Unable to connect to server. Please check your internet connection.',
-    })
+    
+    // Handle different types of errors from the enhanced AuthProvider
+    if (err.details && Array.isArray(err.details)) {
+      // Handle Zod validation errors
+      err.details.forEach((error: any) => {
+        if (error.path && error.path.length > 0) {
+          form.setError(error.path[0], { message: error.message });
+        }
+      });
+      toast({
+        variant: 'destructive',
+        title: 'Validation Error',
+        description: 'Please check your input and try again.',
+      });
+    } else if (err.field) {
+      // Handle specific field errors
+      form.setError(err.field, { message: err.message });
+    } else {
+      // Handle general errors
+      toast({
+        variant: 'destructive',
+        title: 'Login Failed',
+        description: err.message || 'Invalid credentials. Please try again.',
+      })
+    }
   } finally {
     setIsLoading(false)
   }
