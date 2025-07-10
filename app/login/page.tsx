@@ -61,6 +61,7 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(values),
+      credentials: 'include', // Important for cookies
     })
 
     const data = await res.json()
@@ -97,10 +98,9 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
       description: `Welcome back, ${data.user?.name || 'User'}!` 
     })
     
-    // Use window.location to ensure full page reload and auth state sync
-    setTimeout(() => {
-      window.location.href = getRedirectPath(data.user.role)
-    }, 1000);
+    // Use Next.js router for proper navigation
+    const redirectPath = getRedirectPath(data.user.role)
+    router.push(redirectPath)
   } catch (err: any) {
     console.error('Login error:', err);
     toast({
@@ -135,7 +135,7 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
                 <FormMessage />
               </FormItem>
             )} />
-            <Button type="submit" className="w-full" loading={isLoading} loadingText="Signing in...">
+            <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>

@@ -39,19 +39,12 @@ const FeatureCard = ({
   icon: Icon,
   title,
   description,
-  className,
 }: {
   icon: any
   title: string
   description: string
-  className?: string
 }) => (
-  <div
-    className={cn(
-      "group flex flex-col items-center text-center p-6 rounded-xl border bg-card shadow-sm transition-all duration-300 hover:shadow-md",
-      className,
-    )}
-  >
+  <div className="flex flex-col items-center text-center p-6 rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow">
     <div className="mb-4 p-3 rounded-full bg-primary/10 text-primary">
       <Icon className="h-6 w-6" />
     </div>
@@ -65,19 +58,12 @@ const BenefitColumn = ({
   icon: Icon,
   title,
   benefits,
-  className,
 }: {
   icon: any
   title: string
   benefits: string[]
-  className?: string
 }) => (
-  <div
-    className={cn(
-      "flex flex-col items-center text-center p-6 rounded-xl border bg-card shadow-sm transition-all duration-300 hover:shadow-md",
-      className,
-    )}
-  >
+  <div className="flex flex-col items-center text-center p-6 rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow">
     <div className="mb-4 p-3 rounded-full bg-primary/10 text-primary">
       <Icon className="h-6 w-6" />
     </div>
@@ -174,28 +160,24 @@ export default function Home() {
 
           <div className="container relative z-20 px-4 sm:px-6 lg:px-8">
             <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
-              <div className="flex flex-col justify-center space-y-4 animate-fade-in">
+              <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
                   <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl md:text-5xl">Welcome to Connectrix</h1>
-                  <h2 className="text-2xl font-semibold text-primary">Your Digital Hub for Campus Club Management!</h2>
+                  <h2 className="text-2xl font-semibold text-primary">Your Digital Hub for Campus Club Management</h2>
                   <p className="max-w-[600px] text-gray-100 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                    Streamline club activities, enhance engagement, and foster a vibrant campus community.
+                    Streamline club activities, enhance engagement, and foster a vibrant campus community with our comprehensive management platform.
                   </p>
                 </div>
                 <div>
                   <Link href="/register">
-                    <Button
-                      size="lg"
-                      className="px-8 group transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg w-full sm:w-auto"
-                    >
+                    <Button size="lg" className="px-8 w-full sm:w-auto">
                       Get Started
-                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                      <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </Link>
                 </div>
               </div>
               <div className="hidden lg:flex items-center justify-center">
-                {/* Placeholder for hero image or animation */}
                 <div className="rounded-xl overflow-hidden shadow-2xl w-full max-w-xs mx-auto">
                   <img
                     src="/userphone.png"
@@ -234,7 +216,6 @@ export default function Home() {
                   "Navigate campus with ease",
                   "Stay updated with club announcements",
                 ]}
-                className="animate-slide-in-left"
               />
 
               <BenefitColumn
@@ -247,7 +228,6 @@ export default function Home() {
                   "Collect dues securely",
                   "Engage with members through announcements",
                 ]}
-                className="animate-slide-in-bottom"
               />
 
               <BenefitColumn
@@ -260,7 +240,6 @@ export default function Home() {
                   "Ensure compliance with university policies",
                   "Communicate with club leaders efficiently",
                 ]}
-                className="animate-slide-in-right"
               />
             </div>
           </div>
@@ -286,42 +265,36 @@ export default function Home() {
                 icon={Users}
                 title="Club Management"
                 description="Create, join, and manage clubs with ease. Track memberships and activities in one place."
-                className="animate-bounce-in"
               />
 
               <FeatureCard
                 icon={CreditCard}
                 title="Seamless Payments"
                 description="Pay club dues securely with Paystack integration. Manage financial transactions effortlessly."
-                className="animate-rotate-in"
               />
 
               <FeatureCard
                 icon={Vote}
                 title="Election System"
                 description="Conduct fair and transparent club elections with our built-in voting system."
-                className="animate-scale-in"
               />
 
               <FeatureCard
                 icon={MapPin}
                 title="Campus Navigation"
                 description="Find your way around campus with the built-in router. Locate buildings, lecture halls, and facilities."
-                className="animate-slide-in"
               />
 
               <FeatureCard
                 icon={BookOpen}
                 title="Resource Hub"
                 description="Access lecture materials, study guides, and past questions in a centralized resource section."
-                className="animate-flip-in"
               />
 
               <FeatureCard
                 icon={Calendar}
                 title="Event Management"
                 description="Schedule, promote, and manage club events with attendance tracking and feedback collection."
-                className="animate-bounce-in"
               />
             </div>
           </div>
@@ -410,12 +383,9 @@ export default function Home() {
               </div>
               <div className="mt-6">
                 <Link href="/register">
-                  <Button
-                    size="lg"
-                    className="px-8 group transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg animate-pulse"
-                  >
+                  <Button size="lg" className="px-8">
                     Get Started
-                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
               </div>
