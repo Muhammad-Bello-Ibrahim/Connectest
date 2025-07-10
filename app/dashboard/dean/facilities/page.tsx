@@ -7,12 +7,12 @@ import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Search, Calendar, Building, Clock, Users, Filter, CheckCircle, XCircle, Eye } from "lucide-react"
+import { Search, Calendar as CalendarIcon, Building, Clock, Users, Filter, CheckCircle, XCircle, Eye } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
-import { CalendarComponent } from "@/components/ui/calendar"
+import { Calendar } from "@/components/ui/calendar"
 
 // Mock data for facility reservations
 const mockReservations = [
@@ -466,12 +466,12 @@ export default function DeanFacilitiesPage() {
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant={"outline"} className={cn("w-[240px] justify-start text-left font-normal")}>
-                      <Calendar className="mr-2 h-4 w-4" />
+                      <CalendarIcon className="mr-2 h-4 w-4" />
                       {date ? format(date, "PPP") : <span>Pick a date</span>}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="end">
-                    <CalendarComponent mode="single" selected={date} onSelect={setDate} initialFocus />
+                    <Calendar mode="single" selected={date} onSelect={setDate} initialFocus />
                   </PopoverContent>
                 </Popover>
               </div>
@@ -527,7 +527,7 @@ export default function DeanFacilitiesPage() {
                   ))}
                 {(!date || mockReservations.filter((res) => res.date === format(date, "yyyy-MM-dd")).length === 0) && (
                   <div className="flex flex-col items-center justify-center py-8 text-center">
-                    <Calendar className="h-12 w-12 text-muted-foreground/50" />
+                    <CalendarIcon className="h-12 w-12 text-muted-foreground/50" />
                     <h3 className="mt-4 text-lg font-medium">No reservations</h3>
                     <p className="mt-2 text-sm text-muted-foreground">
                       There are no facility reservations for this date.

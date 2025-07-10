@@ -29,20 +29,39 @@ import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
 
 const formSchema = z.object({
-  name: z.string().min(2, 'Name is required'),
-  email: z.string().email(),
-  studentId: z.string().regex(/^UG\d{2}\/[A-Z]{2}[A-Z]{2}\/\d{4}$/, {
-    message: "Format must be like UG20/SCCS/1026",
+  name: z.string()
+    .min(2, 'Name must be at least 2 characters')
+    .max(100, 'Name must be less than 100 characters')
+    .regex(/^[a-zA-Z\s'-]+$/, 'Name must contain only letters, spaces, apostrophes, and hyphens'),
+  email: z.string()
+    .email('Please enter a valid email address')
+    .max(100, 'Email must be less than 100 characters'),
+  studentId: z.string()
+    .regex(/^UG\d{2}\/[A-Z]{2}[A-Z]{2}\/\d{4}$/, {
+      message: "Student ID format must be like UG20/SCCS/1026",
+    })
+    .optional(),
+  phone: z.string()
+    .min(10, 'Phone number must be at least 10 digits')
+    .max(20, 'Phone number must be less than 20 characters')
+    .regex(/^[\d\s+()-]+$/, 'Phone number contains invalid characters'),
+  state: z.string().min(2, 'Please select your state'),
+  localGovt: z.string().min(2, 'Please select your local government area'),
+  address: z.string()
+    .min(5, 'Address must be at least 5 characters')
+    .max(200, 'Address must be less than 200 characters'),
+  religion: z.string().min(1, 'Please select your religion'),
+  gender: z.string().min(1, 'Please select your gender'),
+  dob: z.date({ 
+    required_error: "Please select your date of birth.",
+    invalid_type_error: "Invalid date format"
   }),
-  phone: z.string().min(10),
-  state: z.string().min(2),
-  localGovt: z.string().min(2),
-  address: z.string().min(5),
-  religion: z.string(),
-  gender: z.string(),
-  dob: z.date({ required_error: "Select your date of birth." }),
-  level: z.string().min(1, 'Level is required'),
-  password: z.string().min(8),
+  level: z.string().min(1, 'Please select your level'),
+  password: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(128, 'Password must be less than 128 characters')
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, 
+      'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'),
   confirmPassword: z.string()
 }).refine((data) => data.password === data.confirmPassword, {
   path: ["confirmPassword"],
@@ -82,37 +101,55 @@ export default function RegisterPage() {
       const data = await res.json()
 
       if (!res.ok) {
-        if (data.field) {
-          form.setError(data.field, { message: data.error });
-        } else {
+        // Handle validation errors from server
+        if (data.details && Array.isArray(data.details)) {
+          // Handle Zod validation errors
+          data.details.forEach((error: any) => {
+            if (error.path && error.path.length > 0) {
+              form.setError(error.path[0], { message: error.message });
+            }
+          });
           toast({
             variant: "destructive",
-            title: "Registration failed",
-            description: data.error || "Registration failed.",
+            title: "Validation Error",
+            description: "Please check the form for errors and try again.",
+          });
+        } else if (data.field) {
+          // Handle specific field errors
+          form.setError(data.field, { message: data.error });
+        } else {
+          // Handle general errors
+          toast({
+            variant: "destructive",
+            title: "Registration Failed",
+            description: data.error || "An error occurred during registration.",
           });
         }
         return;
       }
 
       toast({
-        title: "Registration successful",
-        description: "Welcome! Redirecting...",
+        title: "Registration Successful!",
+        description: `Welcome to Connectrix! You've been matched with ${data.user?.clubsMatched || 0} clubs.`,
       })
 
-   router.push(
-  data?.user?.role === "admin"
-    ? "/dashboard/admin"
-    : data?.user?.role === "dean"
-    ? "/dashboard/dean"
-    : "/dashboard"
+      // Redirect based on user role
+      setTimeout(() => {
+        router.push(
+          data?.user?.role === "admin"
+            ? "/dashboard/admin"
+            : data?.user?.role === "dean"
+            ? "/dashboard/dean"
+            : "/dashboard"
+        )
+      }, 1500);
 
-)
-// Can later be dynamic based on role
     } catch (err: any) {
+      console.error('Registration error:', err);
       toast({
         variant: "destructive",
-        title: "Registration failed",
-        description: err.message || "An error occurred.",
+        title: "Network Error",
+        description: "Unable to connect to server. Please check your internet connection and try again.",
       })
     } finally {
       setIsLoading(false)
@@ -213,8 +250,8 @@ export default function RegisterPage() {
                 <FormMessage />
               </FormItem>
             )} />
-            <Button type="submit" className="w-full rounded-full font-semibold text-base py-3 mt-2" disabled={isLoading}>
-              {isLoading ? "Creating account..." : "Create Account"}
+            <Button type="submit" className="w-full rounded-full font-semibold text-base py-3 mt-2" loading={isLoading} loadingText="Creating account...">
+              Create Account
             </Button>
           </form>
         </Form>
