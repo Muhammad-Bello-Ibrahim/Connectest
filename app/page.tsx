@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
+import { useAuth } from "@/hooks/useAuth"
 import {
   ChevronRight,
   Users,
@@ -14,6 +15,7 @@ import {
   Shield,
   ArrowRight,
   ChevronLeft,
+  User,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -103,6 +105,7 @@ const testimonials = [
 
 export default function Home() {
   const [currentTestimonial, setCurrentTestimonial] = useState(0)
+  const { user, isAuthenticated } = useAuth()
 
   // Auto-rotate testimonials
   useEffect(() => {
@@ -132,14 +135,30 @@ export default function Home() {
           </div>
           <div className="flex flex-1 items-center justify-end space-x-4">
             <nav className="flex items-center space-x-2">
-              <Link href="/login">
-                <Button variant="ghost" size="sm">
-                  Login
-                </Button>
-              </Link>
-              <Link href="/register">
-                <Button size="sm">Register</Button>
-              </Link>
+              {isAuthenticated() ? (
+                <>
+                  <span className="text-sm text-muted-foreground">
+                    Welcome, {user?.name || 'User'}
+                  </span>
+                  <Link href="/dashboard">
+                    <Button variant="ghost" size="sm">
+                      <User className="h-4 w-4 mr-2" />
+                      Dashboard
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link href="/login">
+                    <Button variant="ghost" size="sm">
+                      Login
+                    </Button>
+                  </Link>
+                  <Link href="/register">
+                    <Button size="sm">Register</Button>
+                  </Link>
+                </>
+              )}
             </nav>
           </div>
         </div>
