@@ -157,50 +157,60 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background px-2">
-      <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl shadow-xl p-6 sm:p-8 flex flex-col gap-6 border border-zinc-200 dark:border-zinc-800 mt-8 mb-8 mx-auto">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4 py-8">
+      <div className="w-full max-w-2xl bg-white dark:bg-zinc-900 rounded-2xl shadow-xl p-6 sm:p-8 flex flex-col gap-6 border border-zinc-200 dark:border-zinc-800">
         <div className="flex flex-col items-center gap-2">
           <div className="rounded-full bg-primary/10 p-3 mb-2">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">Create your account</h1>
-          <p className="text-muted-foreground text-center">Join Connectrix to access clubs, resources, and more.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-center">Create your account</h1>
+          <p className="text-muted-foreground text-center text-sm sm:text-base">Join Connectrix to access clubs, resources, and more.</p>
         </div>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
-            <FormField control={form.control} name="name" render={({ field }) => (
-              <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input {...field} autoComplete="name" /></FormControl><FormMessage /></FormItem>
-            )} />
+          <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Personal Information Section */}
+            <div className="md:col-span-2">
+              <FormField control={form.control} name="name" render={({ field }) => (
+                <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input {...field} autoComplete="name" /></FormControl><FormMessage /></FormItem>
+              )} />
+            </div>
+            
             <FormField control={form.control} name="email" render={({ field }) => (
               <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" {...field} autoComplete="email" /></FormControl><FormMessage /></FormItem>
             )} />
+            
             <FormField control={form.control} name="phone" render={({ field }) => (
               <FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} autoComplete="tel" /></FormControl><FormMessage /></FormItem>
             )} />
+            
             <FormField control={form.control} name="studentId" render={({ field }) => (
-              <FormItem><FormLabel>Student ID</FormLabel><FormControl><Input {...field} autoComplete="off" /></FormControl><FormMessage /></FormItem>
+              <FormItem className="md:col-span-2"><FormLabel>Student ID</FormLabel><FormControl><Input {...field} autoComplete="off" /></FormControl><FormMessage /></FormItem>
             )} />
-            <div className="flex gap-2">
-              <FormField control={form.control} name="state" render={({ field }) => (
-                <FormItem className="flex-1"><FormLabel>State</FormLabel><Select onValueChange={field.onChange}><FormControl><SelectTrigger><SelectValue placeholder="Select state" /></SelectTrigger></FormControl><SelectContent>{Object.keys(stateToLGAs).map((state) => (<SelectItem key={state} value={state}>{state.toUpperCase()}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>
-              )} />
-              <FormField control={form.control} name="localGovt" render={({ field }) => (
-                <FormItem className="flex-1"><FormLabel>LGA</FormLabel><Select onValueChange={field.onChange} disabled={!selectedState}><FormControl><SelectTrigger><SelectValue placeholder="Select LGA" /></SelectTrigger></FormControl><SelectContent>{lgas.map((lga) => (<SelectItem key={lga} value={lga}>{lga}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>
-              )} />
-            </div>
+            
+            {/* Location Information */}
+            <FormField control={form.control} name="state" render={({ field }) => (
+              <FormItem><FormLabel>State</FormLabel><Select onValueChange={field.onChange}><FormControl><SelectTrigger><SelectValue placeholder="Select state" /></SelectTrigger></FormControl><SelectContent>{Object.keys(stateToLGAs).map((state) => (<SelectItem key={state} value={state}>{state.toUpperCase()}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>
+            )} />
+            
+            <FormField control={form.control} name="localGovt" render={({ field }) => (
+              <FormItem><FormLabel>LGA</FormLabel><Select onValueChange={field.onChange} disabled={!selectedState}><FormControl><SelectTrigger><SelectValue placeholder="Select LGA" /></SelectTrigger></FormControl><SelectContent>{lgas.map((lga) => (<SelectItem key={lga} value={lga}>{lga}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>
+            )} />
+            
             <FormField control={form.control} name="address" render={({ field }) => (
-              <FormItem><FormLabel>Address</FormLabel><FormControl><Input {...field} autoComplete="street-address" /></FormControl><FormMessage /></FormItem>
+              <FormItem className="md:col-span-2"><FormLabel>Address</FormLabel><FormControl><Input {...field} autoComplete="street-address" /></FormControl><FormMessage /></FormItem>
             )} />
-            <div className="flex gap-2">
-              <FormField control={form.control} name="religion" render={({ field }) => (
-                <FormItem className="flex-1"><FormLabel>Religion</FormLabel><Select onValueChange={field.onChange}><FormControl><SelectTrigger><SelectValue placeholder="Religion" /></SelectTrigger></FormControl><SelectContent><SelectItem value="islam">Islam</SelectItem><SelectItem value="christianity">Christianity</SelectItem><SelectItem value="traditional">Traditional</SelectItem><SelectItem value="other">Other</SelectItem></SelectContent></Select><FormMessage /></FormItem>
-              )} />
-              <FormField control={form.control} name="gender" render={({ field }) => (
-                <FormItem className="flex-1"><FormLabel>Gender</FormLabel><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4 mt-2"><div className="flex items-center gap-2"><RadioGroupItem value="male" id="male" /><Label htmlFor="male">Male</Label></div><div className="flex items-center gap-2"><RadioGroupItem value="female" id="female" /><Label htmlFor="female">Female</Label></div></RadioGroup><FormMessage /></FormItem>
-              )} />
-            </div>
+            
+            {/* Personal Details */}
+            <FormField control={form.control} name="religion" render={({ field }) => (
+              <FormItem><FormLabel>Religion</FormLabel><Select onValueChange={field.onChange}><FormControl><SelectTrigger><SelectValue placeholder="Religion" /></SelectTrigger></FormControl><SelectContent><SelectItem value="islam">Islam</SelectItem><SelectItem value="christianity">Christianity</SelectItem><SelectItem value="traditional">Traditional</SelectItem><SelectItem value="other">Other</SelectItem></SelectContent></Select><FormMessage /></FormItem>
+            )} />
+            
+            <FormField control={form.control} name="gender" render={({ field }) => (
+              <FormItem><FormLabel>Gender</FormLabel><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col sm:flex-row gap-3 sm:gap-6 mt-2"><div className="flex items-center gap-2"><RadioGroupItem value="male" id="male" /><Label htmlFor="male">Male</Label></div><div className="flex items-center gap-2"><RadioGroupItem value="female" id="female" /><Label htmlFor="female">Female</Label></div></RadioGroup><FormMessage /></FormItem>
+            )} />
+            
             <FormField control={form.control} name="dob" render={({ field }) => (
-              <FormItem>
+              <FormItem className="md:col-span-2">
                 <FormLabel>Date of Birth</FormLabel>
                 <FormControl>
                   <DatePicker
@@ -219,16 +229,10 @@ export default function RegisterPage() {
                 <FormMessage />
               </FormItem>
             )} />
-            <div className="flex gap-2">
-              <FormField control={form.control} name="password" render={({ field }) => (
-                <FormItem className="flex-1"><FormLabel>Password</FormLabel><FormControl><Input type="password" {...field} autoComplete="new-password" /></FormControl><FormMessage /></FormItem>
-              )} />
-              <FormField control={form.control} name="confirmPassword" render={({ field }) => (
-                <FormItem className="flex-1"><FormLabel>Confirm Password</FormLabel><FormControl><Input type="password" {...field} autoComplete="new-password" /></FormControl><FormMessage /></FormItem>
-              )} />
-            </div>
+            
+            {/* Academic Information */}
             <FormField control={form.control} name="level" render={({ field }) => (
-              <FormItem>
+              <FormItem className="md:col-span-2">
                 <FormLabel>Level</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
@@ -250,9 +254,21 @@ export default function RegisterPage() {
                 <FormMessage />
               </FormItem>
             )} />
-            <Button type="submit" className="w-full rounded-full font-semibold text-base py-3 mt-2" loading={isLoading} loadingText="Creating account...">
-              Create Account
-            </Button>
+            
+            {/* Password Section */}
+            <FormField control={form.control} name="password" render={({ field }) => (
+              <FormItem><FormLabel>Password</FormLabel><FormControl><Input type="password" {...field} autoComplete="new-password" /></FormControl><FormMessage /></FormItem>
+            )} />
+            
+            <FormField control={form.control} name="confirmPassword" render={({ field }) => (
+              <FormItem><FormLabel>Confirm Password</FormLabel><FormControl><Input type="password" {...field} autoComplete="new-password" /></FormControl><FormMessage /></FormItem>
+            )} />
+            
+            <div className="md:col-span-2 mt-4">
+              <Button type="submit" className="w-full rounded-full font-semibold text-base py-3" disabled={isLoading}>
+                {isLoading ? "Creating account..." : "Create Account"}
+              </Button>
+            </div>
           </form>
         </Form>
         <div className="text-center text-sm">

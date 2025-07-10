@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { z } from 'zod'
-import Club from '@/lib/models/Club'
 import User from '@/lib/models/User'
 import connectDB from '@/lib/db'
 import { signToken } from '@/lib/auth'
@@ -31,14 +30,13 @@ export async function POST(req: NextRequest) {
     // Sanitize userId input - trim whitespace and normalize case for email
     const sanitizedUserId = userId.trim()
     
+    // Find user without populating clubs to avoid Club model registration issues
     const user = await User.findOne({
       $or: [
         { email: sanitizedUserId.toLowerCase() }, 
         { studentId: sanitizedUserId.toUpperCase() }
       ],
-    })
-      .select('+password')
-      .populate('clubs')
+    }).select('+password')
 
     if (!user) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
@@ -47,6 +45,14 @@ export async function POST(req: NextRequest) {
     const isMatch = await bcrypt.compare(password, user.password)
     if (!isMatch) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
+    }
+
+    // Update last login
+    try {
+      await User.findByIdAndUpdate(user._id, { lastLogin: new Date() })
+    } catch (updateError) {
+      console.warn('Failed to update last login:', updateError)
+      // Continue with login even if last login update fails
     }
 
     const token = await signToken({ 
