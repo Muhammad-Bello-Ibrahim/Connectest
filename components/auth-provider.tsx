@@ -2,6 +2,7 @@
 
 import { createContext, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { hasAuthToken, getCookie } from "@/lib/cookies"
 
 type User = {
   id: string
@@ -16,6 +17,7 @@ type AuthContextType = {
   login: (identifier: string, password: string) => Promise<void>
   logout: () => void
   getRedirectPath: () => string
+  isAuthenticated: () => boolean
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -24,6 +26,7 @@ export const AuthContext = createContext<AuthContextType>({
   login: async () => {},
   logout: () => {},
   getRedirectPath: () => "/login",
+  isAuthenticated: () => false,
 })
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -34,18 +37,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const verifyAuth = async () => {
       try {
+        // First check if auth token cookie exists
+        if (!hasAuthToken()) {
+          // No auth cookie, user is not logged in
+          setUser(null)
+          setIsLoading(false)
+          return
+        }
+
+        // Check localStorage for cached user data first
+        const cachedUser = localStorage.getItem("connectrix-user")
+        if (cachedUser) {
+          try {
+            const parsedUser = JSON.parse(cachedUser)
+            setUser(parsedUser)
+          } catch (error) {
+            console.error("Failed to parse cached user data:", error)
+            localStorage.removeItem("connectrix-user")
+          }
+        }
+
+        // Verify with server even if we have cached data to ensure token is still valid
         const res = await fetch("/api/auth/verify", {
           credentials: "include",
         })
+        
         if (res.ok) {
           const user = await res.json()
           setUser(user)
+          // Update localStorage with fresh user data
+          localStorage.setItem("connectrix-user", JSON.stringify(user))
         } else {
+          // Token invalid or expired, clear everything
           setUser(null)
+          localStorage.removeItem("connectrix-user")
         }
       } catch (error) {
         console.error("Auth verification failed:", error)
         setUser(null)
+        localStorage.removeItem("connectrix-user")
       } finally {
         setIsLoading(false)
       }
@@ -59,6 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: identifier, password }),
+        credentials: "include", // Ensure cookies are sent and received
       })
 
       if (!res.ok) throw new Error("Login failed")
@@ -71,6 +102,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setUser(user)
       localStorage.setItem("connectrix-user", JSON.stringify(user))
+      
+      // Verify that the cookie was set properly by checking it exists
+      if (!hasAuthToken()) {
+        console.warn("Warning: Auth token cookie was not set after login")
+      }
     } catch (err) {
       console.error("Login error", err)
       throw err
@@ -103,8 +139,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const isAuthenticated = () => {
+    return user !== null && hasAuthToken()
+  }
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout, getRedirectPath }}>
+    <AuthContext.Provider value={{ user, isLoading, login, logout, getRedirectPath, isAuthenticated }}>
       {children}
     </AuthContext.Provider>
   )
