@@ -92,9 +92,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         credentials: "include", // Ensure cookies are sent and received
       })
 
-      if (!res.ok) throw new Error("Login failed")
-
       const data = await res.json()
+      
+      if (!res.ok) {
+        // Pass through the original error with details for better error handling
+        const error = new Error(data.error || "Login failed")
+        // Attach additional error details for the UI to handle
+        ;(error as any).details = data.details
+        ;(error as any).field = data.field
+        ;(error as any).status = res.status
+        throw error
+      }
+
       const user = {
         ...data.user,
         id: data.user._id || data.user.id,
