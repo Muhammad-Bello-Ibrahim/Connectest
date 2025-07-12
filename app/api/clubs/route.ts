@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import bcrypt from "bcryptjs";
 import Club from "@/lib/models/Club";
 import User from "@/lib/models/User";
 import connectDB from "@/lib/db";
@@ -8,7 +9,9 @@ import { verifyToken } from "@/lib/auth";
 // Validation schema for club creation
 const createClubSchema = z.object({
   name: z.string().min(3, "Club name must be at least 3 characters").max(100, "Club name too long"),
-  abbreviation: z.string().min(2, "Abbreviation must be at least 2 characters").max(10, "Abbreviation too long").optional(),
+  abbreviation: z.string().min(2, "Abbreviation must be at least 2 characters").max(10, "Abbreviation too long"),
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
   description: z.string().min(10, "Description must be at least 10 characters").max(500, "Description too long"),
   type: z.enum(["faculty", "department", "state", "religion", "general"], {
     required_error: "Please select a club type"
@@ -17,6 +20,10 @@ const createClubSchema = z.object({
   department: z.string().max(100).optional(),
   state: z.string().max(50).optional(),
   religion: z.string().max(50).optional(),
+  logo: z.string().url().optional().or(z.literal("")),
+  createdBy: z.string().optional(),
+  role: z.string().default("club"),
+  status: z.string().default("active"),
 });
 
 export async function GET(req: NextRequest) {
@@ -35,7 +42,7 @@ export async function GET(req: NextRequest) {
     if (faculty) filter.faculty = faculty.toUpperCase();
     if (department) filter.department = department.toUpperCase();
 
-    const clubs = await Club.find(filter).select('-__v').sort({ name: 1 });
+    const clubs = await Club.find(filter).select('-password -__v').sort({ name: 1 });
     return NextResponse.json({ clubs, total: clubs.length });
   } catch (error) {
     console.error('Error in GET /api/clubs:', error);
@@ -63,6 +70,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    // Only admins can create clubs with credentials
+    if (user.role !== 'admin') {
+      return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 });
+    }
+
     // Parse and validate request body
     const body = await req.json();
     const validationResult = createClubSchema.safeParse(body);
@@ -87,32 +99,53 @@ export async function POST(req: NextRequest) {
       }, { status: 409 });
     }
 
+    // Check if email is already in use
+    const existingEmail = await Club.findOne({ email: data.email.toLowerCase() });
+    if (existingEmail) {
+      return NextResponse.json({ 
+        error: "A club with this email already exists" 
+      }, { status: 409 });
+    }
+
+    // Also check if email exists in User collection
+    const existingUserEmail = await User.findOne({ email: data.email.toLowerCase() });
+    if (existingUserEmail) {
+      return NextResponse.json({ 
+        error: "This email is already registered" 
+      }, { status: 409 });
+    }
+
+    // Hash the password
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(data.password, saltRounds);
+
     // Create new club
     const newClub = await Club.create({
       ...data,
-      status: "pending", // New clubs need approval
-      members: 1, // Creator is the first member
+      password: hashedPassword,
+      createdBy: user._id,
+      members: 0, // Start with 0 members
     });
 
-    // Add club to user's clubs
-    await User.findByIdAndUpdate(
-      user._id,
-      { $addToSet: { clubs: newClub._id } }
-    );
+    // Return club data without password
+    const clubData = await Club.findById(newClub._id).select('-password -__v');
 
     return NextResponse.json({ 
-      message: "Club created successfully and submitted for approval",
-      club: {
-        _id: newClub._id,
-        name: newClub.name,
-        description: newClub.description,
-        type: newClub.type,
-        status: newClub.status,
-      }
+      message: "Club created successfully with login credentials",
+      club: clubData
     }, { status: 201 });
 
   } catch (error: any) {
     console.error('Error in POST /api/clubs:', error);
+    
+    // Handle duplicate key errors
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyPattern)[0];
+      return NextResponse.json({ 
+        error: `A club with this ${field} already exists` 
+      }, { status: 409 });
+    }
+    
     return NextResponse.json({ 
       error: 'Failed to create club' 
     }, { status: 500 });

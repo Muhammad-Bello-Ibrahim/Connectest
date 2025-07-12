@@ -16,6 +16,7 @@ export interface IClub extends Document {
   status?: string;
   createdBy?: string;
   role?: string;
+  lastLogin?: Date;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -50,6 +51,7 @@ const ClubSchema = new Schema<IClub>(
     status: { type: String, default: "active" },
     createdBy: { type: String }, // Admin ID or reference
     role: { type: String, default: "club" }, // For login separation
+    lastLogin: Date,
   },
   { timestamps: true }
 );
