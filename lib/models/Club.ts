@@ -5,6 +5,8 @@ export interface IClub extends Document {
   abbreviation?: string;
   description?: string;
   logo?: string;
+  email?: string;
+  password?: string;
   type: string;
   faculty?: string;
   department?: string;
@@ -12,6 +14,9 @@ export interface IClub extends Document {
   religion?: string;
   members?: number;
   status?: string;
+  createdBy?: string;
+  role?: string;
+  lastLogin?: Date;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -22,6 +27,21 @@ const ClubSchema = new Schema<IClub>(
     abbreviation: { type: String },
     description: { type: String },
     logo: { type: String },
+    email: { 
+      type: String, 
+      unique: true, 
+      sparse: true,
+      lowercase: true,
+      trim: true,
+      maxlength: 100,
+      match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please provide a valid email']
+    },
+    password: { 
+      type: String,
+      select: false, // Don't include in queries by default
+      minlength: 8,
+      maxlength: 128
+    },
     type: { type: String, required: true },
     faculty: { type: String, default: "" },
     department: { type: String, default: "" },
@@ -29,11 +49,15 @@ const ClubSchema = new Schema<IClub>(
     religion: { type: String, default: "" },
     members: { type: Number, default: 0 },
     status: { type: String, default: "active" },
+    createdBy: { type: String }, // Admin ID or reference
+    role: { type: String, default: "club" }, // For login separation
+    lastLogin: Date,
   },
   { timestamps: true }
 );
 
 ClubSchema.pre("save", function (next) {
+  if (this.email) this.email = this.email.toLowerCase().trim();
   if (this.faculty) this.faculty = this.faculty.trim().toUpperCase();
   if (this.department) this.department = this.department.trim().toUpperCase();
   if (this.state) this.state = this.state.trim().toUpperCase();

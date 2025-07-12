@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
     // Sanitize userId input - trim whitespace and normalize case for email
     const sanitizedUserId = userId.trim()
     
-    // Find user without populating clubs to avoid Club model registration issues
+    // First try to find a user
     const user = await User.findOne({
       $or: [
         { email: sanitizedUserId.toLowerCase() }, 
@@ -39,62 +39,119 @@ export async function POST(req: NextRequest) {
       ],
     }).select('+password')
 
-    if (!user) {
+    // If user found, authenticate user
+    if (user) {
+      const isMatch = await bcrypt.compare(password, user.password)
+      if (!isMatch) {
+        return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
+      }
+
+      // Update last login
+      try {
+        await User.findByIdAndUpdate(user._id, { lastLogin: new Date() })
+      } catch (updateError) {
+        console.warn('Failed to update last login:', updateError)
+      }
+
+      const token = await signToken({ 
+        id: user._id, 
+        role: user.role,
+        email: user.email,
+        name: user.name
+      })
+
+      const res = NextResponse.json({
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          studentId: user.studentId,
+          phone: user.phone,
+          state: user.state,
+          localGovt: user.localGovt,
+          address: user.address,
+          religion: user.religion,
+          gender: user.gender,
+          dob: user.dob,
+          role: user.role,
+          level: user.level,
+          faculty: user.faculty,
+          department: user.department,
+          bio: user.bio,
+          avatar: user.avatar,
+        },
+      })
+
+      // Secure cookie configuration
+      res.cookies.set('connectrix-token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+      })
+      
+      return res
+    }
+
+    // If no user found, try to find a club
+    const club = await Club.findOne({
+      email: sanitizedUserId.toLowerCase()
+    }).select('+password')
+
+    if (!club) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
     }
 
-    const isMatch = await bcrypt.compare(password, user.password)
-    if (!isMatch) {
+    const isClubMatch = await bcrypt.compare(password, club.password)
+    if (!isClubMatch) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
     }
 
-    // Update last login
+    // Update club last login (if we add this field)
     try {
-      await User.findByIdAndUpdate(user._id, { lastLogin: new Date() })
+      await Club.findByIdAndUpdate(club._id, { lastLogin: new Date() })
     } catch (updateError) {
-      console.warn('Failed to update last login:', updateError)
-      // Continue with login even if last login update fails
+      console.warn('Failed to update club last login:', updateError)
     }
 
-    const token = await signToken({ 
-      id: user._id, 
-      role: user.role,
-      email: user.email,
-      name: user.name
+    const clubToken = await signToken({ 
+      id: club._id, 
+      role: club.role || "club",
+      email: club.email,
+      name: club.name
     })
 
-    const res = NextResponse.json({
+    const clubRes = NextResponse.json({
       user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        studentId: user.studentId,
-        phone: user.phone,
-        state: user.state,
-        localGovt: user.localGovt,
-        address: user.address,
-        religion: user.religion,
-        gender: user.gender,
-        dob: user.dob,
-        role: user.role,
-        level: user.level,
-        faculty: user.faculty,
-        department: user.department,
-        bio: user.bio,
-        avatar: user.avatar,
+        _id: club._id,
+        name: club.name,
+        email: club.email,
+        abbreviation: club.abbreviation,
+        description: club.description,
+        type: club.type,
+        faculty: club.faculty,
+        department: club.department,
+        state: club.state,
+        religion: club.religion,
+        members: club.members,
+        logo: club.logo,
+        role: club.role || "club",
+        status: club.status,
       },
     })
 
     // Secure cookie configuration
-    res.cookies.set('connectrix-token', token, {
+    clubRes.cookies.set('connectrix-token', clubToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict', // Changed from 'lax' to 'strict' for better security
+      sameSite: 'strict',
       path: '/',
       maxAge: 60 * 60 * 24 * 7, // 7 days
     })
     
-    return res
+    return clubRes
+    
   } catch (err: any) {
     console.error("LOGIN ERROR:", err)
     return NextResponse.json({ 
