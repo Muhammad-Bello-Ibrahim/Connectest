@@ -17,14 +17,8 @@ import {
   Users,
   Settings,
   LogOut,
-  AlertCircle,
-  Database,
-  Server,
   Shield,
-  CreditCard,
-  Activity,
-  FileText,
-  HardDrive,
+  User,
 } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 
@@ -62,66 +56,18 @@ export function AdminSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={isActive("/dashboard/admin/clubs")}>
+              <Link href="/dashboard/admin/clubs">
+                <User className="h-4 w-4" />
+                <span>Club Management</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={isActive("/dashboard/admin/security")}>
               <Link href="/dashboard/admin/security">
                 <Shield className="h-4 w-4" />
                 <span>Security</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive("/dashboard/admin/database")}>
-              <Link href="/dashboard/admin/database">
-                <Database className="h-4 w-4" />
-                <span>Database</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive("/dashboard/admin/system")}>
-              <Link href="/dashboard/admin/system">
-                <Server className="h-4 w-4" />
-                <span>System</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive("/dashboard/admin/backups")}>
-              <Link href="/dashboard/admin/backups">
-                <HardDrive className="h-4 w-4" />
-                <span>Backups</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive("/dashboard/admin/payments")}>
-              <Link href="/dashboard/admin/payments">
-                <CreditCard className="h-4 w-4" />
-                <span>Payment Gateway</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive("/dashboard/admin/logs")}>
-              <Link href="/dashboard/admin/logs">
-                <Activity className="h-4 w-4" />
-                <span>System Logs</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive("/dashboard/admin/alerts")}>
-              <Link href="/dashboard/admin/alerts">
-                <AlertCircle className="h-4 w-4" />
-                <span>Alerts</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive("/dashboard/admin/reports")}>
-              <Link href="/dashboard/admin/reports">
-                <FileText className="h-4 w-4" />
-                <span>Reports</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
