@@ -5,16 +5,9 @@ import { usePathname } from "next/navigation"
 import { 
   Home, 
   Users, 
-  BookOpen, 
-  MapPin, 
-  Plus, 
-  Vote, 
-  Calendar,
-  Bell,
-  CreditCard,
   Settings,
   Menu,
-  MessageCircle
+  User
 } from "lucide-react"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
@@ -40,56 +33,16 @@ export function MobileNav() {
       active: pathname === "/dashboard"
     },
     {
-      href: "/dashboard/newsfeed", 
-      icon: MessageCircle,
-      label: "Newsfeed",
-      active: isActive("/dashboard/newsfeed")
-    },
-    {
       href: "/dashboard/clubs", 
       icon: Users,
       label: "Clubs",
       active: isActive("/dashboard/clubs")
     },
     {
-      href: "/dashboard/resources",
-      icon: BookOpen, 
-      label: "Resources",
-      active: isActive("/dashboard/resources")
-    }
-  ]
-
-  // Secondary navigation items (sheet menu)
-  const secondaryNavItems = [
-    {
-      href: "/dashboard/campus-map",
-      icon: MapPin,
-      label: "Campus Map", 
-      active: isActive("/dashboard/campus-map")
-    },
-    {
-      href: "/dashboard/elections",
-      icon: Vote,
-      label: "Elections",
-      active: isActive("/dashboard/elections")
-    },
-    {
-      href: "/dashboard/events",
-      icon: Calendar,
-      label: "Events", 
-      active: isActive("/dashboard/events")
-    },
-    {
-      href: "/dashboard/notifications",
-      icon: Bell,
-      label: "Notifications",
-      active: isActive("/dashboard/notifications")
-    },
-    {
-      href: "/dashboard/payments",
-      icon: CreditCard,
-      label: "Payments",
-      active: isActive("/dashboard/payments")
+      href: "/dashboard/profile",
+      icon: User, 
+      label: "Profile",
+      active: isActive("/dashboard/profile")
     },
     {
       href: "/dashboard/settings",
@@ -98,6 +51,9 @@ export function MobileNav() {
       active: isActive("/dashboard/settings")
     }
   ]
+
+  // Secondary navigation items (sheet menu) - Empty for now since we're simplifying
+  const secondaryNavItems: any[] = []
 
   return (
     <>
@@ -117,52 +73,54 @@ export function MobileNav() {
           </Link>
         ))}
         
-        {/* Menu Button */}
-        <Sheet open={isOpen} onOpenChange={setIsOpen}>
-          <SheetTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="flex flex-col items-center justify-center text-xs flex-1 py-2 h-auto"
-            >
-              <Menu className="mb-1 h-5 w-5" />
-              <span className="text-[10px] font-medium">More</span>
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="bottom" className="max-h-[60vh]">
-            <div className="grid gap-4 py-4">
-              <div className="text-center">
-                <h3 className="text-lg font-semibold">More Options</h3>
-                <p className="text-sm text-muted-foreground">Quick access to all features</p>
-              </div>
-              <div className="grid gap-2">
-                {secondaryNavItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setIsOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 rounded-lg px-4 py-3 text-sm transition-colors",
-                      item.active 
-                        ? "bg-primary text-primary-foreground" 
-                        : "hover:bg-accent hover:text-accent-foreground"
-                    )}
-                  >
-                    <item.icon className="h-5 w-5" />
-                    <span className="font-medium">{item.label}</span>
-                  </Link>
-                ))}
-              </div>
-              {user && (
-                <div className="border-t pt-4">
-                  <div className="text-center text-sm text-muted-foreground">
-                    Signed in as <span className="font-medium">{user.name}</span>
-                  </div>
+        {/* Menu Button - Hide if no secondary items */}
+        {secondaryNavItems.length > 0 && (
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex flex-col items-center justify-center text-xs flex-1 py-2 h-auto"
+              >
+                <Menu className="mb-1 h-5 w-5" />
+                <span className="text-[10px] font-medium">More</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="max-h-[60vh]">
+              <div className="grid gap-4 py-4">
+                <div className="text-center">
+                  <h3 className="text-lg font-semibold">More Options</h3>
+                  <p className="text-sm text-muted-foreground">Quick access to all features</p>
                 </div>
-              )}
-            </div>
-          </SheetContent>
-        </Sheet>
+                <div className="grid gap-2">
+                  {secondaryNavItems.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setIsOpen(false)}
+                      className={cn(
+                        "flex items-center gap-3 rounded-lg px-4 py-3 text-sm transition-colors",
+                        item.active 
+                          ? "bg-primary text-primary-foreground" 
+                          : "hover:bg-accent hover:text-accent-foreground"
+                      )}
+                    >
+                      <item.icon className="h-5 w-5" />
+                      <span className="font-medium">{item.label}</span>
+                    </Link>
+                  ))}
+                </div>
+                {user && (
+                  <div className="border-t pt-4">
+                    <div className="text-center text-sm text-muted-foreground">
+                      Signed in as <span className="font-medium">{user.name}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </SheetContent>
+          </Sheet>
+        )}
       </div>
       
       {/* Spacer to prevent content from being hidden behind bottom nav */}
