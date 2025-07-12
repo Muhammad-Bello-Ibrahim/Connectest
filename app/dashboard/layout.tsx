@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/use-auth"
 import { useRouter, usePathname } from "next/navigation"
 import { useEffect } from "react"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
-import { DeanSidebar } from "@/components/dean-sidebar"
+import { ClubSidebar } from "@/components/club-sidebar"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { MobileNav } from "@/components/mobile-nav"
@@ -23,7 +23,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       const correctPath = getRedirectPath()
       if (
         (user.role === "admin" && !pathname.startsWith("/dashboard/admin")) ||
-        (user.role === "dean" && !pathname.startsWith("/dashboard/dean")) ||
+        (user.role === "club" && !pathname.startsWith("/dashboard/club")) ||
         (user.role === "student" && !pathname.startsWith("/dashboard"))
       ) {
         router.replace(correctPath)
@@ -33,7 +33,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const renderSidebar = () => {
     if (user?.role === "admin") return <AdminSidebar />
-    if (user?.role === "dean") return <DeanSidebar />
+    if (user?.role === "club") return <ClubSidebar />
     return <DashboardSidebar />
   }
 

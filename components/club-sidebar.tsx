@@ -12,10 +12,16 @@ import {
   SidebarMenuButton,
 } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
-import { LayoutDashboard, Users, Settings, LogOut, User } from "lucide-react"
+import {
+  LayoutDashboard,
+  Users,
+  Settings,
+  LogOut,
+  User,
+} from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 
-export function DashboardSidebar() {
+export function ClubSidebar() {
   const pathname = usePathname()
   const { logout } = useAuth()
 
@@ -26,39 +32,39 @@ export function DashboardSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="border-b px-6 py-3">
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <span className="font-bold text-xl text-primary">Connectrix</span>
+        <Link href="/dashboard/club" className="flex items-center gap-2">
+          <span className="font-bold text-xl text-primary">Club Portal</span>
         </Link>
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive("/dashboard")}>
-              <Link href="/dashboard">
+            <SidebarMenuButton asChild isActive={isActive("/dashboard/club")}>
+              <Link href="/dashboard/club">
                 <LayoutDashboard className="h-4 w-4" />
                 <span>Home</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive("/dashboard/clubs")}>
-              <Link href="/dashboard/clubs">
+            <SidebarMenuButton asChild isActive={isActive("/dashboard/club/members")}>
+              <Link href="/dashboard/club/members">
                 <Users className="h-4 w-4" />
-                <span>Clubs</span>
+                <span>Members</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive("/dashboard/profile")}>
-              <Link href="/dashboard/profile">
+            <SidebarMenuButton asChild isActive={isActive("/dashboard/club/profile")}>
+              <Link href="/dashboard/club/profile">
                 <User className="h-4 w-4" />
                 <span>Profile</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive("/dashboard/settings")}>
-              <Link href="/dashboard/settings">
+            <SidebarMenuButton asChild isActive={isActive("/dashboard/club/settings")}>
+              <Link href="/dashboard/club/settings">
                 <Settings className="h-4 w-4" />
                 <span>Settings</span>
               </Link>

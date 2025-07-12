@@ -8,7 +8,7 @@ type User = {
   id: string
   name: string
   email: string
-  role: "student" | "admin" | "dean"
+  role: "student" | "admin" | "club"
 }
 
 type AuthContextType = {
@@ -141,8 +141,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     switch (user.role) {
       case "admin":
         return "/dashboard/admin"
-      case "dean":
-        return "/dashboard/dean"
+      case "club":
+        return "/dashboard/club"
       default:
         return "/dashboard"
     }
