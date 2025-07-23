@@ -20,13 +20,14 @@ export async function middleware(request: NextRequest) {
   if (!token) return NextResponse.redirect(new URL("/login", request.url))
 
   try {
-    const { payload }: any = await jwtVerify(token, getJwtSecret())
+    const { payload } = await jwtVerify(token, getJwtSecret())
+    const userPayload = payload as { role?: string }
 
-    if (pathname.startsWith("/dashboard/admin") && payload.role !== "admin") {
+    if (pathname.startsWith("/dashboard/admin") && userPayload.role !== "admin") {
       return NextResponse.redirect(new URL("/dashboard", request.url))
     }
 
-    if (pathname.startsWith("/dashboard/dean") && payload.role !== "dean") {
+    if (pathname.startsWith("/dashboard/dean") && userPayload.role !== "dean") {
       return NextResponse.redirect(new URL("/dashboard", request.url))
     }
 
