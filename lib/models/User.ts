@@ -16,7 +16,9 @@ export interface IUser extends Document {
   role: "student" | "admin" | "club";
   level?: string;
   faculty?: string;
+  facultyFull?: string;
   department?: string;
+  departmentFull?: string;
   bio?: string;
   avatar?: string;
   clubs?: any[];
@@ -104,11 +106,21 @@ const UserSchema = new Schema<IUser>(
       trim: true,
       maxlength: 100
     },
+    facultyFull: {
+      type: String,
+      trim: true,
+      maxlength: 200
+    },
     department: {
       type: String,
       uppercase: true,
       trim: true,
       maxlength: 100
+    },
+    departmentFull: {
+      type: String,
+      trim: true,
+      maxlength: 200
     },
     bio: {
       type: String,
@@ -172,5 +184,5 @@ UserSchema.statics.findByIdentifier = function(identifier: string) {
   });
 };
 
-const User = models.User || model<IUser>("User", UserSchema);
+const User = models?.User || model<IUser>("User", UserSchema);
 export default User;
