@@ -11,6 +11,9 @@ const registerSchema = z.object({
   studentId: z.string(),
   faculty: z.string(),
   department: z.string(),
+  state: z.string().optional(),
+  religion: z.string().optional(),
+  localGovt: z.string().optional(),
   password: z.string().min(8, "Password must be at least 8 characters").max(128, "Password too long"),
   confirmPassword: z.string().optional(),
   acceptPolicy: z.literal(true, { errorMap: () => ({ message: "You must accept the Privacy Policy & Terms to continue." }) })
@@ -76,6 +79,7 @@ const DEPARTMENT_MAP: Record<string, string> = {
 };
 
 
+export async function POST(req: NextRequest) {
   await connectDB();
   try {
     const body = await req.json();
@@ -161,6 +165,9 @@ const DEPARTMENT_MAP: Record<string, string> = {
       facultyFull,
       department: departmentAbbr,
       departmentFull,
+      state,
+      religion,
+      localGovt: data.localGovt,
       clubs,
     });
 
@@ -195,7 +202,7 @@ const DEPARTMENT_MAP: Record<string, string> = {
         clubsMatched: clubs.length,
       }
     }, { status: 201 });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("REGISTER ERROR:", err);
     return NextResponse.json({
       error: "Registration failed"

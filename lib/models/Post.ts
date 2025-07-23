@@ -138,7 +138,7 @@ PostSchema.virtual('likeCount').get(function() {
 PostSchema.set('toJSON', { virtuals: true });
 PostSchema.set('toObject', { virtuals: true });
 
-const Post = models.Post || model<IPost>("Post", PostSchema);
-const Comment = models.Comment || model<IComment>("Comment", CommentSchema);
+const Post = models?.Post || model<IPost>("Post", PostSchema);
+const Comment = models?.Comment || model<IComment>("Comment", CommentSchema);
 
 export { Post, Comment };

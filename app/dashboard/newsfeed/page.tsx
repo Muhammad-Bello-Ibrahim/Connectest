@@ -91,6 +91,7 @@ export default function NewsfeedPage() {
   const [isSubmittingComment, setIsSubmittingComment] = useState(false)
   const [likingPosts, setLikingPosts] = useState<Set<string>>(new Set())
   const [activeFeed, setActiveFeed] = useState<'general' | 'clubs'>("general")
+  const [searchQuery, setSearchQuery] = useState("")
   // Profile completion state (dismissible)
   const requiredFields = [
     'phone', 'gender', 'address', 'state', 'localGovt', 'dob', 'bio'

@@ -69,7 +69,7 @@ ClubSchema.pre("save", function (next) {
 });
 
 // Use mongoose.models to avoid model overwrite/recompilation issues in Next.js
-const Club = mongoose.models.Club || mongoose.model<IClub>("Club", ClubSchema);
+const Club = mongoose.models?.Club || mongoose.model<IClub>("Club", ClubSchema);
 export default Club;
 // This schema defines the structure of a Club document in MongoDB.
 // It includes fields for the club's name, abbreviation, description, logo, type, faculty, department, state, religion, members, and status.
