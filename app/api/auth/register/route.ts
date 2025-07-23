@@ -1,27 +1,19 @@
 import { NextRequest, NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
 import { z } from "zod"
-import User from "@/lib/models/User"
-import Club from "@/lib/models/Club"
+// Models and utils will be dynamically imported after DB connection
 import connectDB from "@/lib/db"
 
 // Input validation schema
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100, "Name too long"),
   email: z.string().email("Invalid email format").max(100),
-  studentId: z.string().optional(),
-  phone: z.string().min(10, "Phone number too short").max(20, "Phone number too long").optional(),
-  localGovt: z.string().max(50).optional(),
-  address: z.string().max(200).optional(),
-  religion: z.string().max(50).optional(),
-  gender: z.enum(["male", "female", "other"]).optional(),
-  dob: z.string().optional(),
+  studentId: z.string(),
+  faculty: z.string(),
+  department: z.string(),
   password: z.string().min(8, "Password must be at least 8 characters").max(128, "Password too long"),
-  role: z.enum(["student", "admin", "dean"]).optional(),
-  level: z.string().max(20).optional(),
-  faculty: z.string().max(100).optional(),
-  department: z.string().max(100).optional(),
-  state: z.string().max(50).optional(),
+  confirmPassword: z.string().optional(),
+  acceptPolicy: z.literal(true, { errorMap: () => ({ message: "You must accept the Privacy Policy & Terms to continue." }) })
 })
 
 function normalize(str?: string) {
@@ -83,55 +75,65 @@ const DEPARTMENT_MAP: Record<string, string> = {
   ZO: "ZOOLOGY",
 };
 
-export async function POST(req: NextRequest) {
-  await connectDB()
-  
+
+  await connectDB();
   try {
-    const body = await req.json()
+    const body = await req.json();
+
+    // Dynamically import models and utils after DB connection
+    const User = (await import("@/lib/models/User")).default;
+    const { assignAndCreateClubsForUser } = await import("@/lib/utils");
+
 
     // Validate input
-    const validationResult = registerSchema.safeParse(body)
+    const validationResult = registerSchema.safeParse(body);
     if (!validationResult.success) {
-      return NextResponse.json({ 
-        error: 'Invalid input data', 
-        details: validationResult.error.issues 
-      }, { status: 400 })
+      return NextResponse.json({
+        error: 'Invalid input data',
+        details: validationResult.error.issues
+      }, { status: 400 });
     }
 
-    const data = validationResult.data
+    const data = validationResult.data;
+    // Block registration if privacy/terms not accepted
+    if (!data.acceptPolicy) {
+      return NextResponse.json({
+        error: 'You must accept the Privacy Policy & Terms to continue.'
+      }, { status: 400 });
+    }
 
     // Normalize relevant fields for case-insensitive matching
-    const faculty = normalize(data.faculty)
-    const department = normalize(data.department)
-    const state = normalize(data.state)
-    const religion = normalize(data.religion)
+    const faculty = normalize(data.faculty);
+    const department = normalize(data.department);
+    const state = normalize(data.state);
+    const religion = normalize(data.religion);
 
     // Extract faculty and department from studentId if provided
     let extractedFaculty = faculty;
     let extractedDepartment = department;
     if (data.studentId) {
-      const match = data.studentId.match(/^UG\d{2}\/([A-Z]{2})([A-Z]{2})\/\d+$/i)
+      const match = data.studentId.match(/^UG\d{2}\/([A-Z]{2})([A-Z]{2})\/\d+$/i);
       if (match) {
-        extractedFaculty = normalize(match[1])
-        extractedDepartment = normalize(match[2])
+        extractedFaculty = normalize(match[1]);
+        extractedDepartment = normalize(match[2]);
       }
     }
 
     // Check for existing user (case-insensitive email, exact studentId)
     const existing = await User.findOne({
       $or: [
-        { email: data.email.toLowerCase() }, 
+        { email: data.email.toLowerCase() },
         ...(data.studentId ? [{ studentId: data.studentId.toUpperCase() }] : [])
       ]
     });
     if (existing) {
-      return NextResponse.json({ 
-        error: "Email or Student ID already registered." 
+      return NextResponse.json({
+        error: "Email or Student ID already registered."
       }, { status: 409 });
     }
 
     // Hash password securely
-    const hashedPassword = await bcrypt.hash(data.password, 12) // Increased rounds from 10 to 12
+    const hashedPassword = await bcrypt.hash(data.password, 12);
 
     // Resolve faculty and department full names
     const facultyAbbr = extractedFaculty;
@@ -139,36 +141,27 @@ export async function POST(req: NextRequest) {
     const departmentAbbr = extractedDepartment;
     const departmentFull = DEPARTMENT_MAP[departmentAbbr] || departmentAbbr;
 
-    // Find matching clubs
-    const matchingClubs = await Club.find({
-      $or: [
-        { type: "faculty", faculty: { $in: [facultyAbbr, facultyFull] } },
-        { type: "department", faculty: { $in: [facultyAbbr, facultyFull] }, department: { $in: [departmentAbbr, departmentFull] } },
-        { type: "state", state },
-        { type: "religion", religion },
-        { type: "general" },
-      ],
-    })
+    // Assign and auto-create clubs as needed (always add SRC, match by faculty/department/state/religion/LGA)
+    const clubs = await assignAndCreateClubsForUser({
+      facultyAbbr,
+      facultyFull,
+      departmentAbbr,
+      departmentFull,
+      state,
+      religion,
+      lga: data.localGovt,
+    });
 
     const user = await User.create({
       name: data.name.trim(),
       email: data.email.toLowerCase(),
       studentId: data.studentId?.toUpperCase(),
-      phone: data.phone?.trim(),
-      state,
-      localGovt: data.localGovt?.trim(),
-      address: data.address?.trim(),
-      religion,
-      gender: data.gender,
-      dob: data.dob,
       password: hashedPassword,
-      role: data.role || "student",
-      level: data.level?.trim(),
       faculty: facultyAbbr,
       facultyFull,
       department: departmentAbbr,
       departmentFull,
-      clubs: matchingClubs.map((club) => club._id),
+      clubs,
     });
 
     // Log successful registration (without sensitive data)
@@ -178,7 +171,7 @@ export async function POST(req: NextRequest) {
       studentId: user.studentId,
       faculty: user.faculty,
       department: user.department,
-      clubsMatched: matchingClubs.length,
+      clubsMatched: clubs.length,
     });
 
     const userObj = user.toObject();
@@ -191,28 +184,21 @@ export async function POST(req: NextRequest) {
         name: userObj.name,
         email: userObj.email,
         studentId: userObj.studentId,
-        phone: userObj.phone,
-        state: userObj.state,
-        localGovt: userObj.localGovt,
-        address: userObj.address,
-        religion: userObj.religion,
-        gender: userObj.gender,
-        dob: userObj.dob,
+        // ...other fields omitted for minimal response...
         role: userObj.role,
-        level: userObj.level,
         faculty: userObj.faculty,
         facultyFull: userObj.facultyFull,
         department: userObj.department,
         departmentFull: userObj.departmentFull,
         bio: userObj.bio,
         avatar: userObj.avatar,
-        clubsMatched: matchingClubs.length,
+        clubsMatched: clubs.length,
       }
     }, { status: 201 });
   } catch (err: any) {
     console.error("REGISTER ERROR:", err);
-    return NextResponse.json({ 
-      error: "Registration failed" 
+    return NextResponse.json({
+      error: "Registration failed"
     }, { status: 500 });
   }
 }

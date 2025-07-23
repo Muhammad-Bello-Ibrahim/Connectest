@@ -1,6 +1,8 @@
-import mongoose, { Schema, models, model, Document } from "mongoose";
 
-export interface IClub extends Document {
+
+import mongoose from "mongoose";
+
+export interface IClub extends mongoose.Document {
   name: string;
   abbreviation?: string;
   description?: string;
@@ -21,7 +23,7 @@ export interface IClub extends Document {
   updatedAt?: Date;
 }
 
-const ClubSchema = new Schema<IClub>(
+const ClubSchema = new mongoose.Schema<IClub>(
   {
     name: { type: String, required: true },
     abbreviation: { type: String },
@@ -66,8 +68,8 @@ ClubSchema.pre("save", function (next) {
   next();
 });
 
-const Club = models.Club || model<IClub>("Club", ClubSchema);
-
+// Use mongoose.models to avoid model overwrite/recompilation issues in Next.js
+const Club = mongoose.models.Club || mongoose.model<IClub>("Club", ClubSchema);
 export default Club;
 // This schema defines the structure of a Club document in MongoDB.
 // It includes fields for the club's name, abbreviation, description, logo, type, faculty, department, state, religion, members, and status.

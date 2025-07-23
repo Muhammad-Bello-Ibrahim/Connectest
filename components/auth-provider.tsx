@@ -18,6 +18,7 @@ type AuthContextType = {
   logout: () => void
   getRedirectPath: () => string
   isAuthenticated: () => boolean
+  updateProfile: (data: any) => Promise<void>
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -27,7 +28,20 @@ export const AuthContext = createContext<AuthContextType>({
   logout: () => {},
   getRedirectPath: () => "/login",
   isAuthenticated: () => false,
+  updateProfile: async () => {},
 })
+  const updateProfile = async (data: any) => {
+    const res = await fetch("/api/auth/user/profile", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(data),
+    });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error || "Profile update failed");
+    setUser(result.user);
+    localStorage.setItem("connectrix-user", JSON.stringify(result.user));
+  };
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -89,36 +103,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: identifier, password }),
-        credentials: "include", // Ensure cookies are sent and received
-      })
+        credentials: "include",
+      });
 
-      const data = await res.json()
-      
+      const data = await res.json();
+
       if (!res.ok) {
-        // Pass through the original error with details for better error handling
-        const error = new Error(data.error || "Login failed")
-        // Attach additional error details for the UI to handle
-        ;(error as any).details = data.details
-        ;(error as any).field = data.field
-        ;(error as any).status = res.status
-        throw error
+        const error = new Error(data.error || "Login failed");
+        (error as any).details = data.details;
+        (error as any).field = data.field;
+        (error as any).status = res.status;
+        throw error;
       }
 
       const user = {
         ...data.user,
         id: data.user._id || data.user.id,
+      };
+
+      setUser(user);
+      localStorage.setItem("connectrix-user", JSON.stringify(user));
+
+      if (!hasAuthToken()) {
+        console.warn("Warning: Auth token cookie was not set after login");
       }
 
-      setUser(user)
-      localStorage.setItem("connectrix-user", JSON.stringify(user))
-      
-      // Verify that the cookie was set properly by checking it exists
-      if (!hasAuthToken()) {
-        console.warn("Warning: Auth token cookie was not set after login")
-      }
+      // Redirect after state update
+      const redirectPath = getRedirectPath();
+      router.push(redirectPath);
     } catch (err) {
-      console.error("Login error", err)
-      throw err
+      console.error("Login error", err);
+      throw err;
     }
   }
 
@@ -137,14 +152,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const getRedirectPath = () => {
-    if (!user) return "/login"
+    if (!user) return "/login";
     switch (user.role) {
       case "admin":
-        return "/dashboard/admin"
+        return "/dashboard/admin";
       case "club":
-        return "/dashboard/club"
+        return "/dashboard/club";
+      case "student":
+        return "/feed";
       default:
-        return "/dashboard"
+        return "/dashboard";
     }
   }
 
@@ -153,7 +170,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout, getRedirectPath, isAuthenticated }}>
+    <AuthContext.Provider value={{ user, isLoading, login, logout, getRedirectPath, isAuthenticated, updateProfile }}>
       {children}
     </AuthContext.Provider>
   )

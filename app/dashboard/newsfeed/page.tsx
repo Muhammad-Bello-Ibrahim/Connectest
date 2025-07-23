@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
 import { 
@@ -82,7 +82,6 @@ export default function NewsfeedPage() {
   const { user } = useAuth()
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState("")
   const [newPostContent, setNewPostContent] = useState("")
   const [newPostTitle, setNewPostTitle] = useState("")
   const [isCreatingPost, setIsCreatingPost] = useState(false)
@@ -91,6 +90,28 @@ export default function NewsfeedPage() {
   const [newComment, setNewComment] = useState("")
   const [isSubmittingComment, setIsSubmittingComment] = useState(false)
   const [likingPosts, setLikingPosts] = useState<Set<string>>(new Set())
+  const [activeFeed, setActiveFeed] = useState<'general' | 'clubs'>("general")
+  // Profile completion state (dismissible)
+  const requiredFields = [
+    'phone', 'gender', 'address', 'state', 'localGovt', 'dob', 'bio'
+  ];
+  const [profileCompletion, setProfileCompletion] = useState(0);
+  const [isProfileComplete, setIsProfileComplete] = useState(true);
+
+
+  // Calculate profile completion
+  useEffect(() => {
+    if (!user) {
+      setProfileCompletion(0);
+      setIsProfileComplete(true);
+      return;
+    }
+    let filled = 0;
+    requiredFields.forEach(f => { if (user[f]) filled++; });
+    const percent = Math.round((filled / requiredFields.length) * 100);
+    setProfileCompletion(percent);
+    setIsProfileComplete(percent === 100);
+  }, [user]);
 
   // Fetch posts
   useEffect(() => {
@@ -290,252 +311,131 @@ export default function NewsfeedPage() {
     }
   }
 
-  // Filter posts based on search
-  const filteredPosts = posts.filter(post =>
-    post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    post.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    post.author.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    post.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+  // Filter posts based on toggler
+  const filteredPosts = activeFeed === "general"
+    ? posts.filter(post => !post.club)
+    : posts.filter(post => post.club)
+
+  const PostCard = ({ post }: { post: Post }) => (
+    <div className="flex px-4 py-3 hover:bg-muted/50 transition-colors border-b border-zinc-200 dark:border-zinc-800">
+      {/* Avatar */}
+      <div className="flex-shrink-0 mr-3">
+        <div className="w-11 h-11 rounded-full bg-zinc-300 flex items-center justify-center text-lg font-bold text-zinc-700 overflow-hidden">
+          {post.author.avatar ? (
+            <img src={post.author.avatar} alt={post.author.name} className="w-full h-full object-cover rounded-full" />
+          ) : (
+            post.author.name[0]
+          )}
+        </div>
+      </div>
+      {/* Main content */}
+      <div className="flex-1 min-w-0">
+        {/* Username, handle, timestamp */}
+        <div className="flex items-center gap-2 text-sm">
+          <span className="font-semibold text-foreground">{post.author.name}</span>
+          {/* Optional: <span className="text-muted-foreground">@{post.author.handle}</span> */}
+          <span className="text-muted-foreground">· {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}</span>
+          {post.club && (
+            <span className="ml-2 text-xs bg-muted px-2 py-0.5 rounded">{post.club.abbreviation}</span>
+          )}
+        </div>
+        {/* Post content */}
+        <div className="mt-1 text-base text-foreground whitespace-pre-wrap break-words">
+          {post.content}
+        </div>
+        {/* Action bar */}
+        <div className="flex items-center justify-between max-w-xs mt-3 text-muted-foreground">
+          <button className="group flex items-center gap-1 hover:text-primary transition-colors">
+            <MessageCircle className="h-5 w-5 group-hover:stroke-primary" />
+            <span className="text-xs">{post.commentCount}</span>
+          </button>
+          <button className="group flex items-center gap-1 hover:text-green-600 transition-colors">
+            <Share2 className="h-5 w-5 group-hover:stroke-green-600" />
+          </button>
+          <button className="group flex items-center gap-1 hover:text-red-500 transition-colors">
+            <Heart className="h-5 w-5 group-hover:fill-red-500" />
+            <span className="text-xs">{post.likeCount}</span>
+          </button>
+          <button className="group flex items-center gap-1 hover:text-primary transition-colors">
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+          </button>
+        </div>
+      </div>
+    </div>
   )
 
-  const PostCard = ({ post }: { post: Post }) => {
-    const isLiked = post.likes.includes(user?._id || '')
-    const isLiking = likingPosts.has(post._id)
-
-    return (
-      <Card className="mb-6">
-        <CardHeader className="pb-3">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center space-x-3">
-              <Avatar className="h-10 w-10">
-                <AvatarImage src={post.author.avatar} />
-                <AvatarFallback>
-                  {post.author.name.split(' ').map(n => n[0]).join('')}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <div className="flex items-center gap-2">
-                  <p className="font-semibold">{post.author.name}</p>
-                  {post.club && (
-                    <Badge variant="outline" className="text-xs">
-                      {post.club.abbreviation || post.club.name}
-                    </Badge>
-                  )}
-                  {post.isPinned && (
-                    <Pin className="h-4 w-4 text-primary" />
-                  )}
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
-                </p>
-              </div>
-            </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>Report</DropdownMenuItem>
-                {post.author._id === user?._id && (
-                  <DropdownMenuItem>Delete</DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </CardHeader>
-        
-        <CardContent className="space-y-4">
-          <div>
-            <h3 className="font-semibold text-lg mb-2">{post.title}</h3>
-            <p className="text-sm leading-relaxed whitespace-pre-wrap">{post.content}</p>
-          </div>
-          
-          {post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1">
-              {post.tags.map((tag, index) => (
-                <Badge key={index} variant="secondary" className="text-xs">
-                  <Hash className="h-3 w-3 mr-1" />
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          )}
-          
-          <div className="flex items-center justify-between pt-2 border-t">
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleLikePost(post._id)}
-                disabled={isLiking}
-                className={`${isLiked ? 'text-red-500' : ''}`}
-              >
-                {isLiking ? (
-                  <Loader2 className="h-4 w-4 animate-spin mr-1" />
-                ) : (
-                  <Heart className={`h-4 w-4 mr-1 ${isLiked ? 'fill-current' : ''}`} />
-                )}
-                {post.likeCount}
-              </Button>
-              
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setSelectedPost(post)
-                      fetchComments(post._id)
-                    }}
-                  >
-                    <MessageCircle className="h-4 w-4 mr-1" />
-                    {post.commentCount}
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle>Comments</DialogTitle>
-                    <DialogDescription>
-                      Discuss this post with other members
-                    </DialogDescription>
-                  </DialogHeader>
-                  
-                  <div className="space-y-4">
-                    {/* Add comment */}
-                    <div className="space-y-2">
-                      <Textarea
-                        placeholder="Write a comment..."
-                        value={newComment}
-                        onChange={(e) => setNewComment(e.target.value)}
-                        rows={3}
-                      />
-                      <div className="flex justify-end">
-                        <Button
-                          onClick={handleAddComment}
-                          disabled={!newComment.trim() || isSubmittingComment}
-                          size="sm"
-                        >
-                          {isSubmittingComment ? (
-                            <Loader2 className="h-4 w-4 animate-spin mr-1" />
-                          ) : null}
-                          Comment
-                        </Button>
-                      </div>
-                    </div>
-                    
-                    {/* Comments list */}
-                    <div className="space-y-3">
-                      {comments.map((comment) => (
-                        <div key={comment._id} className="flex space-x-3">
-                          <Avatar className="h-8 w-8">
-                            <AvatarImage src={comment.author.avatar} />
-                            <AvatarFallback>
-                              {comment.author.name.split(' ').map(n => n[0]).join('')}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1">
-                            <div className="bg-muted rounded-lg p-3">
-                              <p className="font-medium text-sm">{comment.author.name}</p>
-                              <p className="text-sm">{comment.content}</p>
-                            </div>
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
-              
-              <Button variant="ghost" size="sm">
-                <Share2 className="h-4 w-4 mr-1" />
-                {post.shares}
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    )
-  }
-
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Newsfeed</h1>
-          <p className="text-muted-foreground">
-            Stay updated with posts from your clubs and community
-          </p>
+    <div className="space-y-0 max-w-xl mx-auto pb-24">
+      {/* Profile completion banner (always visible if incomplete) */}
+      {!isProfileComplete && (
+        <div className="sticky top-0 z-20 bg-yellow-50 dark:bg-yellow-900 border-b border-yellow-200 dark:border-yellow-800 px-4 py-3 flex flex-col gap-2 items-center text-yellow-900 dark:text-yellow-100 animate-fade-in">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold">Complete your profile</span>
+            <span className="text-xs">({profileCompletion}% done)</span>
+          </div>
+          <div className="w-full max-w-xs h-2 bg-yellow-100 dark:bg-yellow-800 rounded-full overflow-hidden">
+            <div
+              className="h-2 bg-yellow-500 transition-all"
+              style={{ width: `${profileCompletion}%` }}
+            />
+          </div>
+          <span className="text-xs">Fill in: {requiredFields.filter(f => !user?.[f]).join(", ")}</span>
+          <Link href="/dashboard/profile" className="text-xs underline text-yellow-800 dark:text-yellow-200">Go to profile</Link>
         </div>
-        
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Create Post
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create New Post</DialogTitle>
-              <DialogDescription>
-                Share something with your community
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="space-y-4">
-              <Input
-                placeholder="Post title"
-                value={newPostTitle}
-                onChange={(e) => setNewPostTitle(e.target.value)}
-              />
-              <Textarea
-                placeholder="What's on your mind?"
-                value={newPostContent}
-                onChange={(e) => setNewPostContent(e.target.value)}
-                rows={4}
-              />
-              <div className="flex justify-end space-x-2">
-                <Button
-                  onClick={handleCreatePost}
-                  disabled={!newPostTitle.trim() || !newPostContent.trim() || isCreatingPost}
-                  loading={isCreatingPost}
-                  loadingText="Posting..."
-                >
-                  Create Post
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      {/* Search */}
-      <div className="flex items-center space-x-2">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+      )}
+      {/* Post box always at top */}
+      <div className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 px-4 py-4 flex gap-3 items-start sticky top-[48px] z-10">
+        <div className="flex-shrink-0">
+          {user?.avatar ? (
+            <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full object-cover" />
+          ) : (
+            <User className="h-10 w-10 text-zinc-700 dark:text-zinc-200" />
+          )}
+        </div>
+        <div className="flex-1">
           <Input
-            type="search"
-            placeholder="Search posts..."
-            className="pl-8"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Post title"
+            value={newPostTitle}
+            onChange={(e) => setNewPostTitle(e.target.value)}
+            className="mb-2"
           />
+          <Textarea
+            placeholder="What's on your mind?"
+            value={newPostContent}
+            onChange={(e) => setNewPostContent(e.target.value)}
+            rows={2}
+            className="mb-2"
+          />
+          <div className="flex justify-end">
+            <Button
+              onClick={handleCreatePost}
+              disabled={!newPostTitle.trim() || !newPostContent.trim() || isCreatingPost}
+              loading={isCreatingPost}
+              loadingText="Posting..."
+              className="rounded-full px-6"
+            >
+              Post
+            </Button>
+          </div>
         </div>
-        <Button
-          variant="outline"
-          onClick={fetchPosts}
-          disabled={loading}
-        >
-          Refresh
-        </Button>
       </div>
-
+      {/* Toggle centered below */}
+      <div className="flex justify-center mt-2 mb-2">
+        <div className="inline-flex bg-muted dark:bg-zinc-800 rounded-full p-1">
+          <button
+            className={`px-4 py-1 rounded-full text-sm font-medium transition-colors ${activeFeed === "general" ? "bg-primary text-primary-foreground" : "text-foreground"}`}
+            onClick={() => setActiveFeed("general")}
+          >
+            General
+          </button>
+          <button
+            className={`px-4 py-1 rounded-full text-sm font-medium transition-colors ${activeFeed === "clubs" ? "bg-primary text-primary-foreground" : "text-foreground"}`}
+            onClick={() => setActiveFeed("clubs")}
+          >
+            Clubs
+          </button>
+        </div>
+      </div>
       {/* Posts */}
       {loading ? (
         <div className="space-y-6">
@@ -571,21 +471,50 @@ export default function NewsfeedPage() {
             <MessageCircle className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
             <h3 className="text-lg font-medium mb-2">No posts found</h3>
             <p className="text-muted-foreground mb-4">
-              {searchQuery 
-                ? "No posts match your search criteria" 
-                : "Be the first to share something with the community!"
-              }
+              Be the first to share something with the community!
             </p>
-            {!searchQuery && (
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button>Create First Post</Button>
-                </DialogTrigger>
-              </Dialog>
-            )}
           </CardContent>
         </Card>
       )}
+      {/* Floating Action Button for mobile */}
+      <div className="fixed bottom-6 right-6 md:hidden z-50">
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button className="rounded-full h-14 w-14 p-0 shadow-lg bg-green-600 hover:bg-green-700 text-white text-3xl flex items-center justify-center">
+              <Plus className="h-7 w-7" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create New Post</DialogTitle>
+              <DialogDescription>Share something with your community</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <Input
+                placeholder="Post title"
+                value={newPostTitle}
+                onChange={(e) => setNewPostTitle(e.target.value)}
+              />
+              <Textarea
+                placeholder="What's on your mind?"
+                value={newPostContent}
+                onChange={(e) => setNewPostContent(e.target.value)}
+                rows={4}
+              />
+              <div className="flex justify-end space-x-2">
+                <Button
+                  onClick={handleCreatePost}
+                  disabled={!newPostTitle.trim() || !newPostContent.trim() || isCreatingPost}
+                  loading={isCreatingPost}
+                  loadingText="Posting..."
+                >
+                  Create Post
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   )
 }

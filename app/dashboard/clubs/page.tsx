@@ -186,11 +186,19 @@ export default function ClubsPage() {
   const filteredAllClubs = getFilteredClubs(allClubs)
 
   const ClubCard = ({ club, showJoinButton = false }: { club: Club, showJoinButton?: boolean }) => (
-    <Card key={club._id} className="hover:shadow-md transition-shadow">
+    <Card key={club._id} className={`hover:shadow-md transition-shadow ${club.type === 'src' ? 'border-yellow-400 dark:border-yellow-600' : ''}`}>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <CardTitle className="text-lg">{club.name}</CardTitle>
+            <CardTitle className="text-lg flex items-center gap-2">
+              {club.name}
+              {club.type === 'src' && (
+                <span className="ml-1 px-2 py-0.5 rounded-full bg-yellow-200 text-yellow-900 text-xs font-semibold">SRC</span>
+              )}
+              {club.type === 'general' && (
+                <span className="ml-1 px-2 py-0.5 rounded-full bg-blue-200 text-blue-900 text-xs font-semibold">General</span>
+              )}
+            </CardTitle>
             {club.abbreviation && (
               <p className="text-sm text-muted-foreground">({club.abbreviation})</p>
             )}
@@ -206,7 +214,6 @@ export default function ClubsPage() {
           <Users className="mr-2 h-4 w-4" />
           {club.members} members
         </div>
-        
         <div className="flex flex-wrap gap-1">
           <Badge variant="outline" className="text-xs">
             {club.type}
@@ -229,8 +236,8 @@ export default function ClubsPage() {
             View Details
           </Link>
         </Button>
-        
-        {showJoinButton && club.status === "active" && (
+        {/* Prevent leaving SRC club */}
+        {showJoinButton && club.status === "active" && club.type !== 'src' && (
           <Button
             variant={club.isUserMember ? "destructive" : "default"}
             size="sm"
@@ -328,6 +335,10 @@ export default function ClubsPage() {
             Discover Clubs
           </button>
         </div>
+      </div>
+      {/* Info note about SRC and General clubs */}
+      <div className="text-center text-xs text-muted-foreground mt-2">
+        <span>All students are automatically members of the <b>SRC</b> club and cannot leave it. "General" clubs are opt-in and can be joined or left at any time.</span>
       </div>
 
       {/* Content */}

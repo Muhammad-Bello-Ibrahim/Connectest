@@ -58,11 +58,11 @@ export default function ProfilePage() {
         description: "Your profile has been updated successfully.",
       })
       setIsEditing(false)
-    } catch (error) {
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Update failed",
-        description: "There was a problem updating your profile.",
+        description: error.message || "There was a problem updating your profile.",
       })
     } finally {
       setIsLoading(false)
@@ -85,6 +85,26 @@ export default function ProfilePage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
         <p className="text-muted-foreground">View and manage your personal information</p>
+      </div>
+
+      {/* User's Clubs Section */}
+      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-4 mb-4">
+        <h2 className="text-xl font-semibold mb-2">Your Clubs</h2>
+        {user.clubs && user.clubs.length > 0 ? (
+          <ul className="flex flex-wrap gap-2">
+            {user.clubs.map((club: any) => (
+              <li key={club._id || club} className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100 rounded-full text-sm font-medium">
+                {club.name || club.abbreviation || club}
+                {club.type === 'src' && <span className="ml-1 text-xs text-yellow-600 dark:text-yellow-300">(SRC)</span>}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-muted-foreground text-sm">You are not a member of any clubs yet.</p>
+        )}
+        <div className="mt-2 text-xs text-muted-foreground">
+          <span>All students are automatically members of the <b>SRC</b> club. You can join or leave general clubs from the clubs page.</span>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-7">
