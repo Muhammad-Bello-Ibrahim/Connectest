@@ -8,6 +8,7 @@ import { ClubSidebar } from "@/components/club-sidebar"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { MobileNav } from "@/components/mobile-nav"
+import { ProfileCompletionBanner } from "@/components/ProfileCompletionBanner"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading, getRedirectPath } = useAuth()
@@ -58,6 +59,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="md:hidden mb-4">
           <DashboardHeader />
         </div>
+        
+        {/* Profile Completion Banner */}
+        <ProfileCompletionBanner />
         
         {children}
       </main>
