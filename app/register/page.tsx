@@ -11,18 +11,9 @@ import {
   Form, FormControl, FormField, FormItem,
   FormLabel, FormMessage
 } from "@/components/ui/form"
-import {
-  Select, SelectContent, SelectItem,
-  SelectTrigger, SelectValue
-} from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Eye, EyeOff } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Label } from "@/components/ui/label"
-import { stateToLGAs } from "@/lib/data/lgas"
-import DatePicker from "react-datepicker"
-import "react-datepicker/dist/react-datepicker.css"
 
 
 
@@ -51,14 +42,12 @@ const formSchema = z.object({
     .regex(/^UG\d{2}\/[A-Z]{2}[A-Z]{2}\/\d{4}$/, { message: "Student ID format must be like UG20/SCCS/1026" }),
   faculty: z.string().min(1, "Faculty is required"),
   department: z.string().min(1, "Department is required"),
-  email: z.string().email().max(100),
   password: z.string()
     .min(8)
     .max(128)
     .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
       'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'),
   confirmPassword: z.string(),
-  acceptPolicy: z.literal(true, { errorMap: () => ({ message: "You must accept the Privacy Policy & Terms to continue." }) })
 }).refine((data) => data.password === data.confirmPassword, {
   path: ["confirmPassword"],
   message: "Passwords do not match",
@@ -75,7 +64,7 @@ export default function RegisterPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "", studentId: "", faculty: "", department: "", email: "", password: "", confirmPassword: "", acceptPolicy: false
+      name: "", studentId: "", faculty: "", department: "", password: "", confirmPassword: ""
     }
   })
 
@@ -104,9 +93,7 @@ export default function RegisterPage() {
           studentId: values.studentId,
           faculty: values.faculty,
           department: values.department,
-          email: values.email,
-          password: values.password,
-          acceptPolicy: values.acceptPolicy
+          password: values.password
         }),
       })
       const data = await res.json()
@@ -162,7 +149,7 @@ export default function RegisterPage() {
   // Per-stage field names for validation
   const stageFields = [
     ["name", "studentId", "faculty", "department"],
-    ["email", "password", "confirmPassword", "acceptPolicy"]
+    ["password", "confirmPassword"]
   ]
 
   // Validate only current stage fields
@@ -241,13 +228,6 @@ export default function RegisterPage() {
             {/* Step 2: Account Security */}
             {stage === 1 && (
               <>
-                <FormField control={form.control} name="email" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl><Input type="email" {...field} autoComplete="email" /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
                 <FormField control={form.control} name="password" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Password</FormLabel>
@@ -291,23 +271,6 @@ export default function RegisterPage() {
                         </button>
                       </div>
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="acceptPolicy" render={({ field }) => (
-                  <FormItem>
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        id="acceptPolicy"
-                        checked={field.value}
-                        onChange={e => field.onChange(e.target.checked)}
-                        className="accent-green-600 h-4 w-4"
-                      />
-                      <FormLabel htmlFor="acceptPolicy" className="mb-0">
-                        I accept the <Link href="/privacy" target="_blank" className="underline text-primary">Privacy Policy & Terms</Link>
-                      </FormLabel>
-                    </div>
                     <FormMessage />
                   </FormItem>
                 )} />
