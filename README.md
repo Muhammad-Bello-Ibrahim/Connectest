@@ -5,6 +5,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Next.js](https://img.shields.io/badge/Next.js-15.1-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
+[![Hacktoberfest](https://img.shields.io/badge/Hacktoberfest-friendly-orange)](https://hacktoberfest.com)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 ## 📖 Overview
 
@@ -146,6 +148,27 @@ Connectest/
 ├── middleware.ts         # Next.js middleware for auth
 └── package.json          # Project dependencies
 ```
+
+## 🎃 Hacktoberfest
+
+Connectrix is participating in Hacktoberfest! We welcome contributions from developers of all skill levels.
+
+### 🏷️ How to Participate
+
+1. **Find an issue**: Look for issues labeled `good first issue`, `help wanted`, or `hacktoberfest`
+2. **Read the guidelines**: Check out our [HACKTOBERFEST.md](HACKTOBERFEST.md) for detailed information
+3. **Make your contribution**: Follow our [CONTRIBUTING.md](CONTRIBUTING.md) guide
+4. **Submit a PR**: Use our PR template and wait for review
+
+### 📋 Labels We Use
+
+- **`good first issue`**: Perfect for newcomers and first-time contributors
+- **`help wanted`**: Issues where we actively need community help
+- **`hacktoberfest`**: Issues specifically tagged for Hacktoberfest
+- **`documentation`**: Documentation improvements (great for beginners!)
+- **`priority:low`**: Low-priority issues that are easy to tackle
+
+All quality contributions are welcome! Read [HACKTOBERFEST.md](HACKTOBERFEST.md) for full details on what makes a PR eligible.
 
 ## 🤝 Contributing
 
