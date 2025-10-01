@@ -391,7 +391,7 @@ Join our community chat for real-time help:
 #### 4. Email
 
 For private inquiries:
-- Email: connectrix@gsu.edu.ng
+- Email: mr.zplux009@gmail.com
 
 ### Common Questions
 
