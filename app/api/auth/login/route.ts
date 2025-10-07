@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { z } from 'zod'
 import User from '@/lib/models/User'
-import connectDB from '@/lib/db'
+import {connectDB} from '@/lib/db'
 import { signToken } from '@/lib/auth'
 
 // Input validation schema

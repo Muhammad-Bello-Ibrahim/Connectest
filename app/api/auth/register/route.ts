@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
 import { z } from "zod"
 // Models and utils will be dynamically imported after DB connection
-import connectDB from "@/lib/db"
+import { connectDB } from "@/lib/db"
 
 // Input validation schema
 const registerSchema = z.object({
