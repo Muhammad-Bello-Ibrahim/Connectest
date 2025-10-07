@@ -2,7 +2,7 @@
 import { jwtVerify } from "jose"
 import { NextRequest, NextResponse } from "next/server"
 import User from "@/lib/models/User"
-import connectDB from "@/lib/db"
+import { connectDB } from "@/lib/db"
 
 export async function GET(req: NextRequest) {
   const token = req.cookies.get("connectrix-token")?.value
@@ -16,8 +16,8 @@ export async function GET(req: NextRequest) {
     const { payload }: any = await jwtVerify(token, secret)
 
     // Get full user data from database for verification
-    await connectDB()
-    const user = await User.findById(payload.id).select('-password')
+    await connectDB();
+    const user = await User.findById(String(payload.id)).select('-password')
     
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 401 })

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import User from "@/lib/models/User";
-import connectDB from "@/lib/db";
+import {connectDB} from "@/lib/db";
 import { verifyToken } from "@/lib/auth";
 import { assignAndCreateClubsForUser } from "@/lib/utils";
 

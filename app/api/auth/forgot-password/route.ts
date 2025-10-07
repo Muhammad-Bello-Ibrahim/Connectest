@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import User from "@/lib/models/User"
-import connectDB from "@/lib/db"
+import {connectDB} from "@/lib/db"
 import { SignJWT } from "jose"
 import { sendMail } from "@/lib/server-mail" // <-- FIXED: import from server-mail
 

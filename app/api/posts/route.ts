@@ -3,7 +3,7 @@ import { z } from "zod";
 import { Post } from "@/lib/models/Post";
 import User from "@/lib/models/User";
 import Club from "@/lib/models/Club";
-import connectDB from "@/lib/db";
+import {connectDB} from "@/lib/db";
 import { verifyToken } from "@/lib/auth";
 
 // Validation schema for post creation

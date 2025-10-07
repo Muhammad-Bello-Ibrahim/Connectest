@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Club from "@/lib/models/Club";
 import User from "@/lib/models/User";
-import connectDB from "@/lib/db";
+import {connectDB} from "@/lib/db";
 import { verifyToken } from "@/lib/auth";
 import { types } from "mongoose";
 export async function GET(req: NextRequest) {

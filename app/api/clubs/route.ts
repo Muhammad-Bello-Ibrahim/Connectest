@@ -3,7 +3,7 @@ import { z } from "zod";
 import bcrypt from "bcryptjs";
 import Club from "@/lib/models/Club";
 import User from "@/lib/models/User";
-import connectDB from "@/lib/db";
+import {connectDB} from "@/lib/db";
 import { verifyToken } from "@/lib/auth";
 
 // Validation schema for club creation

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { Post, Comment } from "@/lib/models/Post";
 import User from "@/lib/models/User";
-import connectDB from "@/lib/db";
+import {connectDB} from "@/lib/db";
 import { verifyToken } from "@/lib/auth";
 
 // Validation schema for comment creation
