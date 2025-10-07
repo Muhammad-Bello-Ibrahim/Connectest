@@ -16,6 +16,7 @@ export default function DashboardPage() {
     }
   }, [user, loading, router])
 
+  if (loading) return null
   if (!user || user.role !== "student") return null
 
   return (

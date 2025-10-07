@@ -8,7 +8,6 @@ import { ClubSidebar } from "@/components/club-sidebar"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { MobileNav } from "@/components/mobile-nav"
-import ProfileCompletionBanner from "@/components/ProfileCompletionBanner"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading, getRedirectPath } = useAuth()
@@ -49,8 +48,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen">
       {/* Profile Completion Banner - appears above everything */}
-      <ProfileCompletionBanner />
-      
+      {/* Profile Completion Banner - appears above everything */}
       <div className="flex min-h-screen">
         {/* Desktop Sidebar - Hidden on mobile */}
         <div className="hidden md:block">
