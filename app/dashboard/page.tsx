@@ -6,16 +6,17 @@ import { useAuth } from "@/hooks/use-auth"
 import Newsfeed from "@/components/newsfeed"
 
 export default function DashboardPage() {
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
   const router = useRouter()
 
   // Secure redirect for unauthorized or wrong-role users
   useEffect(() => {
-    if (!user || user.role !== "student") {
+    if (!loading && (!user || user.role !== "student")) {
       router.replace("/login")
     }
-  }, [user, router])
+  }, [user, loading, router])
 
+  if (loading) return null
   if (!user || user.role !== "student") return null
 
   return (
