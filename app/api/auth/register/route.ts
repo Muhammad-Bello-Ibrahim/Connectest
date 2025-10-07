@@ -7,7 +7,7 @@ import { connectDB } from "@/lib/db"
 // Input validation schema
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100, "Name too long"),
-  email: z.string().email("Invalid email format").max(100),
+  email: z.string().email("Invalid email format").max(100).optional(),
   studentId: z.string(),
   faculty: z.string(),
   department: z.string(),
@@ -16,7 +16,7 @@ const registerSchema = z.object({
   localGovt: z.string().optional(),
   password: z.string().min(8, "Password must be at least 8 characters").max(128, "Password too long"),
   confirmPassword: z.string().optional(),
-  acceptPolicy: z.literal(true, { errorMap: () => ({ message: "You must accept the Privacy Policy & Terms to continue." }) })
+  acceptPolicy: z.boolean().optional()
 })
 
 function normalize(str?: string) {
@@ -99,12 +99,7 @@ export async function POST(req: NextRequest) {
     }
 
     const data = validationResult.data;
-    // Block registration if privacy/terms not accepted
-    if (!data.acceptPolicy) {
-      return NextResponse.json({
-        error: 'You must accept the Privacy Policy & Terms to continue.'
-      }, { status: 400 });
-    }
+    // acceptPolicy is now optional - no enforcement for minimal student registration
 
     // Normalize relevant fields for case-insensitive matching
     const faculty = normalize(data.faculty);
@@ -123,17 +118,24 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Check for existing user (case-insensitive email, exact studentId)
-    const existing = await User.findOne({
-      $or: [
-        { email: data.email.toLowerCase() },
-        ...(data.studentId ? [{ studentId: data.studentId.toUpperCase() }] : [])
-      ]
-    });
-    if (existing) {
-      return NextResponse.json({
-        error: "Email or Student ID already registered."
-      }, { status: 409 });
+    // Check for existing user (case-insensitive email if provided, exact studentId)
+    const existingConditions = [];
+    if (data.email) {
+      existingConditions.push({ email: data.email.toLowerCase() });
+    }
+    if (data.studentId) {
+      existingConditions.push({ studentId: data.studentId.toUpperCase() });
+    }
+
+    if (existingConditions.length > 0) {
+      const existing = await User.findOne({
+        $or: existingConditions
+      });
+      if (existing) {
+        return NextResponse.json({
+          error: "Email or Student ID already registered."
+        }, { status: 409 });
+      }
     }
 
     // Hash password securely
@@ -158,7 +160,7 @@ export async function POST(req: NextRequest) {
 
     const user = await User.create({
       name: data.name.trim(),
-      email: data.email.toLowerCase(),
+      ...(data.email && { email: data.email.toLowerCase() }),
       studentId: data.studentId?.toUpperCase(),
       password: hashedPassword,
       faculty: facultyAbbr,

@@ -8,6 +8,7 @@ import { ClubSidebar } from "@/components/club-sidebar"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { MobileNav } from "@/components/mobile-nav"
+import ProfileCompletionBanner from "@/components/ProfileCompletionBanner"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading, getRedirectPath } = useAuth()
@@ -46,24 +47,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="flex min-h-screen">
-      {/* Desktop Sidebar - Hidden on mobile */}
-      <div className="hidden md:block">
-        {renderSidebar()}
-      </div>
+    <div className="min-h-screen">
+      {/* Profile Completion Banner - appears above everything */}
+      <ProfileCompletionBanner />
       
-      {/* Main Content */}
-      <main className="flex-1 p-4 pb-20 md:pb-4">
-        {/* Mobile Header - Visible only on mobile */}
-        <div className="md:hidden mb-4">
-          <DashboardHeader />
+      <div className="flex min-h-screen">
+        {/* Desktop Sidebar - Hidden on mobile */}
+        <div className="hidden md:block">
+          {renderSidebar()}
         </div>
         
-        {children}
-      </main>
-      
-      {/* Mobile Navigation - Hidden on desktop */}
-      <MobileNav />
+        {/* Main Content */}
+        <main className="flex-1 p-4 pb-20 md:pb-4">
+          {/* Mobile Header - Visible only on mobile */}
+          <div className="md:hidden mb-4">
+            <DashboardHeader />
+          </div>
+          
+          {children}
+        </main>
+        
+        {/* Mobile Navigation - Hidden on desktop */}
+        <MobileNav />
+      </div>
     </div>
   )
 }
