@@ -164,19 +164,93 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4 py-8">
-      <div className="w-full max-w-2xl bg-white dark:bg-zinc-900 rounded-2xl shadow-xl p-6 sm:p-8 flex flex-col gap-6 border border-zinc-200 dark:border-zinc-800">
-        {/* Progress Bar (green) */}
-        <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
-          <div
-            className="bg-green-600 h-2.5 rounded-full transition-all"
-            style={{ width: `${progress}%` }}
-          />
+    <div className="min-h-screen flex">
+      {/* Left side - Branding */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary via-primary/90 to-primary/80 p-12 flex-col justify-between relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/studentBg.jpeg')] opacity-10 bg-cover bg-center" />
+        <div className="relative z-10">
+          <Link href="/" className="inline-flex items-center gap-2 text-white hover:opacity-80 transition-opacity">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            <span className="font-medium">Back to Home</span>
+          </Link>
         </div>
-        {/* Only show active category as heading */}
-        <h2 className="text-lg font-semibold text-center mb-2 text-foreground">
-          {stages[stage]}
-        </h2>
+        <div className="relative z-10 space-y-6">
+          <h1 className="text-5xl font-bold text-white leading-tight">
+            Join Connectrix<br />Today
+          </h1>
+          <p className="text-xl text-white/90 leading-relaxed">
+            Create your account and become part of the most vibrant campus community. Connect, engage, and grow.
+          </p>
+          <div className="space-y-4 pt-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div>
+                <div className="text-white font-semibold">Auto-join Clubs</div>
+                <div className="text-white/80 text-sm">Automatically matched with clubs based on your profile</div>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div>
+                <div className="text-white font-semibold">Stay Updated</div>
+                <div className="text-white/80 text-sm">Get real-time updates on events and activities</div>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div>
+                <div className="text-white font-semibold">Connect & Grow</div>
+                <div className="text-white/80 text-sm">Network with peers and expand your horizons</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="relative z-10 text-white/60 text-sm">
+          © 2025 Connectrix. All rights reserved.
+        </div>
+      </div>
+
+      {/* Right side - Registration Form */}
+      <div className="flex-1 flex items-center justify-center p-8 bg-background overflow-y-auto">
+        <div className="w-full max-w-xl space-y-6 animate-fade-in my-8">
+          <div className="text-center space-y-2">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-4">
+              <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+              </svg>
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight">Create Account</h1>
+            <p className="text-muted-foreground">Step {stage + 1} of {stages.length}: {stages[stage]}</p>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+            <div
+              className="bg-primary h-2 rounded-full transition-all duration-500 ease-out"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+
+          <Link href="/" className="lg:hidden flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Home
+          </Link>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
@@ -301,8 +375,20 @@ export default function RegisterPage() {
             </div>
           </form>
         </Form>
-        <div className="text-center text-sm">
-          Already have an account? <Link href="/login" className="underline text-primary">Sign in</Link>
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">Already have an account?</span>
+            </div>
+          </div>
+
+          <div className="text-center">
+            <Link href="/login" className="text-sm font-medium text-primary hover:underline">
+              Sign in instead
+            </Link>
+          </div>
         </div>
       </div>
     </div>

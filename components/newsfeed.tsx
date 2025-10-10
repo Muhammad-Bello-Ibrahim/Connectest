@@ -192,11 +192,13 @@ export default function Newsfeed({
     toast({ title: "Link copied!", description: "Post link copied to clipboard." });
   };
 
-  // Twitter-like post card, no hashtags, no username/welcome at top
+  // Enhanced post card with modern design
   const PostCard = ({ post }: { post: Post }) => {
     const [comments, setComments] = useState(post.comments || []);
     const [commentContent, setCommentContent] = useState("");
     const [submitting, setSubmitting] = useState(false);
+    const [liked, setLiked] = useState(false);
+    const [likeCount, setLikeCount] = useState(post.likeCount || 0);
 
     // Real comment posting
     const handleComment = async (content: string, parentId?: string) => {
