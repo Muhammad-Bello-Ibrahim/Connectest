@@ -7,13 +7,15 @@ import { connectDB } from "@/lib/db"
 // Input validation schema
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100, "Name too long"),
-  email: z.string().email("Invalid email format").max(100).optional(),
+  email: z.string().email("Invalid email format").max(100),
+  phone: z.string().min(10, "Phone number must be at least 10 digits").max(15, "Phone number too long").optional(),
   studentId: z.string(),
   faculty: z.string(),
   department: z.string(),
   state: z.string().optional(),
   religion: z.string().optional(),
   localGovt: z.string().optional(),
+  address: z.string().min(5, "Address must be at least 5 characters").max(200, "Address too long").optional(),
   password: z.string().min(8, "Password must be at least 8 characters").max(128, "Password too long"),
   confirmPassword: z.string().optional(),
   acceptPolicy: z.boolean().optional()
@@ -160,7 +162,8 @@ export async function POST(req: NextRequest) {
 
     const user = await User.create({
       name: data.name.trim(),
-      ...(data.email && { email: data.email.toLowerCase() }),
+      email: data.email.toLowerCase(),
+      phone: data.phone,
       studentId: data.studentId?.toUpperCase(),
       password: hashedPassword,
       faculty: facultyAbbr,
@@ -170,6 +173,7 @@ export async function POST(req: NextRequest) {
       state,
       religion,
       localGovt: data.localGovt,
+      address: data.address,
       clubs,
     });
 

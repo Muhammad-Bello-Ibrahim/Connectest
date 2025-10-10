@@ -47,8 +47,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen">
-      {/* Profile Completion Banner - appears above everything */}
-      {/* Profile Completion Banner - appears above everything */}
       <div className="flex min-h-screen">
         {/* Desktop Sidebar - Hidden on mobile */}
         <div className="hidden md:block">
