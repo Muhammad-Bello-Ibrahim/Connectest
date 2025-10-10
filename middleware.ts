@@ -27,7 +27,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/dashboard", request.url))
     }
 
-    if (pathname.startsWith("/dashboard/dean") && userPayload.role !== "dean") {
+    if (pathname.startsWith("/dashboard/clubs") && userPayload.role !== "club") {
       return NextResponse.redirect(new URL("/dashboard", request.url))
     }
 
@@ -42,7 +42,7 @@ export const config = {
     "/dashboard/:path*", 
     "/dashboard",
     "/dashboard/admin/:path*",
-    "/dashboard/dean/:path*",
+    "/dashboard/club/:path*",
     "/clubs/:clubId/manage/:path*"
   ],
 }

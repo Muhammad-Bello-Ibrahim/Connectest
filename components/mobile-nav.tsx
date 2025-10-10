@@ -8,7 +8,8 @@ import {
   Settings,
   Menu,
   User,
-  Plus
+  Plus,
+  Bell
 } from "lucide-react"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
@@ -100,32 +101,71 @@ export function MobileNav() {
     const isClub = user?.role === "club"
     const baseRoute = isClub ? "/dashboard/club" : "/dashboard"
     
-    return [
-      {
-        href: baseRoute,
-        icon: Home,
-        label: "Home",
-        active: pathname === baseRoute
-      },
-      {
-        href: isClub ? "/dashboard/club/members" : "/dashboard/clubs", 
-        icon: Users,
-        label: isClub ? "Members" : "Clubs",
-        active: isActive(isClub ? "/dashboard/club/members" : "/dashboard/clubs")
-      },
-      {
-        href: isClub ? "/dashboard/club/profile" : "/dashboard/profile",
-        icon: User, 
-        label: "Profile",
-        active: isActive(isClub ? "/dashboard/club/profile" : "/dashboard/profile")
-      },
-      {
-        href: isClub ? "/dashboard/club/settings" : "/dashboard/settings",
-        icon: Settings,
-        label: "Settings",
-        active: isActive(isClub ? "/dashboard/club/settings" : "/dashboard/settings")
+    // For students, show 5 items with notifications
+    if (!isClub) {
+      return {
+        firstTwo: [
+          {
+            href: baseRoute,
+            icon: Home,
+            label: "Home",
+            active: pathname === baseRoute
+          },
+          {
+            href: "/dashboard/clubs", 
+            icon: Users,
+            label: "Clubs",
+            active: isActive("/dashboard/clubs")
+          }
+        ],
+        lastTwo: [
+          {
+            href: "/dashboard/notifications",
+            icon: Bell,
+            label: "Alerts",
+            active: isActive("/dashboard/notifications")
+          },
+          {
+            href: "/dashboard/profile",
+            icon: User, 
+            label: "Profile",
+            active: isActive("/dashboard/profile")
+          }
+        ]
       }
-    ]
+    }
+    
+    // For clubs, show 4 items
+    return {
+      firstTwo: [
+        {
+          href: baseRoute,
+          icon: Home,
+          label: "Home",
+          active: pathname === baseRoute
+        },
+        {
+          href: "/dashboard/club/members", 
+          icon: Users,
+          label: "Members",
+          active: isActive("/dashboard/club/members")
+        }
+      ],
+      lastTwo: [
+        {
+          href: "/dashboard/club/profile",
+          icon: User, 
+          label: "Profile",
+          active: isActive("/dashboard/club/profile")
+        },
+        {
+          href: "/dashboard/club/settings",
+          icon: Settings,
+          label: "Settings",
+          active: isActive("/dashboard/club/settings")
+        }
+      ]
+    }
   }
 
   const navItems = getNavItems()
@@ -182,7 +222,7 @@ export function MobileNav() {
       {/* Bottom Navigation Bar */}
       <div className="fixed bottom-0 left-0 right-0 z-50 flex h-16 items-center justify-around border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:hidden">
         {/* First two nav items */}
-        {navItems.slice(0, 2).map((item) => (
+        {navItems.firstTwo.map((item) => (
           <Link
             key={item.href}
             href={item.href}
@@ -202,12 +242,11 @@ export function MobileNav() {
             <div className="mb-1 h-8 w-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center">
               <Plus className="h-4 w-4" />
             </div>
-            <span className="text-[10px] font-medium">Add Post</span>
           </div>
         </CreatePostDialog>
         
         {/* Last two nav items */}
-        {navItems.slice(2, 4).map((item) => (
+        {navItems.lastTwo.map((item) => (
           <Link
             key={item.href}
             href={item.href}
@@ -220,55 +259,6 @@ export function MobileNav() {
             <span className="text-[10px] font-medium">{item.label}</span>
           </Link>
         ))}
-        
-        {/* Menu Button - Hide if no secondary items */}
-        {secondaryNavItems.length > 0 && (
-          <Sheet open={isOpen} onOpenChange={setIsOpen}>
-            <SheetTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="flex flex-col items-center justify-center text-xs flex-1 py-2 h-auto"
-              >
-                <Menu className="mb-1 h-5 w-5" />
-                <span className="text-[10px] font-medium">More</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="bottom" className="max-h-[60vh]">
-              <div className="grid gap-4 py-4">
-                <div className="text-center">
-                  <h3 className="text-lg font-semibold">More Options</h3>
-                  <p className="text-sm text-muted-foreground">Quick access to all features</p>
-                </div>
-                <div className="grid gap-2">
-                  {secondaryNavItems.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={() => setIsOpen(false)}
-                      className={cn(
-                        "flex items-center gap-3 rounded-lg px-4 py-3 text-sm transition-colors",
-                        item.active 
-                          ? "bg-primary text-primary-foreground" 
-                          : "hover:bg-accent hover:text-accent-foreground"
-                      )}
-                    >
-                      <item.icon className="h-5 w-5" />
-                      <span className="font-medium">{item.label}</span>
-                    </Link>
-                  ))}
-                </div>
-                {user && (
-                  <div className="border-t pt-4">
-                    <div className="text-center text-sm text-muted-foreground">
-                      Signed in as <span className="font-medium">{user.name}</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </SheetContent>
-          </Sheet>
-        )}
       </div>
       
       {/* Spacer to prevent content from being hidden behind bottom nav */}

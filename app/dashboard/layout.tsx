@@ -20,13 +20,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (!user) {
       router.replace("/login")
     } else {
-      const correctPath = getRedirectPath()
-      if (
-        (user.role === "admin" && !pathname.startsWith("/dashboard/admin")) ||
-        (user.role === "club" && !pathname.startsWith("/dashboard/club")) ||
-        (user.role === "student" && !pathname.startsWith("/dashboard"))
-      ) {
-        router.replace(correctPath)
+      // Role-based access control
+      if (user.role === "admin" && !pathname.startsWith("/dashboard/admin")) {
+        router.replace("/dashboard/admin")
+      } else if (user.role === "club" && !pathname.startsWith("/dashboard/club")) {
+        router.replace("/dashboard/club")
+      } else if (user.role === "student" && (pathname.startsWith("/dashboard/admin") || pathname.startsWith("/dashboard/club"))) {
+        // Students should not access admin or club-specific routes
+        router.replace("/dashboard")
       }
     }
   }, [user, isLoading, pathname, router])
@@ -47,6 +48,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const isAdminRoute = pathname.startsWith("/dashboard/admin")
 
+  const isDashboardHome = pathname === "/dashboard"
+
   return (
     <div className="min-h-screen">
       <div className="flex min-h-screen">
@@ -56,19 +59,27 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
         
         {/* Main Content */}
-        <main className={`flex-1 pb-20 md:pb-4 w-full ${isAdminRoute ? 'p-6 md:p-8 lg:p-12' : 'p-4'}`}>
-          {/* Mobile Header - Visible only on mobile */}
-          <div className="md:hidden mb-4">
-            <DashboardHeader />
-          </div>
+        <main className={`flex-1 w-full ${
+          isDashboardHome 
+            ? 'p-4' 
+            : isAdminRoute 
+              ? 'p-6 md:p-8 lg:p-12 pb-20 md:pb-4' 
+              : 'p-4 pb-20 md:pb-4'
+        }`}>
+          {/* Mobile Header - Visible only on mobile, but not on dashboard home */}
+          {!isDashboardHome && (
+            <div className="md:hidden mb-4">
+              <DashboardHeader />
+            </div>
+          )}
           
           <div className={isAdminRoute ? 'w-full h-full' : ''}>
             {children}
           </div>
         </main>
         
-        {/* Mobile Navigation - Hidden on desktop */}
-        <MobileNav />
+        {/* Mobile Navigation - Hidden on desktop and dashboard home (has its own nav) */}
+        {!isDashboardHome && <MobileNav />}
       </div>
     </div>
   )

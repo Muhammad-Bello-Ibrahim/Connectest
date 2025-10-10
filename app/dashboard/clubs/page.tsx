@@ -19,7 +19,10 @@ import {
   Star,
   UserPlus,
   UserMinus,
-  Loader2
+  Loader2,
+  Home,
+  Bell,
+  User
 } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import { 
@@ -29,6 +32,7 @@ import {
   SelectTrigger,
   SelectValue 
 } from "@/components/ui/select"
+import { MobileNav } from "@/components/mobile-nav"
 
 interface Club {
   _id: string
@@ -265,7 +269,8 @@ export default function ClubsPage() {
   )
 
   return (
-    <div className="space-y-6">
+    <>
+    <div className="space-y-6 pb-20 md:pb-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -276,8 +281,10 @@ export default function ClubsPage() {
         </div>
         <Button asChild>
           <Link href="/dashboard/clubs/create">
-            <Plus className="mr-2 h-4 w-4" />
-            Create Club
+            <span className="inline-flex items-center">
+              <Plus className="mr-2 h-4 w-4" />
+              Create Club
+            </span>
           </Link>
         </Button>
       </div>
@@ -411,5 +418,9 @@ export default function ClubsPage() {
         </div>
       )}
     </div>
+
+    {/* Mobile Bottom Navigation */}
+    <MobileNav />
+    </>
   )
 }

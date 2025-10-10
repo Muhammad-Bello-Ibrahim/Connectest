@@ -2,70 +2,106 @@
 
 import { useState } from "react"
 import { useAuth } from "@/hooks/use-auth"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Pencil, Save, User, Mail, Phone, MapPin, School, Building, Calendar } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
 import { MobileNav } from "@/components/mobile-nav"
-
-const profileFormSchema = z.object({
-  name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
-  }),
-  email: z.string().email({
-    message: "Please enter a valid email address.",
-  }),
-  phone: z.string().min(10, {
-    message: "Phone number must be at least 10 characters.",
-  }),
-  address: z.string().min(5, {
-    message: "Address must be at least 5 characters.",
-  }),
-  bio: z.string().optional(),
-})
+import { 
+  Pencil, 
+  X,
+  Check,
+  User, 
+  Mail, 
+  Phone, 
+  MapPin, 
+  School, 
+  Building, 
+  Calendar, 
+  Home, 
+  Bell, 
+  Users,
+  Camera,
+  Lock,
+  BookOpen,
+  GraduationCap,
+  Award
+} from "lucide-react"
+import Link from "next/link"
 
 export default function ProfilePage() {
-  const { user, updateProfile } = useAuth()
+  const { user } = useAuth()
   const { toast } = useToast()
-  const [isEditing, setIsEditing] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-
-  const form = useForm<z.infer<typeof profileFormSchema>>({
-    resolver: zodResolver(profileFormSchema),
-    defaultValues: {
-      name: user?.name || "",
-      email: user?.email || "",
-      phone: user?.phone || "",
-      address: user?.address || "",
-      bio: user?.bio || "",
-    },
+  const [isEditingPersonal, setIsEditingPersonal] = useState(false)
+  const [isEditingBio, setIsEditingBio] = useState(false)
+  const [editedData, setEditedData] = useState({
+    name: user?.name || "",
+    email: user?.email || "",
+    phone: (user as any)?.phone || "",
+    address: (user as any)?.address || "",
+    bio: (user as any)?.bio || ""
   })
 
-  async function onSubmit(values: z.infer<typeof profileFormSchema>) {
-    setIsLoading(true)
+  const handleSavePersonal = async () => {
     try {
-      await updateProfile(values)
-      toast({
-        title: "Profile updated",
-        description: "Your profile has been updated successfully.",
+      const res = await fetch("/api/auth/user/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          name: editedData.name,
+          email: editedData.email,
+          phone: editedData.phone,
+          address: editedData.address
+        }),
       })
-      setIsEditing(false)
-    } catch (error: any) {
+      
+      if (res.ok) {
+        toast({
+          title: "Success",
+          description: "Profile updated successfully"
+        })
+        setIsEditingPersonal(false)
+      } else {
+        throw new Error("Update failed")
+      }
+    } catch (error) {
       toast({
         variant: "destructive",
-        title: "Update failed",
-        description: error.message || "There was a problem updating your profile.",
+        title: "Error",
+        description: "Failed to update profile"
       })
-    } finally {
-      setIsLoading(false)
+    }
+  }
+
+  const handleSaveBio = async () => {
+    try {
+      const res = await fetch("/api/auth/user/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ bio: editedData.bio }),
+      })
+      
+      if (res.ok) {
+        toast({
+          title: "Success",
+          description: "Bio updated successfully"
+        })
+        setIsEditingBio(false)
+      } else {
+        throw new Error("Update failed")
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update bio"
+      })
     }
   }
 
@@ -73,6 +109,7 @@ export default function ProfilePage() {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="text-center">
+          <User className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <h2 className="text-lg font-medium">User not found</h2>
           <p className="text-muted-foreground">Please log in to view your profile.</p>
         </div>
@@ -80,321 +117,400 @@ export default function ProfilePage() {
     )
   }
 
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
-        <p className="text-muted-foreground">View and manage your personal information</p>
-      </div>
+  const userClubs = (user as any)?.clubs || []
+  const userAvatar = (user as any)?.avatar
+  const userBio = (user as any)?.bio
+  const userPhone = (user as any)?.phone
+  const userAddress = (user as any)?.address
+  const userState = (user as any)?.state
+  const userLocalGovt = (user as any)?.localGovt
+  const userGender = (user as any)?.gender
+  const userDob = (user as any)?.dob
+  const userStudentId = (user as any)?.studentId
+  const userLevel = (user as any)?.level
+  const userFaculty = (user as any)?.faculty
+  const userDepartment = (user as any)?.department
 
-      {/* User's Clubs Section */}
-      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-4 mb-4">
-        <h2 className="text-xl font-semibold mb-2">Your Clubs</h2>
-        {user.clubs && user.clubs.length > 0 ? (
-          <ul className="flex flex-wrap gap-2">
-            {user.clubs.map((club: any) => (
-              <li key={club._id || club} className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100 rounded-full text-sm font-medium">
-                {club.name || club.abbreviation || club}
-                {club.type === 'src' && <span className="ml-1 text-xs text-yellow-600 dark:text-yellow-300">(SRC)</span>}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-muted-foreground text-sm">You are not a member of any clubs yet.</p>
-        )}
-        <div className="mt-2 text-xs text-muted-foreground">
-          <span>All students are automatically members of the <b>SRC</b> club. You can join or leave general clubs from the clubs page.</span>
+  return (
+    <>
+    <div className="space-y-6 pb-20 md:pb-6 max-w-5xl mx-auto">
+      {/* Header with Cover Photo */}
+      <div className="relative">
+        <div className="h-32 md:h-48 bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 rounded-lg" />
+        <div className="absolute -bottom-16 left-6 md:left-8">
+          <div className="relative">
+            <Avatar className="h-28 w-28 md:h-32 md:w-32 border-4 border-background">
+              <AvatarImage src={userAvatar} alt={user.name} />
+              <AvatarFallback className="text-3xl font-bold">
+                {user.name?.[0]?.toUpperCase() || "U"}
+              </AvatarFallback>
+            </Avatar>
+            <Button 
+              size="icon" 
+              variant="secondary" 
+              className="absolute bottom-0 right-0 h-8 w-8 rounded-full shadow-lg"
+            >
+              <Camera className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-7">
-        <Card className="md:col-span-2">
-          <CardHeader>
-            <CardTitle>Profile Picture</CardTitle>
+      {/* Name and Role */}
+      <div className="pt-16 px-6 md:px-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold">{user.name}</h1>
+            <div className="flex items-center gap-2 mt-1">
+              <Badge variant="secondary" className="capitalize">
+                {user.role}
+              </Badge>
+              {userStudentId && (
+                <span className="text-sm text-muted-foreground">
+                  ID: {userStudentId}
+                </span>
+              )}
+            </div>
+          </div>
+          <Button variant="outline" onClick={() => setIsEditingPersonal(true)}>
+            <Pencil className="mr-2 h-4 w-4" />
+            Edit Profile
+          </Button>
+        </div>
+
+        {/* Bio Section */}
+        <Card className="mt-6">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-base font-medium">About</CardTitle>
+            {!isEditingBio && (
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setIsEditingBio(true)}
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+            )}
           </CardHeader>
-          <CardContent className="flex flex-col items-center">
-            <Avatar className="h-32 w-32">
-              <AvatarImage src={user.avatar || "/placeholder.svg?height=128&width=128"} alt={user.name} />
-              <AvatarFallback>
-                {user?.name?.charAt?.(0) || "U"}
-              </AvatarFallback>
-            </Avatar>
-            <h2 className="mt-4 text-xl font-bold">{user.name}</h2>
-            <p className="text-sm text-muted-foreground capitalize">{user.role}</p>
-            <div className="mt-2 text-center text-sm text-muted-foreground">{user.bio || "No bio provided"}</div>
-            <Button variant="outline" className="mt-4 w-full">
-              Change Picture
-            </Button>
+          <CardContent>
+            {isEditingBio ? (
+              <div className="space-y-3">
+                <Textarea
+                  value={editedData.bio}
+                  onChange={(e) => setEditedData({...editedData, bio: e.target.value})}
+                  placeholder="Tell us about yourself..."
+                  className="min-h-[100px]"
+                />
+                <div className="flex gap-2">
+                  <Button size="sm" onClick={handleSaveBio}>
+                    <Check className="mr-2 h-4 w-4" />
+                    Save
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => {
+                      setEditedData({...editedData, bio: userBio || ""})
+                      setIsEditingBio(false)
+                    }}
+                  >
+                    <X className="mr-2 h-4 w-4" />
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                {userBio || "No bio provided yet. Click edit to add one."}
+              </p>
+            )}
           </CardContent>
         </Card>
 
-        <div className="md:col-span-5 space-y-6">
-          <Tabs defaultValue="personal">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="personal">Personal Info</TabsTrigger>
-              <TabsTrigger value="academic">Academic Details</TabsTrigger>
-              <TabsTrigger value="security">Security</TabsTrigger>
-            </TabsList>
+        {/* Clubs Section */}
+        {userClubs.length > 0 && (
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle className="text-base font-medium flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                Clubs & Organizations
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
+                {userClubs.map((club: any) => (
+                  <Link 
+                    key={club._id || club}
+                    href={`/dashboard/clubs/${club._id}`}
+                    className="group"
+                  >
+                    <Badge 
+                      variant="outline" 
+                      className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                    >
+                      {club.name || club.abbreviation || club}
+                      {club.type === 'src' && (
+                        <Award className="ml-1 h-3 w-3 text-yellow-600 dark:text-yellow-400" />
+                      )}
+                    </Badge>
+                  </Link>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground mt-3">
+                <Award className="inline h-3 w-3 mr-1" />
+                SRC members have special privileges
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
-            <TabsContent value="personal" className="space-y-4 pt-4">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle>Personal Information</CardTitle>
-                    <CardDescription>Manage your personal details</CardDescription>
+        {/* Information Grid */}
+        <div className="grid md:grid-cols-2 gap-6 mt-6">
+          {/* Personal Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-medium flex items-center gap-2">
+                <User className="h-4 w-4" />
+                Personal Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <Mail className="h-4 w-4 text-muted-foreground mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-muted-foreground">Email</p>
+                    <p className="text-sm font-medium truncate">{user.email}</p>
                   </div>
-                  <Button variant="outline" size="sm" onClick={() => setIsEditing(!isEditing)}>
-                    {isEditing ? (
-                      <>
-                        <Save className="mr-2 h-4 w-4" />
-                        Cancel
-                      </>
-                    ) : (
-                      <>
-                        <Pencil className="mr-2 h-4 w-4" />
-                        Edit
-                      </>
-                    )}
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  {isEditing ? (
-                    <Form {...form}>
-                      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <FormField
-                          control={form.control}
-                          name="name"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Full Name</FormLabel>
-                              <FormControl>
-                                <Input {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="email"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Email</FormLabel>
-                              <FormControl>
-                                <Input {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="phone"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Phone Number</FormLabel>
-                              <FormControl>
-                                <Input {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="address"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Address</FormLabel>
-                              <FormControl>
-                                <Input {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="bio"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Bio</FormLabel>
-                              <FormControl>
-                                <Textarea placeholder="Tell us about yourself" className="resize-none" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <Button type="submit" disabled={isLoading}>
-                          {isLoading ? "Saving..." : "Save Changes"}
-                        </Button>
-                      </form>
-                    </Form>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-2">
-                        <User className="h-5 w-5 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm font-medium">Full Name</p>
-                          <p>{user.name}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Mail className="h-5 w-5 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm font-medium">Email</p>
-                          <p>{user.email}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Phone className="h-5 w-5 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm font-medium">Phone Number</p>
-                          <p>{user.phone || "Not provided"}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-5 w-5 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm font-medium">Address</p>
-                          <p>{user.address || "Not provided"}</p>
-                        </div>
-                      </div>
-                      {user.state && (
-                        <div className="flex items-center gap-2">
-                          <MapPin className="h-5 w-5 text-muted-foreground" />
-                          <div>
-                            <p className="text-sm font-medium">State / LGA</p>
-                            <p>
-                              {user.state} / {user.localGovt}
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                      {user.gender && (
-                        <div className="flex items-center gap-2">
-                          <User className="h-5 w-5 text-muted-foreground" />
-                          <div>
-                            <p className="text-sm font-medium">Gender</p>
-                            <p>{user.gender}</p>
-                          </div>
-                        </div>
-                      )}
-                      {user.dob && (
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-5 w-5 text-muted-foreground" />
-                          <div>
-                            <p className="text-sm font-medium">Date of Birth</p>
-                            <p>{new Date(user.dob).toLocaleDateString()}</p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
+                </div>
 
-            <TabsContent value="academic" className="space-y-4 pt-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Academic Information</CardTitle>
-                  <CardDescription>Your academic details and records</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {user.role === "student" ? (
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-2">
-                        <School className="h-5 w-5 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm font-medium">Student ID</p>
-                          <p>{user.studentId}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <School className="h-5 w-5 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm font-medium">Level</p>
-                          <p>{user.level}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Building className="h-5 w-5 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm font-medium">Faculty</p>
-                          <p>{user.faculty}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Building className="h-5 w-5 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm font-medium">Department</p>
-                          <p>{user.department}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <School className="h-5 w-5 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm font-medium">Academic Standing</p>
-                          <p>Good</p>
-                        </div>
-                      </div>
-                  
-                    </div>
-                  ) : (
-                    <div className="text-center py-4">
-                      <p>Academic information is only available for students.</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="security" className="space-y-4 pt-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Security Settings</CardTitle>
-                  <CardDescription>Manage your account security</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="font-medium">Change Password</h3>
-                      <p className="text-sm text-muted-foreground">Update your password to keep your account secure</p>
-                    </div>
-                    <div className="grid gap-4">
-                      <div className="grid gap-2">
-                        <label htmlFor="current-password" className="text-sm font-medium">
-                          Current Password
-                        </label>
-                        <Input id="current-password" type="password" />
-                      </div>
-                      <div className="grid gap-2">
-                        <label htmlFor="new-password" className="text-sm font-medium">
-                          New Password
-                        </label>
-                        <Input id="new-password" type="password" />
-                      </div>
-                      <div className="grid gap-2">
-                        <label htmlFor="confirm-password" className="text-sm font-medium">
-                          Confirm New Password
-                        </label>
-                        <Input id="confirm-password" type="password" />
-                      </div>
+                {userPhone && (
+                  <div className="flex items-start gap-3">
+                    <Phone className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-xs text-muted-foreground">Phone</p>
+                      <p className="text-sm font-medium">{userPhone}</p>
                     </div>
                   </div>
-                </CardContent>
-                <CardFooter>
-                  <Button>Update Password</Button>
-                </CardFooter>
-              </Card>
-            </TabsContent>
-          </Tabs>
+                )}
+
+                {userAddress && (
+                  <div className="flex items-start gap-3">
+                    <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-xs text-muted-foreground">Address</p>
+                      <p className="text-sm font-medium">{userAddress}</p>
+                    </div>
+                  </div>
+                )}
+
+                {userState && (
+                  <div className="flex items-start gap-3">
+                    <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-xs text-muted-foreground">State / LGA</p>
+                      <p className="text-sm font-medium">{userState} / {userLocalGovt}</p>
+                    </div>
+                  </div>
+                )}
+
+                {userGender && (
+                  <div className="flex items-start gap-3">
+                    <User className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-xs text-muted-foreground">Gender</p>
+                      <p className="text-sm font-medium capitalize">{userGender}</p>
+                    </div>
+                  </div>
+                )}
+
+                {userDob && (
+                  <div className="flex items-start gap-3">
+                    <Calendar className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-xs text-muted-foreground">Date of Birth</p>
+                      <p className="text-sm font-medium">
+                        {new Date(userDob).toLocaleDateString('en-US', { 
+                          year: 'numeric', 
+                          month: 'long', 
+                          day: 'numeric' 
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Academic Information */}
+          {user.role === "student" && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base font-medium flex items-center gap-2">
+                  <GraduationCap className="h-4 w-4" />
+                  Academic Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  {userStudentId && (
+                    <div className="flex items-start gap-3">
+                      <School className="h-4 w-4 text-muted-foreground mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-xs text-muted-foreground">Student ID</p>
+                        <p className="text-sm font-medium font-mono">{userStudentId}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {userLevel && (
+                    <div className="flex items-start gap-3">
+                      <BookOpen className="h-4 w-4 text-muted-foreground mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-xs text-muted-foreground">Level</p>
+                        <p className="text-sm font-medium">{userLevel}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {userFaculty && (
+                    <div className="flex items-start gap-3">
+                      <Building className="h-4 w-4 text-muted-foreground mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-xs text-muted-foreground">Faculty</p>
+                        <p className="text-sm font-medium">{userFaculty}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {userDepartment && (
+                    <div className="flex items-start gap-3">
+                      <Building className="h-4 w-4 text-muted-foreground mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-xs text-muted-foreground">Department</p>
+                        <p className="text-sm font-medium">{userDepartment}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  <Separator />
+
+                  <div className="flex items-start gap-3">
+                    <Award className="h-4 w-4 text-green-600 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-xs text-muted-foreground">Academic Standing</p>
+                      <Badge variant="outline" className="mt-1 text-green-600 border-green-600">
+                        Good Standing
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Security Settings */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-medium flex items-center gap-2">
+                <Lock className="h-4 w-4" />
+                Security
+              </CardTitle>
+              <CardDescription>
+                Manage your account security settings
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button variant="outline" className="w-full justify-start">
+                <Lock className="mr-2 h-4 w-4" />
+                Change Password
+              </Button>
+              <Button variant="outline" className="w-full justify-start">
+                <Mail className="mr-2 h-4 w-4" />
+                Update Email
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
-      <MobileNav />
+
+      {/* Edit Personal Info Dialog */}
+      {isEditingPersonal && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <Card className="w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Edit Personal Information</CardTitle>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsEditingPersonal(false)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Full Name</label>
+                <Input
+                  value={editedData.name}
+                  onChange={(e) => setEditedData({...editedData, name: e.target.value})}
+                  placeholder="Enter your full name"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Email</label>
+                <Input
+                  type="email"
+                  value={editedData.email}
+                  onChange={(e) => setEditedData({...editedData, email: e.target.value})}
+                  placeholder="Enter your email"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Phone Number</label>
+                <Input
+                  value={editedData.phone}
+                  onChange={(e) => setEditedData({...editedData, phone: e.target.value})}
+                  placeholder="Enter your phone number"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Address</label>
+                <Textarea
+                  value={editedData.address}
+                  onChange={(e) => setEditedData({...editedData, address: e.target.value})}
+                  placeholder="Enter your address"
+                  className="min-h-[80px]"
+                />
+              </div>
+
+              <div className="flex gap-2 pt-4">
+                <Button onClick={handleSavePersonal} className="flex-1">
+                  <Check className="mr-2 h-4 w-4" />
+                  Save Changes
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsEditingPersonal(false)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
+
+    {/* Mobile Bottom Navigation */}
+    <MobileNav />
+    </>
   )
 }
-

@@ -8,7 +8,12 @@ import { SidebarProvider } from "@/components/ui/sidebar"
 export const metadata: Metadata = {
   title: "Connectrix - University Club Management",
   description: "Streamline and digitize student club activities",
-    generator: 'v0.dev'
+  generator: 'v0.dev',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+  }
 }
 
 export default function RootLayout({

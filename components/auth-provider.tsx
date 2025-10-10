@@ -30,6 +30,12 @@ export const AuthContext = createContext<AuthContextType>({
   isAuthenticated: () => false,
   updateProfile: async () => {},
 })
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<User | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const router = useRouter()
+
   const updateProfile = async (data: any) => {
     const res = await fetch("/api/auth/user/profile", {
       method: "PATCH",
@@ -41,12 +47,7 @@ export const AuthContext = createContext<AuthContextType>({
     if (!res.ok) throw new Error(result.error || "Profile update failed");
     setUser(result.user);
     localStorage.setItem("connectrix-user", JSON.stringify(result.user));
-  };
-
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const router = useRouter()
+  }
 
   useEffect(() => {
     const verifyAuth = async () => {
@@ -158,8 +159,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return "/dashboard/admin";
       case "club":
         return "/dashboard/club";
-      case "student":
-        return "/feed";
       default:
         return "/dashboard";
     }
