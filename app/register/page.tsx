@@ -12,13 +12,14 @@ import {
   FormLabel, FormMessage
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Eye, EyeOff } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Eye, EyeOff, GraduationCap, User as UserIcon, Mail, Phone as PhoneIcon, MapPin, Home, Lock } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 
-
-
 const stages = [
-  "Student Information",
+  "Academic Information",
+  "Personal Details",
+  "Contact Information",
   "Account Security"
 ]
 
@@ -90,11 +91,17 @@ function extractFacultyDept(studentId: string) {
 }
 
 const formSchema = z.object({
-  name: z.string().min(2).max(100),
   studentId: z.string()
     .regex(/^UG\d{2}\/[A-Z]{2}[A-Z]{2}\/\d{4}$/, { message: "Student ID format must be like UG20/SCCS/1026" }),
   faculty: z.string().min(1, "Faculty is required"),
   department: z.string().min(1, "Department is required"),
+  name: z.string().min(2, "Name must be at least 2 characters").max(100),
+  religion: z.string().min(1, "Religion is required"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().min(10, "Phone number must be at least 10 digits").max(15),
+  state: z.string().min(2, "State is required"),
+  localGovt: z.string().min(2, "Local Government is required"),
+  address: z.string().min(5, "Address must be at least 5 characters").max(200),
   password: z.string()
     .min(8)
     .max(128)
@@ -117,7 +124,10 @@ export default function RegisterPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "", studentId: "", faculty: "", department: "", password: "", confirmPassword: ""
+      studentId: "", faculty: "", department: "",
+      name: "", religion: "",
+      email: "", phone: "", state: "", localGovt: "", address: "",
+      password: "", confirmPassword: ""
     }
   })
 
@@ -146,6 +156,12 @@ export default function RegisterPage() {
           studentId: values.studentId,
           faculty: values.faculty,
           department: values.department,
+          email: values.email,
+          phone: values.phone,
+          state: values.state,
+          localGovt: values.localGovt,
+          address: values.address,
+          religion: values.religion,
           password: values.password
         }),
       })
@@ -197,11 +213,13 @@ export default function RegisterPage() {
     }
   }
 
-  // Progress bar (green)
+  // Progress bar
   const progress = ((stage + 1) / stages.length) * 100
   // Per-stage field names for validation
   const stageFields = [
-    ["name", "studentId", "faculty", "department"],
+    ["studentId", "faculty", "department"],
+    ["name", "religion"],
+    ["email", "phone", "state", "localGovt", "address"],
     ["password", "confirmPassword"]
   ]
 
@@ -221,14 +239,7 @@ export default function RegisterPage() {
       {/* Left side - Branding */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary via-primary/90 to-primary/80 p-12 flex-col justify-between relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('/studentBg.jpeg')] opacity-10 bg-cover bg-center" />
-        <div className="relative z-10">
-          <Link href="/" className="inline-flex items-center gap-2 text-white hover:opacity-80 transition-opacity">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            <span className="font-medium">Back to Home</span>
-          </Link>
-        </div>
+        <div className="relative z-10"></div>
         <div className="relative z-10 space-y-6">
           <h1 className="text-5xl font-bold text-white leading-tight">
             Join Connectrix<br />Today
@@ -287,7 +298,6 @@ export default function RegisterPage() {
               </svg>
             </div>
             <h1 className="text-3xl font-bold tracking-tight">Create Account</h1>
-            <p className="text-muted-foreground">Step {stage + 1} of {stages.length}: {stages[stage]}</p>
           </div>
 
           {/* Progress Bar */}
@@ -298,12 +308,6 @@ export default function RegisterPage() {
             />
           </div>
 
-          <Link href="/" className="lg:hidden flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back to Home
-          </Link>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
@@ -312,63 +316,175 @@ export default function RegisterPage() {
           >
 
 
-            {/* Step 1: Student Information */}
+            {/* Stage 1: Academic Information */}
             {stage === 0 && (
-              <>
-                <FormField control={form.control} name="name" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Full Name</FormLabel>
-                    <FormControl><Input {...field} autoComplete="name" /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
+              <div className="space-y-5 animate-fade-in">
+                <div className="flex items-center gap-2 text-primary mb-4">
+                  <GraduationCap className="h-6 w-6" />
+                  <h3 className="text-lg font-semibold">Academic Details</h3>
+                </div>
                 <FormField control={form.control} name="studentId" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Student ID</FormLabel>
+                    <FormLabel className="text-base font-semibold">Registration Number / Student ID</FormLabel>
                     <FormControl>
-                      <Input {...field} autoComplete="off" />
+                      <Input {...field} placeholder="e.g., UG20/SCCS/1026" className="h-12 text-base" autoComplete="off" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
-                <FormField control={form.control} name="faculty" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Faculty</FormLabel>
-                    <FormControl>
-                      <Input {...field} disabled />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="department" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Department</FormLabel>
-                    <FormControl>
-                      <Input {...field} disabled />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-              </>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="faculty" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-semibold">Faculty Code</FormLabel>
+                      <FormControl>
+                        <Input {...field} disabled className="h-12 bg-muted/50" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="department" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-semibold">Department Code</FormLabel>
+                      <FormControl>
+                        <Input {...field} disabled className="h-12 bg-muted/50" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                </div>
+              </div>
             )}
 
-            {/* Step 2: Account Security */}
+            {/* Stage 2: Personal Details */}
             {stage === 1 && (
-              <>
-                <FormField control={form.control} name="password" render={({ field }) => (
+              <div className="space-y-5 animate-fade-in">
+                <div className="flex items-center gap-2 text-primary mb-4">
+                  <UserIcon className="h-6 w-6" />
+                  <h3 className="text-lg font-semibold">Personal Information</h3>
+                </div>
+                <FormField control={form.control} name="name" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel className="text-base font-semibold">Full Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Enter your full name" className="h-12 text-base" autoComplete="name" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="religion" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base font-semibold">Religion</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="h-12 text-base">
+                          <SelectValue placeholder="Select your religion" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="ISLAM">Islam</SelectItem>
+                        <SelectItem value="CHRISTIANITY">Christianity</SelectItem>
+                        <SelectItem value="OTHER">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+              </div>
+            )}
+
+            {/* Stage 3: Contact Information */}
+            {stage === 2 && (
+              <div className="space-y-5 animate-fade-in">
+                <div className="flex items-center gap-2 text-primary mb-4">
+                  <Mail className="h-6 w-6" />
+                  <h3 className="text-lg font-semibold">Contact Details</h3>
+                </div>
+                <FormField control={form.control} name="email" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base font-semibold">Email Address</FormLabel>
                     <FormControl>
                       <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                        <Input {...field} type="email" placeholder="your.email@example.com" className="h-12 text-base pl-10" autoComplete="email" />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="phone" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base font-semibold">Phone Number</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <PhoneIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                        <Input {...field} type="tel" placeholder="08012345678" className="h-12 text-base pl-10" autoComplete="tel" />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="state" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-semibold">State</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input {...field} placeholder="e.g., Gombe" className="h-12 pl-10" />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="localGovt" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-semibold">Local Government</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="e.g., Gombe" className="h-12" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                </div>
+                <FormField control={form.control} name="address" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base font-semibold">Residential Address</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Home className="absolute left-3 top-4 h-5 w-5 text-muted-foreground" />
+                        <Input {...field} placeholder="Enter your address" className="h-12 text-base pl-10" />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+              </div>
+            )}
+
+            {/* Stage 4: Account Security */}
+            {stage === 3 && (
+              <div className="space-y-5 animate-fade-in">
+                <div className="flex items-center gap-2 text-primary mb-4">
+                  <Lock className="h-6 w-6" />
+                  <h3 className="text-lg font-semibold">Secure Your Account</h3>
+                </div>
+                <FormField control={form.control} name="password" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base font-semibold">Password</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                         <Input
                           type={showPassword ? "text" : "password"}
                           {...field}
+                          placeholder="Create a strong password"
+                          className="h-12 text-base pl-10 pr-12"
                           autoComplete="new-password"
                         />
                         <button
                           type="button"
                           tabIndex={-1}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                           onClick={() => setShowPassword((v) => !v)}
                         >
                           {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -380,18 +496,21 @@ export default function RegisterPage() {
                 )} />
                 <FormField control={form.control} name="confirmPassword" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Confirm Password</FormLabel>
+                    <FormLabel className="text-base font-semibold">Confirm Password</FormLabel>
                     <FormControl>
                       <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                         <Input
                           type={showConfirmPassword ? "text" : "password"}
                           {...field}
+                          placeholder="Re-enter your password"
+                          className="h-12 text-base pl-10 pr-12"
                           autoComplete="new-password"
                         />
                         <button
                           type="button"
                           tabIndex={-1}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                           onClick={() => setShowConfirmPassword((v) => !v)}
                         >
                           {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -401,28 +520,49 @@ export default function RegisterPage() {
                     <FormMessage />
                   </FormItem>
                 )} />
-              </>
+              </div>
             )}
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between mt-4 gap-2">
-              <Button type="button" variant="outline" onClick={() => setStage((s) => Math.max(s - 1, 0))} disabled={stage === 0}>
-                Back
+            <div className="flex justify-between mt-6 gap-3">
+              <Button 
+                type="button" 
+                variant="outline" 
+                size="lg"
+                onClick={() => setStage((s) => Math.max(s - 1, 0))} 
+                disabled={stage === 0}
+                className="h-12 px-8"
+              >
+                ← Back
               </Button>
               {stage < stages.length - 1 ? (
                 <Button
                   type="button"
-                  className="font-semibold text-base py-3 bg-green-600 hover:bg-green-700 text-white"
+                  size="lg"
+                  className="h-12 px-8 font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg hover:shadow-xl transition-all"
                   onClick={async () => {
                     const valid = await validateStage()
                     if (valid) setStage((s) => Math.min(s + 1, stages.length - 1))
                   }}
                 >
-                  Next
+                  Next →
                 </Button>
               ) : (
-                <Button type="submit" className="font-semibold text-base py-3 bg-green-600 hover:bg-green-700 text-white" disabled={isLoading}>
-                  {isLoading ? "Creating account..." : "Create Account"}
+                <Button 
+                  type="submit" 
+                  size="lg"
+                  className="h-12 px-8 font-semibold bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 shadow-lg hover:shadow-xl transition-all" 
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Creating account...
+                    </>
+                  ) : "Create Account ✓"}
                 </Button>
               )}
             </div>
