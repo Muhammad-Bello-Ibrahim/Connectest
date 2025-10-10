@@ -71,7 +71,7 @@ export default function Home() {
 
       <main className="flex-1">
         {/* Hero Section - Completely Redesigned */}
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <section className="relative min-h-screen w-full flex items-center justify-center overflow-hidden">
           {/* Animated Background */}
           <div className="absolute inset-0">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/10"></div>
@@ -82,8 +82,8 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="container relative z-10 px-4 py-20">
-            <div className="max-w-6xl mx-auto">
+          <div className="w-full relative z-10 px-4 sm:px-6 md:px-8 py-20">
+            <div className="w-full">
               {/* Hero Content */}
               <div className="text-center space-y-8 animate-fade-in">
                 {/* Badge */}
@@ -159,8 +159,8 @@ export default function Home() {
               </div>
 
               {/* Dashboard Preview */}
-              <div className="mt-20 animate-scale-in">
-                <div className="relative max-w-5xl mx-auto">
+              <div className="mt-20 animate-scale-in px-4 sm:px-8 md:px-16 lg:px-32">
+                <div className="relative w-full max-w-6xl mx-auto">
                   <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-purple-600/20 rounded-3xl blur-3xl"></div>
                   <div className="relative rounded-2xl overflow-hidden border-4 border-primary/20 shadow-2xl hover-lift">
                     <img
@@ -183,8 +183,8 @@ export default function Home() {
         </section>
 
         {/* Features Section - Redesigned */}
-        <section className="py-24 md:py-32 relative overflow-hidden">
-          <div className="container px-4">
+        <section className="py-24 md:py-32 relative overflow-hidden w-full">
+          <div className="w-full px-4 sm:px-6 md:px-8">
             {/* Section Header */}
             <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
@@ -203,7 +203,7 @@ export default function Home() {
             </div>
 
             {/* Features Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 w-full">
               {/* Feature 1 */}
               <div className="group relative p-8 rounded-2xl border bg-card hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -292,8 +292,8 @@ export default function Home() {
         </section>
 
         {/* Testimonials Section - Redesigned */}
-        <section className="py-24 md:py-32 bg-muted/30">
-          <div className="container px-4">
+        <section className="py-24 md:py-32 bg-muted/30 w-full">
+          <div className="w-full px-4 sm:px-6 md:px-8">
             <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
                 <Star className="w-4 h-4 text-primary fill-primary" />
@@ -304,7 +304,7 @@ export default function Home() {
               </h2>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-3 gap-6 md:gap-8 w-full">
               {/* Testimonial 1 */}
               <div className="group p-8 rounded-2xl border bg-card hover:shadow-xl transition-all duration-300">
                 <div className="flex gap-1 mb-4">
