@@ -97,14 +97,7 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
       {/* Left side - Branding */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary via-primary/90 to-primary/80 p-12 flex-col justify-between relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('/studentBgi.jpeg')] opacity-10 bg-cover bg-center" />
-        <div className="relative z-10">
-          <Link href="/" className="inline-flex items-center gap-2 text-white hover:opacity-80 transition-opacity">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            <span className="font-medium">Back to Home</span>
-          </Link>
-        </div>
+        <div className="relative z-10"></div>
         <div className="relative z-10 space-y-6">
           <h1 className="text-5xl font-bold text-white leading-tight">
             Welcome Back to<br />Connectrix
@@ -144,12 +137,6 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
             <h1 className="text-3xl font-bold tracking-tight">Welcome Back</h1>
             <p className="text-muted-foreground">Sign in to your account to continue</p>
           </div>
-          <Link href="/" className="lg:hidden flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back to Home
-          </Link>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
               <FormField control={form.control} name="userId" render={({ field }) => (

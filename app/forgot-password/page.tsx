@@ -34,14 +34,7 @@ export default function ForgotPasswordPage() {
       {/* Left side - Branding */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary via-primary/90 to-primary/80 p-12 flex-col justify-between relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('/studentBgi.jpeg')] opacity-10 bg-cover bg-center" />
-        <div className="relative z-10">
-          <Link href="/" className="inline-flex items-center gap-2 text-white hover:opacity-80 transition-opacity">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            <span className="font-medium">Back to Home</span>
-          </Link>
-        </div>
+        <div className="relative z-10"></div>
         <div className="relative z-10 space-y-6">
           <h1 className="text-5xl font-bold text-white leading-tight">
             Reset Your<br />Password
@@ -93,13 +86,6 @@ export default function ForgotPasswordPage() {
                 <h1 className="text-3xl font-bold tracking-tight">Forgot Password?</h1>
                 <p className="text-muted-foreground">Enter your email to receive a reset link</p>
               </div>
-
-              <Link href="/" className="lg:hidden flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                Back to Home
-              </Link>
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="space-y-2">
@@ -161,9 +147,11 @@ export default function ForgotPasswordPage() {
                   </button>
                 </p>
               </div>
-              <Button asChild variant="outline" className="w-full">
-                <Link href="/login">Back to Login</Link>
-              </Button>
+              <Link href="/login">
+                <Button variant="outline" className="w-full">
+                  Back to Login
+                </Button>
+              </Link>
             </div>
           )}
         </div>

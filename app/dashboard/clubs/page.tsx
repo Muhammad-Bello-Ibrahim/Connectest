@@ -295,20 +295,22 @@ export default function ClubsPage() {
           />
         </div>
         
-        <Select value={filterType} onValueChange={setFilterType}>
-          <SelectTrigger className="w-[160px]">
-            <Filter className="mr-2 h-4 w-4" />
-            <SelectValue placeholder="Filter by type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Types</SelectItem>
-            <SelectItem value="faculty">Faculty</SelectItem>
-            <SelectItem value="department">Department</SelectItem>
-            <SelectItem value="state">State</SelectItem>
-            <SelectItem value="religion">Religion</SelectItem>
-            <SelectItem value="general">General</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-2">
+          <Filter className="h-4 w-4 text-muted-foreground" />
+          <Select value={filterType} onValueChange={setFilterType}>
+            <SelectTrigger className="w-[160px]">
+              <SelectValue placeholder="Filter by type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="faculty">Faculty</SelectItem>
+              <SelectItem value="department">Department</SelectItem>
+              <SelectItem value="state">State</SelectItem>
+              <SelectItem value="religion">Religion</SelectItem>
+              <SelectItem value="general">General</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Tabs */}
