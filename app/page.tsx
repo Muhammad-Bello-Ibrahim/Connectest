@@ -1,127 +1,32 @@
 "use client"
 
 import Link from "next/link"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/hooks/useAuth"
 import {
-  ChevronRight,
   Users,
   Calendar,
-  CreditCard,
-  Vote,
-  BookOpen,
-  MapPin,
+  Zap,
   Shield,
   ArrowRight,
-  ChevronLeft,
   User,
+  Sparkles,
+  TrendingUp,
+  Globe,
+  Heart,
+  Star,
+  CheckCircle2,
+  Menu,
+  X,
+  MapPin,
+  Mail,
+  Phone,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
-
-// Testimonial component
-const Testimonial = ({
-  quote,
-  author,
-  role,
-}: {
-  quote: string
-  author: string
-  role: string
-}) => (
-  <div className="flex flex-col justify-center h-full">
-    <blockquote className="text-lg md:text-xl italic mb-4">&ldquo;{quote}&rdquo;</blockquote>
-    <div className="font-semibold">{author}</div>
-    <div className="text-sm text-muted-foreground">{role}</div>
-  </div>
-)
-
-// Feature card component
-const FeatureCard = ({
-  icon: Icon,
-  title,
-  description,
-}: {
-  icon: any
-  title: string
-  description: string
-}) => (
-  <div className="flex flex-col items-center text-center p-6 rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow">
-    <div className="mb-4 p-3 rounded-full bg-primary/10 text-primary">
-      <Icon className="h-6 w-6" />
-    </div>
-    <h3 className="text-lg font-semibold mb-2">{title}</h3>
-    <p className="text-muted-foreground">{description}</p>
-  </div>
-)
-
-// Benefit column component
-const BenefitColumn = ({
-  icon: Icon,
-  title,
-  benefits,
-}: {
-  icon: any
-  title: string
-  benefits: string[]
-}) => (
-  <div className="flex flex-col items-center text-center p-6 rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow">
-    <div className="mb-4 p-3 rounded-full bg-primary/10 text-primary">
-      <Icon className="h-6 w-6" />
-    </div>
-    <h3 className="text-xl font-semibold mb-4">{title}</h3>
-    <ul className="space-y-2 text-left">
-      {benefits.map((benefit, index) => (
-        <li key={index} className="flex items-start">
-          <ChevronRight className="h-5 w-5 text-primary shrink-0 mr-2" />
-          <span>{benefit}</span>
-        </li>
-      ))}
-    </ul>
-  </div>
-)
-
-// Testimonials data
-const testimonials = [
-  {
-    quote:
-      "Connectrix made it so easy to join clubs and stay updated on events! I love how I can access all my club resources in one place.",
-    author: "Adams Geek",
-    role: "Computer Science Student",
-  },
-  {
-    quote:
-      "Managing our club has never been smoother. The election system is a game-changer for ensuring transparent leadership transitions!",
-    author: "Isma'il Danladi Misal",
-    role: "Nacos President",
-  },
-  {
-    quote:
-      "Connectrix has transformed how we oversee club activities. The analytics and approval system save me hours of work each week.",
-    author: "Dr. Hassana Y. Bello",
-    role: "Dean of Student Affairs",
-  },
-]
 
 export default function Home() {
-  const [currentTestimonial, setCurrentTestimonial] = useState(0)
   const { user, isAuthenticated } = useAuth()
-
-  // Auto-rotate testimonials
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)
-    }, 5000)
-    return () => clearInterval(interval)
-  }, [])
-
-  const nextTestimonial = () => {
-    setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)
-  }
-
-  const prevTestimonial = () => {
-    setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length)
-  }
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -165,248 +70,358 @@ export default function Home() {
       </header>
 
       <main className="flex-1">
-        {/* Hero Section */}
-        <section className="relative w-full py-12 md:py-24 lg:py-32 overflow-hidden">
-          {/* Background image with overlay */}
-          <div className="absolute inset-0 z-0">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary/10 z-10"></div>
-            <img
-              src="/studentBgi.jpeg"
-              alt="University campus"
-              className="w-full h-full object-cover opacity-50"
-            />
+        {/* Hero Section - Completely Redesigned */}
+        <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+          {/* Animated Background */}
+          <div className="absolute inset-0">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/10"></div>
+            <div className="absolute top-0 left-0 w-full h-full opacity-30">
+              <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full mix-blend-multiply filter blur-3xl animate-pulse-soft"></div>
+              <div className="absolute top-40 right-10 w-72 h-72 bg-purple-300/20 rounded-full mix-blend-multiply filter blur-3xl animate-pulse-soft" style={{animationDelay: '2s'}}></div>
+              <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-pink-300/20 rounded-full mix-blend-multiply filter blur-3xl animate-pulse-soft" style={{animationDelay: '4s'}}></div>
+            </div>
           </div>
 
-          <div className="container relative z-20 px-4 sm:px-6 lg:px-8">
-            <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
-              <div className="flex flex-col justify-center space-y-4">
-                <div className="space-y-2">
-                  <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl md:text-5xl">Welcome to Connectrix</h1>
-                  <h2 className="text-2xl font-semibold text-primary">Your Digital Hub for Campus Club Management</h2>
-                  <p className="max-w-[600px] text-gray-100 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                    Streamline club activities, enhance engagement, and foster a vibrant campus community with our comprehensive management platform.
-                  </p>
+          <div className="container relative z-10 px-4 py-20">
+            <div className="max-w-6xl mx-auto">
+              {/* Hero Content */}
+              <div className="text-center space-y-8 animate-fade-in">
+                {/* Badge */}
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-sm">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-semibold text-primary">Gombe State University's #1 Club Platform</span>
                 </div>
-                <div>
+
+                {/* Main Heading */}
+                <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight">
+                  <span className="block bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary to-purple-600">
+                    Connect.
+                  </span>
+                  <span className="block bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-600 to-primary">
+                    Engage.
+                  </span>
+                  <span className="block text-foreground">
+                    Thrive.
+                  </span>
+                </h1>
+
+                {/* Subheading */}
+                <p className="text-xl sm:text-2xl md:text-3xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+                  The ultimate platform for campus club management, student engagement, and community building
+                </p>
+
+                {/* CTA Buttons */}
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
                   <Link href="/register">
-                    <Button size="lg" className="px-8 w-full sm:w-auto">
-                      Get Started
-                      <ArrowRight className="ml-2 h-4 w-4" />
+                    <Button size="lg" className="px-10 py-7 text-lg font-semibold shadow-2xl shadow-primary/30 hover:shadow-primary/50 hover:scale-105 transition-all duration-300 group">
+                      Start For Free
+                      <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                  </Link>
+                  <Link href="#demo">
+                    <Button size="lg" variant="outline" className="px-10 py-7 text-lg font-semibold hover:bg-primary/5 transition-all duration-300">
+                      Watch Demo
                     </Button>
                   </Link>
                 </div>
-              </div>
-              <div className="hidden lg:flex items-center justify-center">
-                <div className="rounded-xl overflow-hidden shadow-2xl w-full max-w-xs mx-auto">
-                  <img
-                    src="/userphone.png"
-                    alt="Connectrix dashboard preview"
-                    className="w-full object-contain"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
 
-        {/* Benefits Section */}
-        <section className="w-full py-12 md:py-24 bg-muted/50">
-          <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
-              <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-primary px-3 py-1 text-sm text-primary-foreground">
-                  Benefits
-                </div>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Tailored for Everyone</h2>
-                <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                  Connectrix provides unique benefits for students, clubs, and administrators.
-                </p>
-              </div>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-3">
-              <BenefitColumn
-                icon={Users}
-                title="For Students"
-                benefits={[
-                  "Join clubs that match your interests",
-                  "Participate in events and elections",
-                  "Access resources like lecture materials",
-                  "Navigate campus with ease",
-                  "Stay updated with club announcements",
-                ]}
-              />
-
-              <BenefitColumn
-                icon={Calendar}
-                title="For Clubs"
-                benefits={[
-                  "Manage memberships seamlessly",
-                  "Organize and promote events",
-                  "Conduct fair and transparent elections",
-                  "Collect dues securely",
-                  "Engage with members through announcements",
-                ]}
-              />
-
-              <BenefitColumn
-                icon={Shield}
-                title="For Dean of Student Affairs"
-                benefits={[
-                  "Oversee all club activities",
-                  "Approve new clubs and events",
-                  "Access detailed reports and analytics",
-                  "Ensure compliance with university policies",
-                  "Communicate with club leaders efficiently",
-                ]}
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* Features Section */}
-        <section className="w-full py-12 md:py-24">
-          <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
-              <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-primary px-3 py-1 text-sm text-primary-foreground">
-                  Features
-                </div>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Powerful Features</h2>
-                <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                  Discover the tools that make Connectrix the ultimate platform for university club management.
-                </p>
-              </div>
-            </div>
-
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              <FeatureCard
-                icon={Users}
-                title="Club Management"
-                description="Create, join, and manage clubs with ease. Track memberships and activities in one place."
-              />
-
-              <FeatureCard
-                icon={CreditCard}
-                title="Seamless Payments"
-                description="Pay club dues securely with Paystack integration. Manage financial transactions effortlessly."
-              />
-
-              <FeatureCard
-                icon={Vote}
-                title="Election System"
-                description="Conduct fair and transparent club elections with our built-in voting system."
-              />
-
-              <FeatureCard
-                icon={MapPin}
-                title="Campus Navigation"
-                description="Find your way around campus with the built-in router. Locate buildings, lecture halls, and facilities."
-              />
-
-              <FeatureCard
-                icon={BookOpen}
-                title="Resource Hub"
-                description="Access lecture materials, study guides, and past questions in a centralized resource section."
-              />
-
-              <FeatureCard
-                icon={Calendar}
-                title="Event Management"
-                description="Schedule, promote, and manage club events with attendance tracking and feedback collection."
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* Testimonials Section */}
-        <section className="w-full py-12 md:py-24 bg-muted/50">
-          <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
-              <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-primary px-3 py-1 text-sm text-primary-foreground">
-                  Testimonials
-                </div>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">What Our Users Say</h2>
-                <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                  Hear from students, club executives, and administrators who use Connectrix.
-                </p>
-              </div>
-            </div>
-
-            <div className="mx-auto max-w-3xl">
-              <div className="relative h-64 rounded-xl bg-card p-8 shadow-sm border overflow-hidden">
-                <div className="flex items-center h-full">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute left-2 z-10 h-8 w-8 rounded-full bg-background/80 hover:bg-background"
-                    onClick={prevTestimonial}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                    <span className="sr-only">Previous</span>
-                  </Button>
-
-                  <div className="w-full overflow-hidden">
-                    <div
-                      className="flex transition-transform duration-500 ease-in-out"
-                      style={{ transform: `translateX(-${currentTestimonial * 100}%)` }}
-                    >
-                      {testimonials.map((testimonial, index) => (
-                        <div key={index} className="min-w-full px-4">
-                          <Testimonial quote={testimonial.quote} author={testimonial.author} role={testimonial.role} />
-                        </div>
-                      ))}
-                    </div>
+                {/* Trust Indicators */}
+                <div className="flex flex-wrap items-center justify-center gap-8 pt-8 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-green-500" />
+                    <span>Free Forever</span>
                   </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-green-500" />
+                    <span>No Credit Card</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-green-500" />
+                    <span>Setup in 2 Minutes</span>
+                  </div>
+                </div>
 
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-2 z-10 h-8 w-8 rounded-full bg-background/80 hover:bg-background"
-                    onClick={nextTestimonial}
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                    <span className="sr-only">Next</span>
-                  </Button>
+                {/* Stats */}
+                <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto pt-12">
+                  <div className="space-y-2">
+                    <div className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">50+</div>
+                    <div className="text-sm text-muted-foreground">Active Clubs</div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">1K+</div>
+                    <div className="text-sm text-muted-foreground">Students</div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-600 to-primary">100+</div>
+                    <div className="text-sm text-muted-foreground">Events</div>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex justify-center mt-6 space-x-2">
-                {testimonials.map((_, index) => (
-                  <Button
-                    key={index}
-                    variant="outline"
-                    size="icon"
-                    className={`h-2 w-2 rounded-full p-0 ${index === currentTestimonial ? "bg-primary" : ""}`}
-                    onClick={() => setCurrentTestimonial(index)}
-                  />
-                ))}
+              {/* Dashboard Preview */}
+              <div className="mt-20 animate-scale-in">
+                <div className="relative max-w-5xl mx-auto">
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-purple-600/20 rounded-3xl blur-3xl"></div>
+                  <div className="relative rounded-2xl overflow-hidden border-4 border-primary/20 shadow-2xl hover-lift">
+                    <img
+                      src="/userphone.png"
+                      alt="Connectrix Dashboard"
+                      className="w-full h-auto"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Scroll Indicator */}
+          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce">
+            <div className="w-6 h-10 rounded-full border-2 border-primary/50 flex items-start justify-center p-2">
+              <div className="w-1 h-3 bg-primary rounded-full animate-pulse"></div>
+            </div>
+          </div>
+        </section>
+
+        {/* Features Section - Redesigned */}
+        <section className="py-24 md:py-32 relative overflow-hidden">
+          <div className="container px-4">
+            {/* Section Header */}
+            <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
+                <Zap className="w-4 h-4 text-primary" />
+                <span className="text-sm font-semibold text-primary">Powerful Features</span>
+              </div>
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold">
+                Everything You Need,<br />
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">
+                  All In One Place
+                </span>
+              </h2>
+              <p className="text-lg text-muted-foreground">
+                Built for students, clubs, and administrators to collaborate seamlessly
+              </p>
+            </div>
+
+            {/* Features Grid */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {/* Feature 1 */}
+              <div className="group relative p-8 rounded-2xl border bg-card hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="relative space-y-4">
+                  <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Users className="w-7 h-7 text-primary" />
+                  </div>
+                  <h3 className="text-2xl font-bold">Club Management</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Create, join, and manage clubs effortlessly. Track memberships, activities, and engagement all in one dashboard.
+                  </p>
+                </div>
+              </div>
+
+              {/* Feature 2 */}
+              <div className="group relative p-8 rounded-2xl border bg-card hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="relative space-y-4">
+                  <div className="w-14 h-14 rounded-xl bg-purple-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Calendar className="w-7 h-7 text-purple-600" />
+                  </div>
+                  <h3 className="text-2xl font-bold">Event Management</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Schedule, promote, and manage events with RSVP tracking, reminders, and post-event feedback collection.
+                  </p>
+                </div>
+              </div>
+
+              {/* Feature 3 */}
+              <div className="group relative p-8 rounded-2xl border bg-card hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-pink-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="relative space-y-4">
+                  <div className="w-14 h-14 rounded-xl bg-pink-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <TrendingUp className="w-7 h-7 text-pink-600" />
+                  </div>
+                  <h3 className="text-2xl font-bold">Analytics & Insights</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Get detailed reports on club performance, member engagement, and event attendance with visual dashboards.
+                  </p>
+                </div>
+              </div>
+
+              {/* Feature 4 */}
+              <div className="group relative p-8 rounded-2xl border bg-card hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="relative space-y-4">
+                  <div className="w-14 h-14 rounded-xl bg-green-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Shield className="w-7 h-7 text-green-600" />
+                  </div>
+                  <h3 className="text-2xl font-bold">Secure Elections</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Conduct transparent club elections with built-in voting system, real-time results, and audit trails.
+                  </p>
+                </div>
+              </div>
+
+              {/* Feature 5 */}
+              <div className="group relative p-8 rounded-2xl border bg-card hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="relative space-y-4">
+                  <div className="w-14 h-14 rounded-xl bg-blue-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Globe className="w-7 h-7 text-blue-600" />
+                  </div>
+                  <h3 className="text-2xl font-bold">Social Feed</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Stay connected with a campus-wide social feed featuring posts, announcements, and updates from all clubs.
+                  </p>
+                </div>
+              </div>
+
+              {/* Feature 6 */}
+              <div className="group relative p-8 rounded-2xl border bg-card hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="relative space-y-4">
+                  <div className="w-14 h-14 rounded-xl bg-orange-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Heart className="w-7 h-7 text-orange-600" />
+                  </div>
+                  <h3 className="text-2xl font-bold">Member Engagement</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Foster community with discussion forums, polls, resource sharing, and direct messaging between members.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Testimonials Section - Redesigned */}
+        <section className="py-24 md:py-32 bg-muted/30">
+          <div className="container px-4">
+            <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
+                <Star className="w-4 h-4 text-primary fill-primary" />
+                <span className="text-sm font-semibold text-primary">Loved by Students & Clubs</span>
+              </div>
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold">
+                What Our <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">Community</span> Says
+              </h2>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+              {/* Testimonial 1 */}
+              <div className="group p-8 rounded-2xl border bg-card hover:shadow-xl transition-all duration-300">
+                <div className="flex gap-1 mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-muted-foreground mb-6 leading-relaxed">
+                  "Connectrix made it so easy to join clubs and stay updated on events! I love how I can access all my club resources in one place."
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-white font-bold">
+                    AG
+                  </div>
+                  <div>
+                    <div className="font-semibold">Adams Geek</div>
+                    <div className="text-sm text-muted-foreground">Computer Science Student</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Testimonial 2 */}
+              <div className="group p-8 rounded-2xl border bg-card hover:shadow-xl transition-all duration-300">
+                <div className="flex gap-1 mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-muted-foreground mb-6 leading-relaxed">
+                  "Managing our club has never been smoother. The election system is a game-changer for ensuring transparent leadership transitions!"
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center text-white font-bold">
+                    IM
+                  </div>
+                  <div>
+                    <div className="font-semibold">Isma'il Danladi</div>
+                    <div className="text-sm text-muted-foreground">NACOS President</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Testimonial 3 */}
+              <div className="group p-8 rounded-2xl border bg-card hover:shadow-xl transition-all duration-300">
+                <div className="flex gap-1 mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-muted-foreground mb-6 leading-relaxed">
+                  "Connectrix has transformed how we oversee club activities. The analytics and approval system save me hours of work each week."
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-600 to-orange-600 flex items-center justify-center text-white font-bold">
+                    HB
+                  </div>
+                  <div>
+                    <div className="font-semibold">Dr. Hassana Y. Bello</div>
+                    <div className="text-sm text-muted-foreground">Dean of Student Affairs</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
         {/* CTA Section */}
-        <section className="relative w-full py-12 md:py-24">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-primary/10 z-0"></div>
+        <section className="relative w-full py-20 md:py-32 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-primary/80 z-0"></div>
+          <div className="absolute inset-0 bg-[url('/studentBgi.jpeg')] opacity-10 bg-cover bg-center"></div>
+          {/* Animated circles */}
+          <div className="absolute top-10 left-10 w-64 h-64 bg-white/10 rounded-full blur-3xl animate-pulse-soft"></div>
+          <div className="absolute bottom-10 right-10 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-pulse-soft" style={{animationDelay: '1s'}}></div>
+          
           <div className="container relative z-10 px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <div className="space-y-2">
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+            <div className="flex flex-col items-center justify-center space-y-8 text-center animate-fade-in">
+              <div className="space-y-6 max-w-3xl">
+                <h2 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl text-white">
                   Ready to Transform Campus Club Management?
                 </h2>
-                <p className="max-w-[600px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                  Join Connectrix today and experience the future of student engagement.
+                <p className="text-lg md:text-xl text-white/90 leading-relaxed">
+                  Join Connectrix today and experience the future of student engagement. Get started in minutes.
                 </p>
               </div>
-              <div className="mt-6">
+              <div className="flex flex-col sm:flex-row gap-4 mt-8">
                 <Link href="/register">
-                  <Button size="lg" className="px-8">
-                    Get Started
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                  <Button size="lg" variant="secondary" className="px-10 py-6 text-lg shadow-2xl hover:scale-105 transition-all duration-300">
+                    Get Started Free
+                    <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
+                <Link href="/login">
+                  <Button size="lg" variant="outline" className="px-10 py-6 text-lg border-white text-white hover:bg-white/10 transition-all duration-300">
+                    Sign In
+                  </Button>
+                </Link>
+              </div>
+              {/* Trust indicators */}
+              <div className="flex flex-wrap items-center justify-center gap-8 pt-8 text-white/80">
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm">Free to use</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm">No credit card required</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm">Setup in minutes</span>
+                </div>
               </div>
             </div>
           </div>

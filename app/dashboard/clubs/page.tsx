@@ -186,28 +186,28 @@ export default function ClubsPage() {
   const filteredAllClubs = getFilteredClubs(allClubs)
 
   const ClubCard = ({ club, showJoinButton = false }: { club: Club, showJoinButton?: boolean }) => (
-    <Card key={club._id} className={`hover:shadow-md transition-shadow ${club.type === 'src' ? 'border-yellow-400 dark:border-yellow-600' : ''}`}>
+    <Card key={club._id} className={`hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ${club.type === 'src' ? 'border-yellow-400 dark:border-yellow-600 bg-yellow-50/50 dark:bg-yellow-900/10' : ''}`}>
       <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <CardTitle className="text-lg flex items-center gap-2">
-              {club.name}
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-lg flex items-center gap-2 flex-wrap">
+              <span className="truncate">{club.name}</span>
               {club.type === 'src' && (
-                <span className="ml-1 px-2 py-0.5 rounded-full bg-yellow-200 text-yellow-900 text-xs font-semibold">SRC</span>
+                <span className="flex-shrink-0 px-2 py-0.5 rounded-full bg-yellow-200 dark:bg-yellow-800 text-yellow-900 dark:text-yellow-100 text-xs font-semibold">SRC</span>
               )}
               {club.type === 'general' && (
-                <span className="ml-1 px-2 py-0.5 rounded-full bg-blue-200 text-blue-900 text-xs font-semibold">General</span>
+                <span className="flex-shrink-0 px-2 py-0.5 rounded-full bg-blue-200 dark:bg-blue-800 text-blue-900 dark:text-blue-100 text-xs font-semibold">General</span>
               )}
             </CardTitle>
             {club.abbreviation && (
-              <p className="text-sm text-muted-foreground">({club.abbreviation})</p>
+              <p className="text-sm text-muted-foreground truncate">({club.abbreviation})</p>
             )}
           </div>
-          <Badge variant={club.status === "active" ? "default" : "secondary"}>
+          <Badge variant={club.status === "active" ? "default" : "secondary"} className="flex-shrink-0">
             {club.status === "pending" ? "Pending" : "Active"}
           </Badge>
         </div>
-        <CardDescription className="line-clamp-2">{club.description}</CardDescription>
+        <CardDescription className="line-clamp-2 min-h-[2.5rem]">{club.description}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex items-center text-sm text-muted-foreground">
