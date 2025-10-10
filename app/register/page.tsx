@@ -92,7 +92,7 @@ function extractFacultyDept(studentId: string) {
 
 const formSchema = z.object({
   studentId: z.string()
-    .regex(/^UG\d{2}\/[A-Z]{2}[A-Z]{2}\/\d{4}$/, { message: "Student ID format must be like UG20/SCCS/1026" }),
+    .regex(/^UG\d{2}\/[A-Z]{2}[A-Z]{2}\/\d{4}$/, { message: "Student ID format must be like UG20/ABCD/1001" }),
   faculty: z.string().min(1, "Faculty is required"),
   department: z.string().min(1, "Department is required"),
   name: z.string().min(2, "Name must be at least 2 characters").max(100),

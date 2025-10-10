@@ -1,5 +1,4 @@
 "use client"
-
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -14,6 +13,7 @@ import {
 import { useToast } from '@/components/ui/use-toast'
 import { useAuth } from '@/hooks/use-auth'
 import Link from 'next/link'
+import { Eye, EyeOff } from 'lucide-react'
 
 const formSchema = z.object({
   userId: z.string()
@@ -35,6 +35,7 @@ const formSchema = z.object({
 export default function LoginPage() {
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
   const { login, getRedirectPath } = useAuth()
 
@@ -168,14 +169,22 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
                   <FormControl>
                     <div className="relative">
                       <Input 
-                        type="password" 
+                        type={showPassword ? "text" : "password"}
                         {...field} 
-                        className="h-11 pl-10 transition-all focus:ring-2 focus:ring-primary/20" 
+                        className="h-11 pl-10 pr-10 transition-all focus:ring-2 focus:ring-primary/20" 
                         placeholder="Enter your password"
                       />
                       <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                       </svg>
+                      <button
+                        type="button"
+                        tabIndex={-1}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                        onClick={() => setShowPassword((v) => !v)}
+                      >
+                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      </button>
                     </div>
                   </FormControl>
                   <FormMessage />

@@ -19,6 +19,15 @@ import {
   LogOut,
   Shield,
   User,
+  Building2,
+  BarChart3,
+  Database,
+  CreditCard,
+  FileText,
+  AlertTriangle,
+  ChevronDown,
+  Calendar,
+  Mail,
 } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 
@@ -40,7 +49,7 @@ export function AdminSidebar() {
       <SidebarContent>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive("/dashboard/admin")}>
+            <SidebarMenuButton asChild isActive={isActive("/dashboard/admin") && pathname === "/dashboard/admin"}>
               <Link href="/dashboard/admin">
                 <LayoutDashboard className="h-4 w-4" />
                 <span>Dashboard</span>
@@ -51,15 +60,79 @@ export function AdminSidebar() {
             <SidebarMenuButton asChild isActive={isActive("/dashboard/admin/users")}>
               <Link href="/dashboard/admin/users">
                 <Users className="h-4 w-4" />
-                <span>User Management</span>
+                <span>Users</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={isActive("/dashboard/admin/clubs")}>
               <Link href="/dashboard/admin/clubs">
-                <User className="h-4 w-4" />
-                <span>Club Management</span>
+                <Building2 className="h-4 w-4" />
+                <span>Clubs</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={isActive("/dashboard/admin/events")}>
+              <Link href="/dashboard/admin/events">
+                <Calendar className="h-4 w-4" />
+                <span>Events</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={isActive("/dashboard/admin/bulk-operations")}>
+              <Link href="/dashboard/admin/bulk-operations">
+                <Users className="h-4 w-4" />
+                <span>Bulk Operations</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={isActive("/dashboard/admin/campaigns")}>
+              <Link href="/dashboard/admin/campaigns">
+                <Mail className="h-4 w-4" />
+                <span>Campaigns</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={isActive("/dashboard/admin/analytics")}>
+              <Link href="/dashboard/admin/analytics">
+                <BarChart3 className="h-4 w-4" />
+                <span>Analytics</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={isActive("/dashboard/admin/logs/audit")}>
+              <Link href="/dashboard/admin/logs/audit">
+                <FileText className="h-4 w-4" />
+                <span>Audit Logs</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={isActive("/dashboard/admin/logs/errors")}>
+              <Link href="/dashboard/admin/logs/errors">
+                <AlertTriangle className="h-4 w-4" />
+                <span>Error Logs</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={isActive("/dashboard/admin/payments")}>
+              <Link href="/dashboard/admin/payments">
+                <CreditCard className="h-4 w-4" />
+                <span>Payments</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={isActive("/dashboard/admin/database")}>
+              <Link href="/dashboard/admin/database">
+                <Database className="h-4 w-4" />
+                <span>Database</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
