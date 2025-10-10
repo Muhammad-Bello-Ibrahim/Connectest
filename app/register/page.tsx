@@ -27,9 +27,62 @@ function extractFacultyDept(studentId: string) {
   // Example: UG20/SCCS/1026
   const match = studentId.match(/^UG\d{2}\/([A-Z]{2})([A-Z]{2})\/\d{4}$/)
   if (!match) return { faculty: "", department: "" }
-  // You can map these codes to real names if you have a map
-  const facultyMap: Record<string, string> = { SC: "Science", EN: "Engineering" }
-  const deptMap: Record<string, string> = { CS: "Computer Science", EE: "Electrical Engineering" }
+  
+  const facultyMap: Record<string, string> = {
+    AS: "Arts and Social Sciences",
+    ED: "Education",
+    LL: "Law",
+    MD: "Medicine",
+    PH: "Pharmacy",
+    SC: "Science"
+  }
+  
+  const deptMap: Record<string, string> = {
+    AC: "Accounting",
+    AR: "Architecture",
+    BA: "Business Administration",
+    BF: "Banking and Finance",
+    CR: "Criminology",
+    EC: "Economics",
+    ECE: "Economic Education",
+    EM: "Educational Management",
+    EN: "English",
+    HS: "History",
+    IN: "International Relations",
+    IR: "Islamic Studies",
+    LS: "Library and Information Science",
+    PA: "Public Administration",
+    PC: "Peace Studies and Conflict Resolution",
+    PS: "Political Science",
+    PSE: "Political Science Education",
+    SG: "Sociology",
+    BL: "Law",
+    HA: "Human Anatomy",
+    HN: "Human Nutrition and Dietetics",
+    HP: "Human Physiology",
+    MD: "Medicine",
+    NS: "Nursing",
+    PH: "Pharm D.",
+    PHT: "Public Health",
+    PM: "Pharmacology",
+    BC: "Biochemistry",
+    BH: "Biotechnology",
+    BS: "Biology",
+    BT: "Botany",
+    CH: "Chemistry",
+    CS: "Computer Science",
+    ET: "Environmental Technology",
+    GL: "Geology",
+    GS: "Geography",
+    MC: "Microbiology",
+    MT: "Mathematics",
+    PV: "Physics",
+    PY: "Pure and Applied Physics",
+    SL: "Science Laboratory Technology",
+    ST: "Statistics",
+    ZO: "Zoology"
+  }
+  
   return {
     faculty: facultyMap[match[1]] || match[1],
     department: deptMap[match[2]] || match[2]
