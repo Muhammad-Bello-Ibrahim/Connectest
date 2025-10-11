@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { formatDistanceToNow } from "date-fns"
@@ -279,7 +279,7 @@ export default function DashboardPage() {
             <div className="flex-shrink-0 mr-2 sm:mr-3">
               <Avatar className="h-10 w-10">
                 <AvatarImage src={post.author.avatar} alt={post.author.name} />
-                <AvatarFallback>{post.author.name[0]}</AvatarFallback>
+                <AvatarFallback className="h-10 w-10 rounded-full bg-muted flex items-center justify-center px-5">{post.author.name[0]}</AvatarFallback>
               </Avatar>
             </div>
 
