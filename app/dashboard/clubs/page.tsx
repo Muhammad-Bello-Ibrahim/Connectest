@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useAuth } from "@/hooks/use-auth"
 import { Button } from "@/components/ui/button"
 import {
@@ -14,15 +15,13 @@ import {
   Users, 
   Plus, 
   Filter, 
-  MapPin, 
-  Calendar,
-  Star,
   UserPlus,
   UserMinus,
   Loader2,
-  Home,
-  Bell,
-  User
+  Sparkles,
+  TrendingUp,
+  Award,
+  ChevronRight
 } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import { 
@@ -39,6 +38,7 @@ interface Club {
   name: string
   description: string
   abbreviation?: string
+  logo?: string
   type: string
   faculty?: string
   department?: string
@@ -51,11 +51,12 @@ interface Club {
 
 export default function ClubsPage() {
   const { user } = useAuth()
+  const router = useRouter()
   const [myClubs, setMyClubs] = useState<Club[]>([])
   const [allClubs, setAllClubs] = useState<Club[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [filterType, setFilterType] = useState<string>("all")
-  const [activeTab, setActiveTab] = useState("my-clubs")
+  const [activeTab, setActiveTab] = useState<"my-clubs" | "discover">("my-clubs")
   const [isLoading, setIsLoading] = useState(true)
   const [joiningClubs, setJoiningClubs] = useState<Set<string>>(new Set())
 
@@ -189,189 +190,135 @@ export default function ClubsPage() {
   const filteredMyClubs = getFilteredClubs(myClubs)
   const filteredAllClubs = getFilteredClubs(allClubs)
 
-  const ClubCard = ({ club, showJoinButton = false }: { club: Club, showJoinButton?: boolean }) => (
-    <Card key={club._id} className={`hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ${club.type === 'src' ? 'border-yellow-400 dark:border-yellow-600 bg-yellow-50/50 dark:bg-yellow-900/10' : ''}`}>
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex-1 min-w-0">
-            <CardTitle className="text-lg flex items-center gap-2 flex-wrap">
-              <span className="truncate">{club.name}</span>
-              {club.type === 'src' && (
-                <span className="flex-shrink-0 px-2 py-0.5 rounded-full bg-yellow-200 dark:bg-yellow-800 text-yellow-900 dark:text-yellow-100 text-xs font-semibold">SRC</span>
-              )}
-              {club.type === 'general' && (
-                <span className="flex-shrink-0 px-2 py-0.5 rounded-full bg-blue-200 dark:bg-blue-800 text-blue-900 dark:text-blue-100 text-xs font-semibold">General</span>
-              )}
-            </CardTitle>
-            {club.abbreviation && (
-              <p className="text-sm text-muted-foreground truncate">({club.abbreviation})</p>
-            )}
-          </div>
-          <Badge variant={club.status === "active" ? "default" : "secondary"} className="flex-shrink-0">
-            {club.status === "pending" ? "Pending" : "Active"}
-          </Badge>
-        </div>
-        <CardDescription className="line-clamp-2 min-h-[2.5rem]">{club.description}</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="flex items-center text-sm text-muted-foreground">
-          <Users className="mr-2 h-4 w-4" />
-          {club.members} members
-        </div>
-        <div className="flex flex-wrap gap-1">
-          <Badge variant="outline" className="text-xs">
-            {club.type}
-          </Badge>
-          {club.faculty && (
-            <Badge variant="outline" className="text-xs">
-              {club.faculty}
-            </Badge>
-          )}
-          {club.department && (
-            <Badge variant="outline" className="text-xs">
-              {club.department}
-            </Badge>
-          )}
-        </div>
-      </CardContent>
-      <CardFooter className="pt-0 space-x-2">
-        <Button variant="outline" className="flex-1" asChild>
-          <Link href={`/dashboard/clubs/${club._id}`}>
-            View Details
-          </Link>
-        </Button>
-        {/* Prevent leaving SRC club */}
-        {showJoinButton && club.status === "active" && club.type !== 'src' && (
-          <Button
-            variant={club.isUserMember ? "destructive" : "default"}
-            size="sm"
-            onClick={() => handleJoinLeave(club)}
-            disabled={joiningClubs.has(club._id)}
-            className="min-w-[100px]"
-          >
-            {joiningClubs.has(club._id) ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : club.isUserMember ? (
-              <>
-                <UserMinus className="mr-1 h-4 w-4" />
-                Leave
-              </>
-            ) : (
-              <>
-                <UserPlus className="mr-1 h-4 w-4" />
-                Join
-              </>
-            )}
-          </Button>
-        )}
-      </CardFooter>
-    </Card>
-  )
-
   return (
-    <>
-    <div className="space-y-6 pb-20 md:pb-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Clubs</h1>
-          <p className="text-muted-foreground">
-            Discover and join clubs that match your interests
+    <div className="min-h-screen pb-20 md:pb-6">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-primary/5 to-background rounded-xl md:rounded-2xl p-4 sm:p-6 md:p-8 mb-6 md:mb-8">
+        <div className="relative z-10">
+          <div className="flex items-center gap-2 mb-2">
+            <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+            <span className="text-xs sm:text-sm font-medium text-primary">Discover Communities</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight mb-2 md:mb-3">Student Clubs</h1>
+          <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-2xl">
+            Join vibrant communities, make lasting connections, and explore your passions
           </p>
         </div>
-        <Button asChild>
-          <Link href="/dashboard/clubs/create">
-            <span className="inline-flex items-center">
-              <Plus className="mr-2 h-4 w-4" />
-              Create Club
-            </span>
-          </Link>
-        </Button>
+        <div className="absolute top-0 right-0 w-32 h-32 sm:w-48 sm:h-48 md:w-64 md:h-64 bg-primary/5 rounded-full blur-3xl"></div>
       </div>
 
-      {/* Search and Filter */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+      {/* Search and Filters */}
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
             placeholder="Search clubs..."
-            className="pl-8"
+            className="pl-10 h-10 sm:h-11 text-sm sm:text-base"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        
-        <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-muted-foreground" />
-          <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger className="w-[160px]">
-              <SelectValue placeholder="Filter by type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="faculty">Faculty</SelectItem>
-              <SelectItem value="department">Department</SelectItem>
-              <SelectItem value="state">State</SelectItem>
-              <SelectItem value="religion">Religion</SelectItem>
-              <SelectItem value="general">General</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <Select value={filterType} onValueChange={setFilterType}>
+          <SelectTrigger className="w-full sm:w-[160px] md:w-[180px] h-10 sm:h-11 text-sm sm:text-base">
+            <Filter className="h-4 w-4 mr-2" />
+            <SelectValue placeholder="Filter by type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Types</SelectItem>
+            <SelectItem value="faculty">Faculty</SelectItem>
+            <SelectItem value="department">Department</SelectItem>
+            <SelectItem value="state">State</SelectItem>
+            <SelectItem value="religion">Religion</SelectItem>
+            <SelectItem value="general">General</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Tabs */}
-      <div className="flex justify-center">
-        <div className="flex bg-muted rounded-lg p-1">
+      <div className="flex items-center justify-center sm:justify-start mb-4 sm:mb-6">
+        <div className="inline-flex items-center rounded-lg bg-muted p-1 w-full sm:w-auto">
           <button
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            onClick={() => setActiveTab("my-clubs")}
+            className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium transition-all ${
               activeTab === "my-clubs"
                 ? "bg-background text-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
             }`}
-            onClick={() => setActiveTab("my-clubs")}
           >
-            My Clubs ({myClubs.length})
+            <span className="hidden sm:inline">My Clubs ({myClubs.length})</span>
+            <span className="sm:hidden">My Clubs</span>
           </button>
           <button
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              activeTab === "all"
+            onClick={() => setActiveTab("discover")}
+            className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium transition-all ${
+              activeTab === "discover"
                 ? "bg-background text-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
             }`}
-            onClick={() => setActiveTab("all")}
           >
-            Discover Clubs
+            Discover
           </button>
         </div>
-      </div>
-      {/* Info note about SRC and General clubs */}
-      <div className="text-center text-xs text-muted-foreground mt-2">
-        <span>All students are automatically members of the <b>SRC</b> club and cannot leave it. "General" clubs are opt-in and can be joined or left at any time.</span>
       </div>
 
       {/* Content */}
       {activeTab === "my-clubs" ? (
-        <div className="space-y-4">
+        <div>
           {filteredMyClubs.length > 0 ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-2 sm:space-y-3">
               {filteredMyClubs.map((club) => (
-                <ClubCard key={club._id} club={club} />
+                <div 
+                  key={club._id} 
+                  className="group flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg border bg-card hover:bg-accent/50 transition-all cursor-pointer hover:shadow-md"
+                  onClick={() => router.push(`/dashboard/clubs/${club._id}`)}
+                >
+                  {/* Club Logo */}
+                  <div className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14">
+                    {club.logo ? (
+                      <img 
+                        src={club.logo} 
+                        alt={club.name}
+                        className="w-full h-full rounded-full object-cover border-2 border-border"
+                      />
+                    ) : (
+                      <div className="w-full h-full rounded-full bg-primary/10 flex items-center justify-center border-2 border-border">
+                        <span className="text-lg sm:text-xl font-bold text-primary">
+                          {club.abbreviation?.[0] || club.name[0]}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Club Info */}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-base sm:text-lg group-hover:text-primary transition-colors truncate">
+                      {club.name}
+                    </h3>
+                    {club.abbreviation && (
+                      <p className="text-xs sm:text-sm text-muted-foreground">
+                        {club.abbreviation}
+                      </p>
+                    )}
+                  </div>
+                </div>
               ))}
             </div>
           ) : (
-            <Card className="text-center py-12">
+            <Card className="text-center py-16">
               <CardContent>
-                <Users className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
-                <h3 className="text-lg font-medium mb-2">No clubs found</h3>
-                <p className="text-muted-foreground mb-4">
-                  {searchQuery 
-                    ? "No clubs match your search criteria" 
-                    : "You haven't joined any clubs yet"
-                  }
+                <div className="h-16 w-16 rounded-full bg-muted mx-auto mb-4 flex items-center justify-center">
+                  <Users className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">No clubs yet</h3>
+                <p className="text-muted-foreground mb-6">
+                  {searchQuery
+                    ? "No clubs match your search"
+                    : "Start exploring and join your first club!"}
                 </p>
                 {!searchQuery && (
-                  <Button onClick={() => setActiveTab("all")}>
+                  <Button onClick={() => setActiveTab("discover")} size="lg">
+                    <Sparkles className="mr-2 h-4 w-4" />
                     Discover Clubs
                   </Button>
                 )}
@@ -380,47 +327,88 @@ export default function ClubsPage() {
           )}
         </div>
       ) : (
-        <div className="space-y-4">
+        <div>
           {isLoading ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-3">
               {[...Array(6)].map((_, i) => (
-                <Card key={i} className="animate-pulse">
-                  <CardHeader>
-                    <div className="h-6 bg-muted rounded w-3/4"></div>
-                    <div className="h-4 bg-muted rounded w-full"></div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-4 bg-muted rounded w-1/2"></div>
-                  </CardContent>
-                </Card>
+                <div key={i} className="animate-pulse p-4 rounded-lg border bg-card">
+                  <div className="h-6 bg-muted rounded w-1/3 mb-2"></div>
+                  <div className="h-4 bg-muted rounded w-2/3 mb-2"></div>
+                  <div className="h-4 bg-muted rounded w-1/4"></div>
+                </div>
               ))}
             </div>
           ) : filteredAllClubs.length > 0 ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {filteredAllClubs.map((club) => (
-                <ClubCard key={club._id} club={club} showJoinButton />
-              ))}
+            <div className="space-y-2 sm:space-y-3">
+              {filteredAllClubs.map((club) => {
+                // Check if club is auto-joined (cannot be left)
+                const isAutoJoined = ['src', 'faculty', 'department', 'state', 'religion'].includes(club.type)
+                
+                return (
+                  <div 
+                    key={club._id} 
+                    className="group flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg border bg-card hover:bg-accent/50 transition-all cursor-pointer hover:shadow-md"
+                    onClick={() => router.push(`/dashboard/clubs/${club._id}`)}
+                  >
+                    {/* Club Logo */}
+                    <div className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14">
+                      {club.logo ? (
+                        <img 
+                          src={club.logo} 
+                          alt={club.name}
+                          className="w-full h-full rounded-full object-cover border-2 border-border"
+                        />
+                      ) : (
+                        <div className="w-full h-full rounded-full bg-primary/10 flex items-center justify-center border-2 border-border">
+                          <span className="text-lg sm:text-xl font-bold text-primary">
+                            {club.abbreviation?.[0] || club.name[0]}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Club Info */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-base sm:text-lg group-hover:text-primary transition-colors truncate">
+                        {club.name}
+                      </h3>
+                      {club.abbreviation && (
+                        <p className="text-xs sm:text-sm text-muted-foreground">
+                          {club.abbreviation}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Auto-joined badge for mandatory clubs */}
+                    {isAutoJoined && club.isUserMember && (
+                      <Badge variant="secondary" className="flex-shrink-0 text-xs">
+                        Auto-joined
+                      </Badge>
+                    )}
+                  </div>
+                )
+              })}
             </div>
           ) : (
-            <Card className="text-center py-12">
+            <Card className="text-center py-16">
               <CardContent>
-                <Search className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
-                <h3 className="text-lg font-medium mb-2">No clubs found</h3>
+                <div className="h-16 w-16 rounded-full bg-muted mx-auto mb-4 flex items-center justify-center">
+                  <Search className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">No clubs found</h3>
                 <p className="text-muted-foreground">
-                  {searchQuery 
-                    ? "No clubs match your search criteria"
-                    : "No active clubs available"
-                  }
+                  {searchQuery
+                    ? "Try adjusting your search or filters"
+                    : "No clubs available at the moment"}
                 </p>
               </CardContent>
             </Card>
           )}
         </div>
       )}
-    </div>
 
-    {/* Mobile Bottom Navigation */}
-    <MobileNav />
-    </>
+      {/* Mobile Navigation */}
+      <MobileNav />
+    </div>
   )
 }
