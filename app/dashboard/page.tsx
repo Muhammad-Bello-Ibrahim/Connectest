@@ -340,7 +340,7 @@ export default function DashboardPage() {
           {/* Header */}
           <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border">
             <div className="flex items-center justify-between px-3 sm:px-4 h-[53px]">
-              <h1 className="text-xl font-bold">Home</h1>
+              <h1 className="text-xl font-bold">Connectrix</h1>
               <Button variant="ghost" size="icon" className="rounded-full">
                 {/* <Sparkles className="h-5 w-5" /> */}
               </Button>

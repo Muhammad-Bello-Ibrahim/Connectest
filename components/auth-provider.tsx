@@ -5,10 +5,17 @@ import { useRouter } from "next/navigation"
 import { hasAuthToken, getCookie } from "@/lib/cookies"
 
 type User = {
-  id: string
+  _id: string
+  id?: string
   name: string
   email: string
   role: "student" | "admin" | "club"
+  studentId?: string
+  faculty?: string
+  department?: string
+  avatar?: string
+  bio?: string
+  level?: string
 }
 
 type AuthContextType = {

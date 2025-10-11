@@ -24,6 +24,7 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({
+      _id: user._id,
       id: user._id,
       name: user.name,
       email: user.email,
@@ -31,6 +32,9 @@ export async function GET(req: NextRequest) {
       studentId: user.studentId,
       faculty: user.faculty,
       department: user.department,
+      avatar: user.avatar,
+      bio: user.bio,
+      level: user.level,
     })
   } catch (err) {
     return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 })

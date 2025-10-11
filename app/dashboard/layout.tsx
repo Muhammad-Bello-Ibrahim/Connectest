@@ -25,9 +25,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         router.replace("/dashboard/admin")
       } else if (user.role === "club" && !pathname.startsWith("/dashboard/club")) {
         router.replace("/dashboard/club")
-      } else if (user.role === "student" && (pathname.startsWith("/dashboard/admin") || pathname.startsWith("/dashboard/club"))) {
-        // Students should not access admin or club-specific routes
-        router.replace("/dashboard")
+      } else if (user.role === "student") {
+        // Students should not access admin or club management routes
+        // Note: /dashboard/clubs (plural) is for browsing clubs - allowed
+        // /dashboard/club (singular) is for club management - blocked
+        if (pathname.startsWith("/dashboard/admin") || 
+            (pathname.startsWith("/dashboard/club") && pathname !== "/dashboard/clubs" && !pathname.startsWith("/dashboard/clubs/"))) {
+          router.replace("/dashboard")
+        }
       }
     }
   }, [user, isLoading, pathname, router])
