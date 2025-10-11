@@ -224,7 +224,7 @@ export default function PostDetailPage() {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 text-sm">
                 <span className="font-bold hover:underline cursor-pointer" onClick={handleAuthorClick}>
-                  {post.author.name.split(' ')[0]}
+                  {post.author.name.split(' ').slice(0, 2).join(' ')}
                 </span>
                 <span className="text-muted-foreground">
                   · {formatPostTime(post.createdAt)}

@@ -287,7 +287,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1 text-sm">
                   <span className="font-bold hover:underline cursor-pointer" onClick={handleAuthorClick}>
-                    {post.author.name.split(' ')[0]}
+                    {post.author.name.split(' ').slice(0, 2).join(' ')}
                   </span>
                   <span className="text-muted-foreground text-xs">
                     · {formatPostTime(post.createdAt)}
