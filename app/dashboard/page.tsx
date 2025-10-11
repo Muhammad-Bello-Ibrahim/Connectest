@@ -224,112 +224,165 @@ export default function DashboardPage() {
     return post.likes.includes(user?._id || '')
   }
 
+  // Custom timestamp formatter
+  const formatPostTime = (dateString: string) => {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+
+    // Less than 60 seconds - show seconds
+    if (diffInSeconds < 60) {
+      return `${diffInSeconds}s`
+    }
+
+    // Less than 60 minutes - show minutes
+    const diffInMinutes = Math.floor(diffInSeconds / 60)
+    if (diffInMinutes < 60) {
+      return `${diffInMinutes}m`
+    }
+
+    // Less than 24 hours - show hours
+    const diffInHours = Math.floor(diffInMinutes / 60)
+    if (diffInHours < 24) {
+      return `${diffInHours}h`
+    }
+
+    // Yesterday
+    const yesterday = new Date(now)
+    yesterday.setDate(yesterday.getDate() - 1)
+    if (date.toDateString() === yesterday.toDateString()) {
+      return 'yesterday'
+    }
+
+    // More than 1 day ago - show day and month
+    return date.toLocaleDateString('en-US', {
+      day: 'numeric',
+      month: 'short'
+    })
+  }
+
   // Twitter-like Post Card
   const PostCard = ({ post }: { post: Post }) => {
     const liked = isLiked(post)
-    
+    const shouldTruncate = post.content.length > 150
+
+    const handleAuthorClick = (e: React.MouseEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      router.push(`/dashboard/profile/${post.author._id}`)
+    }
+
     return (
-      <article className="flex px-3 sm:px-4 py-3 hover:bg-accent/50 transition-colors border-b border-border cursor-pointer">
-        <Link href={`/dashboard/profile/${post.author._id}`} className="flex-shrink-0 mr-2 sm:mr-3">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={post.author.avatar} alt={post.author.name} />
-            <AvatarFallback>{post.author.name[0]}</AvatarFallback>
-          </Avatar>
-        </Link>
-        
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1 text-sm">
-              <Link href={`/dashboard/profile/${post.author._id}`} className="font-bold hover:underline">
-                {post.author.name}
-              </Link>
-              <span className="text-muted-foreground">
-                · {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
-              </span>
+      <div className="border-b border-border">
+        <Link href={`/dashboard/posts/${post._id}`} className="block">
+          <article className="flex px-3 sm:px-4 py-3 hover:bg-accent/50 transition-colors">
+            <div className="flex-shrink-0 mr-2 sm:mr-3">
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={post.author.avatar} alt={post.author.name} />
+                <AvatarFallback>{post.author.name[0]}</AvatarFallback>
+              </Avatar>
             </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
-                  <MoreHorizontal className="h-4 w-4" />
+
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1 text-sm">
+                  <span className="font-bold hover:underline cursor-pointer" onClick={handleAuthorClick}>
+                    {post.author.name.split(' ')[0]}
+                  </span>
+                  <span className="text-muted-foreground text-xs">
+                    · {formatPostTime(post.createdAt)}
+                  </span>
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem>
+                      <Bookmark className="mr-2 h-4 w-4" />
+                      Save post
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="text-destructive">
+                      Report post
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+
+              <div className="mt-1 text-[15px] leading-normal whitespace-pre-wrap break-words">
+                {shouldTruncate ? `${post.content.slice(0, 150)}...` : post.content}
+              </div>
+
+              {post.club && (
+                <div className="mt-2">
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-primary/10 text-primary">
+                    {post.club.name}
+                  </span>
+                </div>
+              )}
+
+              <div className="flex items-center justify-around sm:justify-between max-w-md mt-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="group flex items-center gap-1 sm:gap-1.5 hover:text-blue-500 hover:bg-blue-500/10 rounded-full px-2 sm:px-3 h-8"
+                  aria-label="Comment on post"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <MessageCircle className="h-[18px] w-[18px]" />
+                  <span className="text-xs">{post.commentCount || 0}</span>
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>
-                  <Bookmark className="mr-2 h-4 w-4" />
-                  Save post
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-destructive">
-                  Report post
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-          
-          <div className="mt-1 text-[15px] leading-normal whitespace-pre-wrap break-words">
-            {post.content}
-          </div>
-          
-          {post.club && (
-            <div className="mt-2">
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-primary/10 text-primary">
-                {post.club.name}
-              </span>
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="group flex items-center gap-1 sm:gap-1.5 hover:text-green-500 hover:bg-green-500/10 rounded-full px-2 sm:px-3 h-8"
+                  aria-label="Repost"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Repeat2 className="h-[18px] w-[18px]" />
+                  <span className="text-xs">{post.shares || 0}</span>
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    handleLikePost(post._id)
+                  }}
+                  disabled={likingPosts.has(post._id)}
+                  className={`group flex items-center gap-1 sm:gap-1.5 rounded-full px-2 sm:px-3 h-8 ${
+                    liked
+                      ? 'text-pink-600 hover:text-pink-700 hover:bg-pink-500/10'
+                      : 'hover:text-pink-600 hover:bg-pink-500/10'
+                  }`}
+                  aria-label="Like post"
+                >
+                  <Heart className={`h-[18px] w-[18px] ${liked ? 'fill-current' : ''}`} />
+                  <span className="text-xs">{post.likeCount || 0}</span>
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="group flex items-center gap-1 sm:gap-1.5 hover:text-blue-500 hover:bg-blue-500/10 rounded-full px-2 sm:px-3 h-8"
+                  aria-label="Share"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Upload className="h-[18px] w-[18px]" />
+                </Button>
+              </div>
             </div>
-          )}
-          
-          <div className="flex items-center justify-around sm:justify-between max-w-md mt-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="group flex items-center gap-1 sm:gap-1.5 hover:text-blue-500 hover:bg-blue-500/10 rounded-full px-2 sm:px-3 h-8"
-              aria-label="Comment on post"
-            >
-              <MessageCircle className="h-[18px] w-[18px]" />
-              <span className="text-xs">{post.commentCount || 0}</span>
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              className="group flex items-center gap-1 sm:gap-1.5 hover:text-green-500 hover:bg-green-500/10 rounded-full px-2 sm:px-3 h-8"
-              aria-label="Repost"
-            >
-              <Repeat2 className="h-[18px] w-[18px]" />
-              <span className="text-xs">{post.shares || 0}</span>
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleLikePost(post._id)}
-              disabled={likingPosts.has(post._id)}
-              className={`group flex items-center gap-1 sm:gap-1.5 rounded-full px-2 sm:px-3 h-8 ${
-                liked 
-                  ? 'text-pink-600 hover:text-pink-700 hover:bg-pink-500/10' 
-                  : 'hover:text-pink-600 hover:bg-pink-500/10'
-              }`}
-              aria-label="Like post"
-            >
-              <Heart className={`h-[18px] w-[18px] ${liked ? 'fill-current' : ''}`} />
-              <span className="text-xs">{post.likeCount || 0}</span>
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              className="group flex items-center gap-1 sm:gap-1.5 hover:text-blue-500 hover:bg-blue-500/10 rounded-full px-2 sm:px-3 h-8"
-              aria-label="Share"
-            >
-              <Upload className="h-[18px] w-[18px]" />
-            </Button>
-          </div>
-        </div>
-      </article>
+          </article>
+        </Link>
+      </div>
     )
   }
-
-  if (!user || user.role !== "student") return null
 
   return (
     <>
@@ -392,9 +445,6 @@ export default function DashboardPage() {
                     <Button variant="ghost" size="icon" className="h-6 w-6 sm:h-9 sm:w-9 rounded-full text-primary hover:bg-primary/10 flex-shrink-0">
                       <ImageIcon className="h-3.5 w-3.5 sm:h-[18px] sm:w-[18px]" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-6 w-6 sm:h-9 sm:w-9 rounded-full text-primary hover:bg-primary/10 flex-shrink-0">
-                      <Smile className="h-3.5 w-3.5 sm:h-[18px] sm:w-[18px]" />
-                    </Button>
                     <Button variant="ghost" size="icon" className="h-6 w-6 sm:h-9 sm:w-9 rounded-full text-primary hover:bg-primary/10 flex-shrink-0 hidden sm:inline-flex">
                       <Calendar className="h-3.5 w-3.5 sm:h-[18px] sm:w-[18px]" />
                     </Button>
@@ -454,8 +504,8 @@ export default function DashboardPage() {
         <DialogContent className="sm:max-w-[600px] p-0">
           <DialogHeader className="px-4 pt-4 pb-0">
             <div className="flex items-center justify-between">
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 size="sm"
                 onClick={() => setShowComposeDialog(false)}
                 className="rounded-full"
@@ -474,7 +524,7 @@ export default function DashboardPage() {
           </DialogHeader>
           <div className="px-4 pb-4">
             <div className="flex gap-3">
-              <Avatar className="h-10 w-10">
+              <Avatar className="h-10 w-10 rounded-full">
                 <AvatarImage src={user?.name} />
                 <AvatarFallback>{user?.name?.[0] || 'U'}</AvatarFallback>
               </Avatar>
