@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import User from "@/lib/models/User"
-import connectDB from "@/lib/db"
+import { connectDB } from "@/lib/db"
 import { jwtVerify } from "jose"
 import bcrypt from "bcryptjs"
 

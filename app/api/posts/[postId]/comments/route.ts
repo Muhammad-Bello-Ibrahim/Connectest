@@ -105,8 +105,9 @@ export async function POST(
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
-    // Get user
-    const user = await User.findById(payload.id);
+    // Get user - convert payload.id to string if it's an object
+    const userId = typeof payload.id === 'string' ? payload.id : String(payload.id);
+    const user = await User.findById(userId);
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
