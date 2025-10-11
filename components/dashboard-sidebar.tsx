@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
 import { LayoutDashboard, Users, Settings, LogOut, User, Plus } from "lucide-react"
-import { useAuth } from "@/hooks/use-auth"
+import { useAuth } from "@/components/auth-provider"
 import {
   Dialog,
   DialogContent,

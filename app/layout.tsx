@@ -4,6 +4,7 @@ import "./globals.css"
 import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from "@/components/auth-provider"
 import { SidebarProvider } from "@/components/ui/sidebar"
+import { ErrorBoundary } from "@/components/error-boundary"
 
 export const metadata: Metadata = {
   title: "Connectrix - University Club Management",
@@ -24,12 +25,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="font-sans">
-        <AuthProvider>
-          <SidebarProvider>
-            {children}
-            <Toaster />
-          </SidebarProvider>
-        </AuthProvider>
+        <ErrorBoundary>
+          <AuthProvider>
+            <SidebarProvider>
+              {children}
+              <Toaster />
+            </SidebarProvider>
+          </AuthProvider>
+        </ErrorBoundary>
       </body>
     </html>
   )

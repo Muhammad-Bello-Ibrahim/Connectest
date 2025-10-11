@@ -11,14 +11,14 @@ import {
   FormLabel, FormMessage
 } from '@/components/ui/form'
 import { useToast } from '@/components/ui/use-toast'
-import { useAuth } from '@/hooks/use-auth'
+import { useAuth } from '@/components/auth-provider'
 import Link from 'next/link'
 import { Eye, EyeOff } from 'lucide-react'
 
 const formSchema = z.object({
-  userId: z.string()
-    .min(2, 'Email or Student ID is required')
-    .max(100, 'Input too long')
+  email: z.string()
+    .min(1, 'Email or Student ID is required')
+    .max(100, 'Email or Student ID too long')
     .refine((val) => {
       // Check if it's a valid email or student ID format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -37,12 +37,12 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
-  const { login, getRedirectPath } = useAuth()
+  const { login } = useAuth()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      userId: '',
+      email: '',
       password: ''
     }
   })
@@ -51,19 +51,13 @@ export default function LoginPage() {
 const onSubmit = async (values: z.infer<typeof formSchema>) => {
   setIsLoading(true)
   try {
-    await login(values.userId, values.password)
-    
-    toast({ 
-      title: 'Login Successful!', 
-      description: 'Welcome back!' 
-    })
-    
-    // Navigate after AuthProvider state has been updated
-    const redirectPath = getRedirectPath()
-    router.push(redirectPath)
+    await login(values.email, values.password)
+
+    // AuthProvider handles the redirect automatically
+    // No need to manually redirect here
   } catch (err: any) {
     console.error('Login error:', err);
-    
+
     // Handle different types of errors from the enhanced AuthProvider
     if (err.details && Array.isArray(err.details)) {
       // Handle Zod validation errors
@@ -140,7 +134,7 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
           </div>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-              <FormField control={form.control} name="userId" render={({ field }) => (
+              <FormField control={form.control} name="email" render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-sm font-medium">Email or Student ID</FormLabel>
                   <FormControl>

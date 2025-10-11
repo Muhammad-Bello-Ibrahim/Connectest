@@ -3,11 +3,11 @@ import bcrypt from 'bcryptjs'
 import { z } from 'zod'
 import User from '@/lib/models/User'
 import {connectDB} from '@/lib/db'
-import { signToken } from '@/lib/auth'
+import { generateTokens, setAuthCookies } from '@/lib/auth'
 
 // Input validation schema
 const loginSchema = z.object({
-  userId: z.string().min(1, 'Email or Student ID is required').max(100),
+  email: z.string().min(1, 'Email or Student ID is required').max(100),
   password: z.string().min(1, 'Password is required').max(128)
 })
 
@@ -18,20 +18,20 @@ export async function POST(req: NextRequest) {
     // Validate input
     const validationResult = loginSchema.safeParse(body)
     if (!validationResult.success) {
-      return NextResponse.json({ 
-        error: 'Invalid input', 
-        details: validationResult.error.issues 
+      return NextResponse.json({
+        error: 'Invalid input',
+        details: validationResult.error.issues
       }, { status: 400 })
     }
 
-    const { userId, password } = validationResult.data
-    // Sanitize userId input - trim whitespace and normalize case for email
-    const sanitizedUserId = userId.trim()
+    const { email, password } = validationResult.data
+    // Sanitize email input - trim whitespace and normalize case for email
+    const sanitizedEmail = email.trim()
     // Find user without populating clubs to avoid Club model registration issues
     const user = await User.findOne({
       $or: [
-        { email: sanitizedUserId.toLowerCase() }, 
-        { studentId: sanitizedUserId.toUpperCase() }
+        { email: sanitizedEmail.toLowerCase() },
+        { studentId: sanitizedEmail.toUpperCase() }
       ],
     }).select('+password')
 
@@ -52,8 +52,9 @@ export async function POST(req: NextRequest) {
       // Continue with login even if last login update fails
     }
 
-    const token = await signToken({ 
-      id: user._id.toString(), 
+    // Generate both access and refresh tokens
+    const tokens = await generateTokens({
+      id: user._id.toString(),
       role: user.role,
       email: user.email,
       name: user.name
@@ -81,18 +82,13 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    // Secure cookie configuration
-    res.cookies.set('connectrix-token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      path: '/',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-    })
+    // Set both tokens as cookies
+    setAuthCookies(res, tokens.accessToken, tokens.refreshToken)
+
     return res
   } catch (err: any) {
     console.error("LOGIN ERROR:", err)
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: 'Server error'
     }, { status: 500 })
   }

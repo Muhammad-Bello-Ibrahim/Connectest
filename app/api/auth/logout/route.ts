@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server"
+import { clearAuthCookies } from "@/lib/auth"
 
 export async function POST() {
   const response = NextResponse.json({ message: "Logout successful" })
-  response.cookies.delete("connectrix-token")
+  clearAuthCookies(response)
   return response
 }

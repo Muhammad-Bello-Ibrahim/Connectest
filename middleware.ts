@@ -1,6 +1,7 @@
 // middleware.ts
 import { NextRequest, NextResponse } from "next/server"
 import { jwtVerify } from "jose"
+import { refreshAccessToken, setAuthCookies, getAuthTokens } from "@/lib/auth"
 
 const getJwtSecret = () => new TextEncoder().encode(process.env.JWT_SECRET!)
 
@@ -15,29 +16,49 @@ export async function middleware(request: NextRequest) {
 
   if (!isProtected) return NextResponse.next()
 
-  const token = request.cookies.get("connectrix-token")?.value
+  const { accessToken, refreshToken } = getAuthTokens(request)
 
-  if (!token) return NextResponse.redirect(new URL("/login", request.url))
+  if (!accessToken && !refreshToken) {
+    return NextResponse.redirect(new URL("/login", request.url))
+  }
 
   try {
-    const { payload } = await jwtVerify(token, getJwtSecret())
-    const userPayload = payload as { role?: string }
+    // Try to verify access token first
+    if (accessToken) {
+      const { payload } = await jwtVerify(accessToken, getJwtSecret())
+      const userPayload = payload as { role?: string }
 
-    // Block admin routes for non-admins
-    if (pathname.startsWith("/dashboard/admin") && userPayload.role !== "admin") {
-      return NextResponse.redirect(new URL("/dashboard", request.url))
+      // Block admin routes for non-admins
+      if (pathname.startsWith("/dashboard/admin") && userPayload.role !== "admin") {
+        return NextResponse.redirect(new URL("/dashboard", request.url))
+      }
+
+      // Block club management routes for non-club accounts
+      // Note: /dashboard/clubs (plural) is for browsing - allowed for all
+      // /dashboard/club (singular) is for club management - only for club accounts
+      if (pathname === "/dashboard/club" || pathname.startsWith("/dashboard/club/")) {
+        if (userPayload.role !== "club") {
+          return NextResponse.redirect(new URL("/dashboard", request.url))
+        }
+      }
+
+      return NextResponse.next()
     }
 
-    // Block club management routes for non-club accounts
-    // Note: /dashboard/clubs (plural) is for browsing - allowed for all
-    // /dashboard/club (singular) is for club management - only for club accounts
-    if (pathname === "/dashboard/club" || pathname.startsWith("/dashboard/club/")) {
-      if (userPayload.role !== "club") {
-        return NextResponse.redirect(new URL("/dashboard", request.url))
+    // If no access token but we have refresh token, try to refresh
+    if (refreshToken) {
+      const refreshResult = await refreshAccessToken(refreshToken)
+
+      if (refreshResult.success && refreshResult.tokens) {
+        // Create response with refreshed tokens and continue to next middleware
+        const response = NextResponse.next()
+        setAuthCookies(response, refreshResult.tokens.accessToken, refreshResult.tokens.refreshToken)
+        return response
       }
     }
 
-    return NextResponse.next()
+    // No valid tokens, redirect to login
+    return NextResponse.redirect(new URL("/login", request.url))
   } catch (err) {
     return NextResponse.redirect(new URL("/login", request.url))
   }
@@ -45,12 +66,10 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/dashboard/:path*", 
+    "/dashboard/:path*",
     "/dashboard",
     "/dashboard/admin/:path*",
     "/dashboard/club/:path*",
     "/clubs/:clubId/manage/:path*"
   ],
 }
-// This middleware checks if the user is authenticated and authorized to access protected routes.
-// If not, it redirects them to the login page or the appropriate dashboard based on their role

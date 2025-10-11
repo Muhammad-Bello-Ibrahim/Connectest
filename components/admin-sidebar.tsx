@@ -29,7 +29,7 @@ import {
   Calendar,
   Mail,
 } from "lucide-react"
-import { useAuth } from "@/hooks/use-auth"
+import { useAuth } from "@/components/auth-provider"
 
 export function AdminSidebar() {
   const pathname = usePathname()

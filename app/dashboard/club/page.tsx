@@ -1,6 +1,6 @@
 "use client"
 
-import { useAuth } from "@/hooks/use-auth"
+import { useAuth } from "@/components/auth-provider"
 import Newsfeed from "@/components/newsfeed"
 
 // TODO: Replace with actual club context or fetch club info dynamically

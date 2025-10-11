@@ -1,98 +1,129 @@
 "use client"
 
-import { createContext, useEffect, useState } from "react"
+import React, { createContext, useContext, useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { hasAuthToken, getCookie } from "@/lib/cookies"
+import { toast } from "sonner"
 
 type User = {
   _id: string
-  id?: string
+  role: "admin" | "student" | "club"
   name: string
   email: string
-  role: "student" | "admin" | "club"
-  studentId?: string
-  faculty?: string
-  department?: string
-  avatar?: string
-  bio?: string
-  level?: string
 }
 
 type AuthContextType = {
   user: User | null
   isLoading: boolean
-  login: (identifier: string, password: string) => Promise<void>
-  logout: () => void
-  getRedirectPath: () => string
+  login: (email: string, password: string) => Promise<void>
+  logout: () => Promise<void>
   isAuthenticated: () => boolean
-  updateProfile: (data: any) => Promise<void>
 }
 
-export const AuthContext = createContext<AuthContextType>({
-  user: null,
-  isLoading: true,
-  login: async () => {},
-  logout: () => {},
-  getRedirectPath: () => "/login",
-  isAuthenticated: () => false,
-  updateProfile: async () => {},
-})
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
 
-  const updateProfile = async (data: any) => {
-    const res = await fetch("/api/auth/user/profile", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify(data),
-    });
-    const result = await res.json();
-    if (!res.ok) throw new Error(result.error || "Profile update failed");
-    setUser(result.user);
-    localStorage.setItem("connectrix-user", JSON.stringify(result.user));
+  // 🔹 Utility: get redirect path by role
+  const getRedirectPath = (role?: string) => {
+    switch (role) {
+      case "admin":
+        return "/dashboard/admin"
+      case "club":
+        return "/dashboard/club"
+      default:
+        return "/dashboard"
+    }
   }
 
+  // ✅ LOGIN FUNCTION (fixed redirect delay)
+  const login = async (email: string, password: string) => {
+    setIsLoading(true)
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+        credentials: "include"
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || "Login failed")
+      }
+
+      // Save user locally
+      setUser(data.user)
+      localStorage.setItem("connectrix-user", JSON.stringify(data.user))
+
+      toast.success("Login successful")
+
+      // 🔸 FIX 1: Delay redirect to ensure React state updates
+      const redirectPath = getRedirectPath(data.user.role)
+      setTimeout(() => {
+        router.replace(redirectPath)
+      }, 100)
+    } catch (error: any) {
+      console.error("Login error:", error)
+      toast.error(error.message || "Login failed")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // ✅ LOGOUT FUNCTION
+  const logout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST", credentials: "include" })
+    } catch (error) {
+      console.error("Logout error:", error)
+    } finally {
+      localStorage.removeItem("connectrix-user")
+      setUser(null)
+      router.replace("/login")
+    }
+  }
+
+  // ✅ Verify authentication (persistent login fix)
   useEffect(() => {
     const verifyAuth = async () => {
       try {
-        // First check if auth token cookie exists
-        if (!hasAuthToken()) {
-          // No auth cookie, user is not logged in
-          setUser(null)
-          setIsLoading(false)
-          return
-        }
-
-        // Check localStorage for cached user data first
         const cachedUser = localStorage.getItem("connectrix-user")
         if (cachedUser) {
           try {
-            const parsedUser = JSON.parse(cachedUser)
-            setUser(parsedUser)
-          } catch (error) {
-            console.error("Failed to parse cached user data:", error)
+            setUser(JSON.parse(cachedUser))
+          } catch {
             localStorage.removeItem("connectrix-user")
           }
         }
 
-        // Verify with server even if we have cached data to ensure token is still valid
+        // 🔸 FIX 2: Always verify via API (HttpOnly cookies can’t be read client-side)
         const res = await fetch("/api/auth/verify", {
-          credentials: "include",
+          credentials: "include"
         })
-        
+
         if (res.ok) {
-          const user = await res.json()
-          setUser(user)
-          // Update localStorage with fresh user data
-          localStorage.setItem("connectrix-user", JSON.stringify(user))
-        } else {
-          // Token invalid or expired, clear everything
-          setUser(null)
-          localStorage.removeItem("connectrix-user")
+          const verifiedUser = await res.json()
+          setUser(verifiedUser)
+          localStorage.setItem("connectrix-user", JSON.stringify(verifiedUser))
+        } else if (res.status === 401) {
+          // Attempt refresh token
+          const refreshRes = await fetch("/api/auth/refresh", {
+            method: "POST",
+            credentials: "include"
+          })
+
+          if (refreshRes.ok) {
+            const newUser = await refreshRes.json()
+            setUser(newUser)
+            localStorage.setItem("connectrix-user", JSON.stringify(newUser))
+          } else {
+            setUser(null)
+            localStorage.removeItem("connectrix-user")
+          }
         }
       } catch (error) {
         console.error("Auth verification failed:", error)
@@ -102,82 +133,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsLoading(false)
       }
     }
+
     verifyAuth()
   }, [])
 
-  const login = async (identifier: string, password: string) => {
-    try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: identifier, password }),
-        credentials: "include",
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        const error = new Error(data.error || "Login failed");
-        (error as any).details = data.details;
-        (error as any).field = data.field;
-        (error as any).status = res.status;
-        throw error;
-      }
-
-      const user = {
-        ...data.user,
-        id: data.user._id || data.user.id,
-      };
-
-      setUser(user);
-      localStorage.setItem("connectrix-user", JSON.stringify(user));
-
-      if (!hasAuthToken()) {
-        console.warn("Warning: Auth token cookie was not set after login");
-      }
-
-      // Redirect after state update
-      const redirectPath = getRedirectPath();
-      router.push(redirectPath);
-    } catch (err) {
-      console.error("Login error", err);
-      throw err;
-    }
-  }
-
-  const logout = async () => {
-    try {
-      await fetch("/api/auth/logout", {
-        method: "POST",
-        credentials: "include",
-      })
-      setUser(null)
-      localStorage.removeItem("connectrix-user")
-      router.push("/login")
-    } catch (error) {
-      console.error("Logout error:", error)
-    }
-  }
-
-  const getRedirectPath = () => {
-    if (!user) return "/login";
-    switch (user.role) {
-      case "admin":
-        return "/dashboard/admin";
-      case "club":
-        return "/dashboard/club";
-      default:
-        return "/dashboard";
-    }
-  }
-
-  const isAuthenticated = () => {
-    return user !== null && hasAuthToken()
-  }
+  const isAuthenticated = () => !!user
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout, getRedirectPath, isAuthenticated, updateProfile }}>
+    <AuthContext.Provider value={{ user, isLoading, login, logout, isAuthenticated }}>
       {children}
     </AuthContext.Provider>
   )
+}
+
+export { AuthContext }
+
+export const useAuth = () => {
+  const context = useContext(AuthContext)
+  if (!context) throw new Error("useAuth must be used within an AuthProvider")
+  return context
 }
