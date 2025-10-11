@@ -49,7 +49,7 @@ interface Post {
   commentCount: number
 }
 
-import { useAuth } from "@/hooks/use-auth"
+import { useAuth } from "@/components/auth-provider"
 
 interface NewsfeedProps {
   showCreateButton?: boolean

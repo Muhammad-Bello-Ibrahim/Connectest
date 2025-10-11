@@ -40,3 +40,19 @@ export function hasCookie(name: string): boolean {
 export function hasAuthToken(): boolean {
   return hasCookie('connectrix-token')
 }
+
+/**
+ * Check if the user has a valid refresh token cookie
+ * @returns true if the refresh token cookie exists, false otherwise
+ */
+export function hasRefreshToken(): boolean {
+  return hasCookie('connectrix-refresh')
+}
+
+/**
+ * Check if the user has any valid authentication tokens (access or refresh)
+ * @returns true if either token exists, false otherwise
+ */
+export function hasAnyAuthToken(): boolean {
+  return hasAuthToken() || hasRefreshToken()
+}

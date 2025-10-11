@@ -1,6 +1,6 @@
 "use client"
 
-import { useAuth } from "@/hooks/use-auth"
+import { useAuth } from "@/components/auth-provider"
 import { useRouter, usePathname } from "next/navigation"
 import { useEffect } from "react"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
@@ -15,6 +15,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname()
 
   useEffect(() => {
+    // Only redirect after authentication check is complete
     if (isLoading) return
 
     if (!user) {
@@ -37,18 +38,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [user, isLoading, pathname, router])
 
-  const renderSidebar = () => {
-    if (user?.role === "admin") return <AdminSidebar />
-    if (user?.role === "club") return <ClubSidebar />
-    return <DashboardSidebar />
-  }
-
-  if (!user || isLoading) {
+  // Show loading while authentication is being verified
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen w-screen">
         <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto my-auto" />
       </div>
     )
+  }
+
+  // Don't render anything if user is not authenticated yet
+  if (!user) {
+    return null
+  }
+
+  const renderSidebar = () => {
+    if (user?.role === "admin") return <AdminSidebar />
+    if (user?.role === "club") return <ClubSidebar />
+    return <DashboardSidebar />
   }
 
   const isAdminRoute = pathname.startsWith("/dashboard/admin")
