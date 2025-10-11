@@ -1,38 +1,21 @@
 "use client"
 
-import { useState, useEffect, useCallback, useMemo } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { formatDistanceToNow } from "date-fns"
-import { 
-  Heart, 
-  MessageCircle, 
-  Share2, 
-  MoreHorizontal,
+import {
+  MessageCircle,
   Repeat2,
-  Bookmark,
+  Heart,
   Upload,
-  Image as ImageIcon,
-  Smile,
-  Calendar,
-  MapPin,
-  Home,
-  Bell,
-  User,
-  Users,
-  Sparkles
+  MoreHorizontal,
+  Bookmark
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Textarea } from "@/components/ui/textarea"
-import { toast } from "@/components/ui/use-toast"
-import { useAuth } from "@/components/auth-provider"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,6 +23,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useAuth } from "@/components/auth-provider"
+import { toast } from "@/components/ui/use-toast"
 import { MobileNav } from "@/components/mobile-nav"
 
 interface Post {
@@ -56,7 +41,6 @@ interface Post {
     name: string
     abbreviation?: string
   }
-  tags: string[]
   likes: string[]
   comments: any[]
   shares: number
@@ -71,11 +55,8 @@ export default function DashboardPage() {
   const router = useRouter()
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
-  const [newPostContent, setNewPostContent] = useState("")
-  const [isCreatingPost, setIsCreatingPost] = useState(false)
   const [likingPosts, setLikingPosts] = useState<Set<string>>(new Set())
   const [activeFeed, setActiveFeed] = useState<'forYou' | 'following'>('forYou')
-  const [showComposeDialog, setShowComposeDialog] = useState(false)
 
   // Secure redirect for unauthorized or wrong-role users
   useEffect(() => {
@@ -117,58 +98,6 @@ export default function DashboardPage() {
       })
     } finally {
       setLoading(false)
-    }
-  }
-
-  // Create new post
-  const handleCreatePost = async () => {
-    if (!newPostContent.trim()) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Please write something"
-      })
-      return
-    }
-
-    try {
-      setIsCreatingPost(true)
-      const res = await fetch('/api/posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          title: "Post",
-          content: newPostContent.trim(),
-          isPublic: true
-        })
-      })
-
-      const data = await res.json()
-      
-      if (res.ok) {
-        toast({
-          title: "Posted!",
-          description: "Your post has been shared"
-        })
-        setNewPostContent("")
-        setPosts(prev => [data.post, ...prev])
-        setShowComposeDialog(false)
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: data.error || "Failed to create post"
-        })
-      }
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Network error while creating post"
-      })
-    } finally {
-      setIsCreatingPost(false)
     }
   }
 
@@ -277,42 +206,44 @@ export default function DashboardPage() {
         <Link href={`/dashboard/posts/${post._id}`} className="block">
           <article className="flex px-3 sm:px-4 py-3 hover:bg-accent/50 transition-colors">
             <div className="flex-shrink-0 mr-2 sm:mr-3">
-              <Avatar className="h-10 w-10">
-                <AvatarImage src={post.author.avatar} alt={post.author.name} />
-                <AvatarFallback className="h-10 w-10 rounded-full bg-muted flex items-center justify-center px-5">{post.author.name[0]}</AvatarFallback>
+              <Avatar className="h-9 w-9 sm:h-10 sm:w-10">
+                <AvatarImage src={post.author.avatar || ""} alt={post.author.name} />
+                <AvatarFallback className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-muted flex items-center justify-center text-sm sm:px-5">{post.author.name[0]}</AvatarFallback>
               </Avatar>
             </div>
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1 text-sm">
-                  <span className="font-bold hover:underline cursor-pointer" onClick={handleAuthorClick}>
+                  <span className="font-bold hover:underline cursor-pointer break-words" onClick={handleAuthorClick}>
                     {post.author.name.split(' ').slice(0, 2).join(' ')}
                   </span>
-                  <span className="text-muted-foreground text-xs">
+                  <span className="text-muted-foreground text-xs flex-shrink-0">
                     · {formatPostTime(post.createdAt)}
                   </span>
                 </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem>
-                      <Bookmark className="mr-2 h-4 w-4" />
-                      Save post
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem className="text-destructive">
-                      Report post
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <div className="flex-shrink-0">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 rounded-full">
+                        <MoreHorizontal className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem>
+                        <Bookmark className="mr-2 h-4 w-4" />
+                        Save post
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem className="text-destructive">
+                        Report post
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
 
-              <div className="mt-1 text-[15px] leading-normal whitespace-pre-wrap break-words">
+              <div className="mt-1 text-sm sm:text-[15px] leading-normal whitespace-pre-wrap break-words">
                 {shouldTruncate ? `${post.content.slice(0, 150)}...` : post.content}
               </div>
 
@@ -324,26 +255,26 @@ export default function DashboardPage() {
                 </div>
               )}
 
-              <div className="flex items-center justify-around sm:justify-between max-w-md mt-3">
+              <div className="flex items-center justify-around sm:justify-between max-w-sm sm:max-w-md mt-3">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="group flex items-center gap-1 sm:gap-1.5 hover:text-blue-500 hover:bg-blue-500/10 rounded-full px-2 sm:px-3 h-8"
+                  className="group flex items-center gap-1 sm:gap-1.5 hover:text-blue-500 hover:bg-blue-500/10 rounded-full px-1.5 sm:px-2 sm:px-3 h-7 sm:h-8"
                   aria-label="Comment on post"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <MessageCircle className="h-[18px] w-[18px]" />
+                  <MessageCircle className="h-4 w-4 sm:h-[18px] sm:w-[18px]" />
                   <span className="text-xs">{post.commentCount || 0}</span>
                 </Button>
 
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="group flex items-center gap-1 sm:gap-1.5 hover:text-green-500 hover:bg-green-500/10 rounded-full px-2 sm:px-3 h-8"
+                  className="group flex items-center gap-1 sm:gap-1.5 hover:text-green-500 hover:bg-green-500/10 rounded-full px-1.5 sm:px-2 sm:px-3 h-7 sm:h-8"
                   aria-label="Repost"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <Repeat2 className="h-[18px] w-[18px]" />
+                  <Repeat2 className="h-4 w-4 sm:h-[18px] sm:w-[18px]" />
                   <span className="text-xs">{post.shares || 0}</span>
                 </Button>
 
@@ -356,25 +287,25 @@ export default function DashboardPage() {
                     handleLikePost(post._id)
                   }}
                   disabled={likingPosts.has(post._id)}
-                  className={`group flex items-center gap-1 sm:gap-1.5 rounded-full px-2 sm:px-3 h-8 ${
+                  className={`group flex items-center gap-1 sm:gap-1.5 rounded-full px-1.5 sm:px-2 sm:px-3 h-7 sm:h-8 ${
                     liked
                       ? 'text-pink-600 hover:text-pink-700 hover:bg-pink-500/10'
                       : 'hover:text-pink-600 hover:bg-pink-500/10'
                   }`}
                   aria-label="Like post"
                 >
-                  <Heart className={`h-[18px] w-[18px] ${liked ? 'fill-current' : ''}`} />
+                  <Heart className={`h-4 w-4 sm:h-[18px] sm:w-[18px] ${liked ? 'fill-current' : ''}`} />
                   <span className="text-xs">{post.likeCount || 0}</span>
                 </Button>
 
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="group flex items-center gap-1 sm:gap-1.5 hover:text-blue-500 hover:bg-blue-500/10 rounded-full px-2 sm:px-3 h-8"
+                  className="group flex items-center gap-1 sm:gap-1.5 hover:text-blue-500 hover:bg-blue-500/10 rounded-full px-1.5 sm:px-2 sm:px-3 h-7 sm:h-8"
                   aria-label="Share"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <Upload className="h-[18px] w-[18px]" />
+                  <Upload className="h-4 w-4 sm:h-[18px] sm:w-[18px]" />
                 </Button>
               </div>
             </div>
@@ -387,9 +318,9 @@ export default function DashboardPage() {
   return (
     <>
         {/* Main Twitter-like Layout */}
-      <div className="min-h-screen bg-background w-[90vw] md:ml-[-10vw]">
+      <div className="min-h-screen bg-background">
         {/* Main Content - Twitter Feed */}
-        <div className="w-full md:max-w-[600px] md:mx-auto md:border-x border-border min-h-screen pb-20 md:pb-0">
+        <div className="w-full max-w-none md:max-w-[600px] md:mx-auto md:border-x border-border min-h-screen pb-16 md:pb-0">
           {/* Header */}
           <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border">
             <div className="flex items-center justify-between px-3 sm:px-4 h-[53px]">
@@ -403,7 +334,7 @@ export default function DashboardPage() {
             <div className="flex border-b border-border">
               <button
                 onClick={() => setActiveFeed('forYou')}
-                className={`flex-1 py-4 text-[15px] font-medium hover:bg-accent/50 transition-colors relative ${
+                className={`flex-1 py-3 sm:py-4 text-sm sm:text-[15px] font-medium hover:bg-accent/50 transition-colors relative ${
                   activeFeed === 'forYou' ? 'font-bold' : 'text-muted-foreground'
                 }`}
               >
@@ -414,7 +345,7 @@ export default function DashboardPage() {
               </button>
               <button
                 onClick={() => setActiveFeed('following')}
-                className={`flex-1 py-4 text-[15px] font-medium hover:bg-accent/50 transition-colors relative ${
+                className={`flex-1 py-3 sm:py-4 text-sm sm:text-[15px] font-medium hover:bg-accent/50 transition-colors relative ${
                   activeFeed === 'following' ? 'font-bold' : 'text-muted-foreground'
                 }`}
               >
@@ -423,44 +354,6 @@ export default function DashboardPage() {
                   <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-full" />
                 )}
               </button>
-            </div>
-          </div>
-
-          {/* Compose Tweet Box - Desktop Only */}
-          <div className="hidden md:block border-b border-border px-4 py-3 w-full overflow-hidden">
-            <div className="flex gap-1.5 sm:gap-3 w-full">
-              <Avatar className="h-7 w-7 sm:h-10 sm:w-10 flex-shrink-0">
-                <AvatarImage src={user?.name} />
-                <AvatarFallback className="text-xs sm:text-sm">{user?.name?.[0] || 'U'}</AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0 w-full overflow-hidden">
-                <Textarea
-                  placeholder="What is happening?!"
-                  value={newPostContent}
-                  onChange={(e) => setNewPostContent(e.target.value)}
-                  className="min-h-[40px] sm:min-h-[60px] text-xs sm:text-[15px] border-none resize-none focus-visible:ring-0 p-0 placeholder:text-muted-foreground w-full"
-                />
-                <div className="flex items-center justify-between mt-1.5 sm:mt-3 pt-1.5 sm:pt-3 border-t border-border w-full">
-                  <div className="flex items-center gap-0 sm:gap-1 -ml-1 sm:ml-0 flex-shrink">
-                    <Button variant="ghost" size="icon" className="h-6 w-6 sm:h-9 sm:w-9 rounded-full text-primary hover:bg-primary/10 flex-shrink-0">
-                      <ImageIcon className="h-3.5 w-3.5 sm:h-[18px] sm:w-[18px]" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-6 w-6 sm:h-9 sm:w-9 rounded-full text-primary hover:bg-primary/10 flex-shrink-0 hidden sm:inline-flex">
-                      <Calendar className="h-3.5 w-3.5 sm:h-[18px] sm:w-[18px]" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-6 w-6 sm:h-9 sm:w-9 rounded-full text-primary hover:bg-primary/10 flex-shrink-0 hidden sm:inline-flex">
-                      <MapPin className="h-3.5 w-3.5 sm:h-[18px] sm:w-[18px]" />
-                    </Button>
-                  </div>
-                  <Button
-                    onClick={handleCreatePost}
-                    disabled={!newPostContent.trim() || isCreatingPost}
-                    className="rounded-full px-2.5 sm:px-4 h-6 sm:h-9 font-bold text-[10px] sm:text-sm flex-shrink-0 ml-1.5 sm:ml-2"
-                  >
-                    {isCreatingPost ? 'Posting...' : 'Post'}
-                  </Button>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -499,60 +392,6 @@ export default function DashboardPage() {
 
       {/* Mobile Bottom Navigation */}
       <MobileNav />
-
-      <Dialog open={showComposeDialog} onOpenChange={setShowComposeDialog}>
-        <DialogContent className="sm:max-w-[600px] p-0">
-          <DialogHeader className="px-4 pt-4 pb-0">
-            <div className="flex items-center justify-between">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowComposeDialog(false)}
-                className="rounded-full"
-              >
-                ✕
-              </Button>
-              <DialogTitle className="sr-only">Create Post</DialogTitle>
-              <Button
-                onClick={handleCreatePost}
-                disabled={!newPostContent.trim() || isCreatingPost}
-                className="rounded-full px-4 h-8 font-bold"
-              >
-                {isCreatingPost ? 'Posting...' : 'Post'}
-              </Button>
-            </div>
-          </DialogHeader>
-          <div className="px-4 pb-4">
-            <div className="flex gap-3">
-              <Avatar className="h-10 w-10 rounded-full">
-                <AvatarImage src={user?.name} />
-                <AvatarFallback>{user?.name?.[0] || 'U'}</AvatarFallback>
-              </Avatar>
-              <Textarea
-                placeholder="What is happening?!"
-                value={newPostContent}
-                onChange={(e) => setNewPostContent(e.target.value)}
-                className="min-h-[120px] text-[15px] border-none resize-none focus-visible:ring-0 p-0"
-                autoFocus
-              />
-            </div>
-            <div className="flex items-center gap-0.5 sm:gap-1 mt-4 ml-[52px]">
-              <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full text-primary">
-                <ImageIcon className="h-[18px] w-[18px]" />
-              </Button>
-              <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full text-primary">
-                <Smile className="h-[18px] w-[18px]" />
-              </Button>
-              <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full text-primary">
-                <Calendar className="h-[18px] w-[18px]" />
-              </Button>
-              <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full text-primary">
-                <MapPin className="h-[18px] w-[18px]" />
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </>
   )
 }

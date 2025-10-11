@@ -9,6 +9,19 @@ type User = {
   role: "admin" | "student" | "club"
   name: string
   email: string
+  avatar?: string
+  studentId?: string
+  phone?: string
+  state?: string
+  localGovt?: string
+  address?: string
+  religion?: string
+  gender?: string
+  dob?: string
+  level?: string
+  faculty?: string
+  department?: string
+  bio?: string
 }
 
 type AuthContextType = {
@@ -52,7 +65,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const data = await res.json()
 
       if (!res.ok) {
-        throw new Error(data.error || "Login failed")
+        // Handle error response properly
+        const errorMessage = data?.error || `Login failed (${res.status})`
+        throw new Error(errorMessage)
       }
 
       // Save user locally
