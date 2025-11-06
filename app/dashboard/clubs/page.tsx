@@ -340,54 +340,42 @@ export default function ClubsPage() {
             </div>
           ) : filteredAllClubs.length > 0 ? (
             <div className="space-y-2 sm:space-y-3">
-              {filteredAllClubs.map((club) => {
-                // Check if club is auto-joined (cannot be left)
-                const isAutoJoined = ['src', 'faculty', 'department', 'state', 'religion'].includes(club.type)
-                
-                return (
-                  <div 
-                    key={club._id} 
-                    className="group flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg border bg-card hover:bg-accent/50 transition-all cursor-pointer hover:shadow-md"
-                    onClick={() => router.push(`/dashboard/clubs/${club._id}`)}
-                  >
-                    {/* Club Logo */}
-                    <div className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14">
-                      {club.logo ? (
-                        <img 
-                          src={club.logo} 
-                          alt={club.name}
-                          className="w-full h-full rounded-full object-cover border-2 border-border"
-                        />
-                      ) : (
-                        <div className="w-full h-full rounded-full bg-primary/10 flex items-center justify-center border-2 border-border">
-                          <span className="text-lg sm:text-xl font-bold text-primary">
-                            {club.abbreviation?.[0] || club.name[0]}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Club Info */}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-base sm:text-lg group-hover:text-primary transition-colors truncate">
-                        {club.name}
-                      </h3>
-                      {club.abbreviation && (
-                        <p className="text-xs sm:text-sm text-muted-foreground">
-                          {club.abbreviation}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Auto-joined badge for mandatory clubs */}
-                    {isAutoJoined && club.isUserMember && (
-                      <Badge variant="secondary" className="flex-shrink-0 text-xs">
-                        Auto-joined
-                      </Badge>
+              {filteredAllClubs.map((club) => (
+                <div 
+                  key={club._id} 
+                  className="group flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg border bg-card hover:bg-accent/50 transition-all cursor-pointer hover:shadow-md"
+                  onClick={() => router.push(`/dashboard/clubs/${club._id}`)}
+                >
+                  {/* Club Logo */}
+                  <div className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14">
+                    {club.logo ? (
+                      <img 
+                        src={club.logo} 
+                        alt={club.name}
+                        className="w-full h-full rounded-full object-cover border-2 border-border"
+                      />
+                    ) : (
+                      <div className="w-full h-full rounded-full bg-primary/10 flex items-center justify-center border-2 border-border">
+                        <span className="text-lg sm:text-xl font-bold text-primary">
+                          {club.abbreviation?.[0] || club.name[0]}
+                        </span>
+                      </div>
                     )}
                   </div>
-                )
-              })}
+
+                  {/* Club Info */}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-base sm:text-lg group-hover:text-primary transition-colors truncate">
+                      {club.name}
+                    </h3>
+                    {club.abbreviation && (
+                      <p className="text-xs sm:text-sm text-muted-foreground">
+                        {club.abbreviation}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <Card className="text-center py-16">

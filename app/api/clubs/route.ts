@@ -52,66 +52,96 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   await connectDB();
+  
   try {
     // Verify authentication
     const cookie = req.cookies.get("connectrix-token")?.value;
     if (!cookie) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized: No authentication token provided" }, { status: 401 });
     }
 
     const payload = await verifyToken(cookie);
     if (!payload || !payload.id) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 403 });
+      return NextResponse.json({ error: "Invalid or expired authentication token" }, { status: 403 });
     }
 
     // Get user to check permissions
     const user = await User.findById(payload.id);
     if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      return NextResponse.json({ error: "User account not found" }, { status: 404 });
     }
 
     // Only admins can create clubs with credentials
     if (user.role !== 'admin') {
-      return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 });
+      return NextResponse.json({ 
+        error: "Insufficient permissions. Only administrators can create clubs." 
+      }, { status: 403 });
     }
 
     // Parse and validate request body
-    const body = await req.json();
+    let body;
+    try {
+      body = await req.json();
+      console.log('Received request body:', JSON.stringify(body, null, 2));
+    } catch (parseError) {
+      console.error('Error parsing request body:', parseError);
+      return NextResponse.json({ 
+        error: 'Invalid JSON payload' 
+      }, { status: 400 });
+    }
+
     const validationResult = createClubSchema.safeParse(body);
     
     if (!validationResult.success) {
+      console.error('Validation failed:', validationResult.error);
       return NextResponse.json({ 
-        error: 'Invalid input data', 
-        details: validationResult.error.issues 
+        error: 'Validation Error',
+        message: 'Please check your input data',
+        details: validationResult.error.issues.map(issue => ({
+          field: issue.path.join('.'),
+          message: issue.message
+        }))
       }, { status: 400 });
     }
 
     const data = validationResult.data;
 
-    // Check if club with same name already exists
+    // Check if club with same name already exists (case insensitive)
     const existingClub = await Club.findOne({ 
       name: { $regex: new RegExp(`^${data.name}$`, 'i') } 
     });
     
     if (existingClub) {
       return NextResponse.json({ 
-        error: "A club with this name already exists" 
+        error: "Club name already in use",
+        message: `A club with the name "${data.name}" already exists. Please choose a different name.`,
+        field: "name"
       }, { status: 409 });
     }
 
-    // Check if email is already in use
-    const existingEmail = await Club.findOne({ email: data.email.toLowerCase() });
+    // Check if email is already in use by another club
+    const existingEmail = await Club.findOne({ 
+      email: data.email.toLowerCase() 
+    });
+    
     if (existingEmail) {
       return NextResponse.json({ 
-        error: "A club with this email already exists" 
+        error: "Email already in use",
+        message: `The email ${data.email} is already registered to another club. Please use a different email address.`,
+        field: "email"
       }, { status: 409 });
     }
 
-    // Also check if email exists in User collection
-    const existingUserEmail = await User.findOne({ email: data.email.toLowerCase() });
+    // Check if email exists in User collection
+    const existingUserEmail = await User.findOne({ 
+      email: data.email.toLowerCase() 
+    });
+    
     if (existingUserEmail) {
       return NextResponse.json({ 
-        error: "This email is already registered" 
+        error: "Email registered to user",
+        message: `The email ${data.email} is already registered as a user. Please use a different email address.`,
+        field: "email"
       }, { status: 409 });
     }
 
@@ -141,13 +171,39 @@ export async function POST(req: NextRequest) {
     // Handle duplicate key errors
     if (error.code === 11000) {
       const field = Object.keys(error.keyPattern)[0];
+      const value = error.keyValue[field];
+      const fieldName = field === 'email' ? 'email address' : field;
+      
       return NextResponse.json({ 
-        error: `A club with this ${field} already exists` 
+        error: 'Duplicate entry',
+        message: `A club with this ${fieldName} (${value}) already exists. Please use a different ${fieldName}.`,
+        field: field,
+        value: value
       }, { status: 409 });
     }
     
+    // Handle validation errors
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map((err: any) => ({
+        field: err.path,
+        message: err.message,
+        type: err.kind
+      }));
+      
+      return NextResponse.json({
+        error: 'Validation failed',
+        message: 'Please correct the following errors and try again:',
+        details: errors
+      }, { status: 400 });
+    }
+    
+    // Handle other errors
     return NextResponse.json({ 
-      error: 'Failed to create club' 
-    }, { status: 500 });
+      error: 'Server Error',
+      message: 'An unexpected error occurred while creating the club. Please try again later.',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    }, { 
+      status: 500 
+    });
   }
 }

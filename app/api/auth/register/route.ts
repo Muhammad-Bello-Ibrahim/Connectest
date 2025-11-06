@@ -149,16 +149,8 @@ export async function POST(req: NextRequest) {
     const departmentAbbr = extractedDepartment;
     const departmentFull = DEPARTMENT_MAP[departmentAbbr] || departmentAbbr;
 
-    // Assign and auto-create clubs as needed (always add SRC, match by faculty/department/state/religion/LGA)
-    const clubs = await assignAndCreateClubsForUser({
-      facultyAbbr,
-      facultyFull,
-      departmentAbbr,
-      departmentFull,
-      state,
-      religion,
-      lga: data.localGovt,
-    });
+    // Club assignment is now handled separately
+    const clubs = [];
 
     const user = await User.create({
       name: data.name.trim(),
