@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document, models, model } from "mongoose";
 
 export interface IPost extends Document {
-  title: string;
+  title?: string;
   content: string;
   author: mongoose.Types.ObjectId;
   club?: mongoose.Types.ObjectId;
@@ -60,7 +60,7 @@ const PostSchema = new Schema<IPost>(
   {
     title: {
       type: String,
-      required: true,
+      required: false,
       trim: true,
       maxlength: 200
     },

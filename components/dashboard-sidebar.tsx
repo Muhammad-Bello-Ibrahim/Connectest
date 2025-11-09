@@ -30,7 +30,6 @@ import { toast } from "@/components/ui/use-toast"
 export function DashboardSidebar() {
   const pathname = usePathname()
   const { logout } = useAuth()
-  const [newPostTitle, setNewPostTitle] = useState("")
   const [newPostContent, setNewPostContent] = useState("")
   const [isCreatingPost, setIsCreatingPost] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -40,11 +39,11 @@ export function DashboardSidebar() {
   }
 
   const handleCreatePost = async () => {
-    if (!newPostTitle.trim() || !newPostContent.trim()) {
+    if (!newPostContent.trim()) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Please provide both title and content"
+        description: "Please provide post content"
       })
       return
     }
@@ -56,7 +55,6 @@ export function DashboardSidebar() {
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
-          title: newPostTitle.trim(),
           content: newPostContent.trim(),
           isPublic: true
         })
@@ -69,7 +67,6 @@ export function DashboardSidebar() {
           title: "Success!",
           description: "Your post has been created"
         })
-        setNewPostTitle("")
         setNewPostContent("")
         setIsDialogOpen(false)
         // Refresh the page if we're on the dashboard to show new post
@@ -138,11 +135,6 @@ export function DashboardSidebar() {
                 </DialogHeader>
                 
                 <div className="space-y-4">
-                  <Input
-                    placeholder="Post title"
-                    value={newPostTitle}
-                    onChange={(e) => setNewPostTitle(e.target.value)}
-                  />
                   <Textarea
                     placeholder="What's on your mind?"
                     value={newPostContent}
@@ -158,7 +150,7 @@ export function DashboardSidebar() {
                     </Button>
                     <Button
                       onClick={handleCreatePost}
-                      disabled={!newPostTitle.trim() || !newPostContent.trim() || isCreatingPost}
+                      disabled={!newPostContent.trim() || isCreatingPost}
                     >
                       {isCreatingPost ? "Posting..." : "Create Post"}
                     </Button>

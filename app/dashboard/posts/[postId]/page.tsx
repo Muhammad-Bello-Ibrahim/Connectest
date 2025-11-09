@@ -216,39 +216,41 @@ export default function PostDetailPage() {
         <article className="border-b border-border p-4 sm:p-6">
           {/* Author Info */}
           <div className="flex items-start gap-3 mb-4">
-            <Avatar className="h-12 w-12 cursor-pointer" onClick={handleAuthorClick}>
+            <Avatar className="h-10 w-10 sm:h-12 sm:w-12 cursor-pointer flex-shrink-0" onClick={handleAuthorClick}>
               <AvatarImage src={post.author.avatar} alt={post.author.name} />
               <AvatarFallback>{post.author.name[0]}</AvatarFallback>
             </Avatar>
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 text-sm">
-                <span className="font-bold hover:underline cursor-pointer" onClick={handleAuthorClick}>
+                <span className="font-bold hover:underline cursor-pointer break-words" onClick={handleAuthorClick}>
                   {post.author.name.split(' ').slice(0, 2).join(' ')}
                 </span>
-                <span className="text-muted-foreground">
+                <span className="text-muted-foreground flex-shrink-0">
                   · {formatPostTime(post.createdAt)}
                 </span>
               </div>
             </div>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>
-                  <Bookmark className="mr-2 h-4 w-4" />
-                  Save post
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-destructive">
-                  Report post
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className="flex-shrink-0">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem>
+                    <Bookmark className="mr-2 h-4 w-4" />
+                    Save post
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="text-destructive">
+                    Report post
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
 
           {/* Post Content - Full */}

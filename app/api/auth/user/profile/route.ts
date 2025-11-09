@@ -17,23 +17,10 @@ export async function PATCH(req: NextRequest) {
     // Update fields
     Object.assign(user, body);
     await user.save();
-    // Check profile completion
+    // Profile completion check (without automatic club assignment)
     const requiredFields = ["phone", "gender", "address", "state", "localGovt", "dob", "bio"];
     const isComplete = requiredFields.every(f => user[f]);
-    if (isComplete) {
-      // Assign clubs if profile is now complete
-      const clubs = await assignAndCreateClubsForUser({
-        facultyAbbr: user.faculty,
-        facultyFull: user.facultyFull,
-        departmentAbbr: user.department,
-        departmentFull: user.departmentFull,
-        state: user.state,
-        religion: user.religion,
-        lga: user.localGovt,
-      });
-      user.clubs = clubs;
-      await user.save();
-    }
+    // Club assignment is now handled separately
     const userObj = user.toObject();
     delete userObj.password;
     return NextResponse.json({ user: userObj });

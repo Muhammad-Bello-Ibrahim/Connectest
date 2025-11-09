@@ -65,6 +65,8 @@ export default function AdminClubsPage() {
     description: "",
     logo: "",
   })
+  const [logoPreview, setLogoPreview] = useState<string | null>(null)
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({})
 
   useEffect(() => {
     fetchClubs()
@@ -89,35 +91,168 @@ export default function AdminClubsPage() {
     }
   }
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setForm(prev => ({ ...prev, [name]: value }))
+    // Clear error when user types
+    if (formErrors[name]) {
+      setFormErrors(prev => {
+        const newErrors = { ...prev }
+        delete newErrors[name]
+        return newErrors
+      })
+    }
+  }
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setFormErrors(prev => ({
+        ...prev,
+        logo: 'Please upload an image file (JPEG, PNG, etc.)'
+      }))
+      return
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      setFormErrors(prev => ({
+        ...prev,
+        logo: 'Image size should be less than 2MB'
+      }))
+      return
+    }
+
+    // Create preview
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setLogoPreview(reader.result as string)
+      setForm(prev => ({ ...prev, logo: reader.result as string }))
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const validateForm = () => {
+    const errors: Record<string, string> = {}
+    
+    if (form.name.length < 3) {
+      errors.name = 'Name must be at least 3 characters'
+    }
+    
+    if (form.abbreviation.length < 2) {
+      errors.abbreviation = 'Abbreviation must be at least 2 characters'
+    }
+    
+    if (!/^\S+@\S+\.\S+$/.test(form.email)) {
+      errors.email = 'Please enter a valid email address'
+    }
+    
+    if (form.password.length < 8) {
+      errors.password = 'Password must be at least 8 characters'
+    }
+    
+    if (form.description.length < 10) {
+      errors.description = 'Description must be at least 10 characters'
+    }
+    
+    setFormErrors(errors)
+    return Object.keys(errors).length === 0
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!validateForm()) {
+      return
+    }
+    
     try {
+      // Clear previous errors
+      setFormErrors({});
+      
+      // Prepare the data to send
+      const formData = {
+        name: form.name.trim(),
+        abbreviation: form.abbreviation.trim().toUpperCase(),
+        email: form.email.trim().toLowerCase(),
+        password: form.password,
+        type: form.type,
+        description: form.description.trim(),
+        logo: form.logo || undefined,
+        ...(form.faculty && { faculty: form.faculty }),
+        ...(form.department && { department: form.department }),
+        ...(form.state && { state: form.state }),
+        ...(form.religion && { religion: form.religion }),
+      };
+      
       const res = await fetch("/api/clubs", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          'Accept': 'application/json',
+        },
         credentials: "include",
-        body: JSON.stringify(form),
-      })
+        body: JSON.stringify(formData),
+      });
+      
+      const data = await res.json();
       
       if (!res.ok) {
-        const error = await res.json()
-        throw new Error(error.error || "Failed to create club")
+        // Handle field-specific errors
+        if (data.field) {
+          setFormErrors(prev => ({
+            ...prev,
+            [data.field]: data.message || data.error
+          }));
+          
+          // Scroll to the first error field
+          const errorField = document.querySelector(`[name="${data.field}"]`);
+          if (errorField) {
+            errorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            errorField.focus();
+          }
+          
+          throw new Error(data.message || data.error);
+        }
+        
+        // Handle multiple validation errors
+        if (data.details && Array.isArray(data.details)) {
+          const errors = data.details.reduce((acc: any, err: any) => ({
+            ...acc,
+            [err.field]: err.message
+          }), {});
+          
+          setFormErrors(errors);
+          
+          // Scroll to the first error field if possible
+          const firstErrorField = data.details[0]?.field;
+          if (firstErrorField) {
+            const fieldElement = document.querySelector(`[name="${firstErrorField}"]`);
+            if (fieldElement) {
+              fieldElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              fieldElement.focus();
+            }
+          }
+          
+          throw new Error(data.message || 'Please fix the form errors and try again.');
+        }
+        
+        // Generic error
+        throw new Error(data.message || data.error || 'Failed to create club');
       }
       
-      const data = await res.json()
       setCreatedClub(data.club)
       setClubs(prev => [...prev, data.club])
       
       toast({ 
         title: "Success", 
-        description: "Club created successfully!" 
+        description: data.message || "Club created successfully!"
       })
       
+      // Reset form
       setForm({
         name: "",
         abbreviation: "",
@@ -131,6 +266,8 @@ export default function AdminClubsPage() {
         description: "",
         logo: "",
       })
+      setLogoPreview(null)
+      setFormErrors({})
       setIsCreateDialogOpen(false)
     } catch (err: any) {
       toast({ 
@@ -245,8 +382,11 @@ export default function AdminClubsPage() {
                       value={form.name}
                       onChange={handleChange}
                       placeholder="e.g., Google Developer Group"
-                      required
+                      className={formErrors.name ? 'border-destructive' : ''}
                     />
+                    {formErrors.name && (
+                      <p className="text-sm text-destructive">{formErrors.name}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="abbreviation">Abbreviation *</Label>
@@ -256,8 +396,11 @@ export default function AdminClubsPage() {
                       value={form.abbreviation}
                       onChange={handleChange}
                       placeholder="e.g., GDG"
-                      required
+                      className={formErrors.abbreviation ? 'border-destructive' : ''}
                     />
+                    {formErrors.abbreviation && (
+                      <p className="text-sm text-destructive">{formErrors.abbreviation}</p>
+                    )}
                   </div>
                 </div>
 
@@ -272,7 +415,11 @@ export default function AdminClubsPage() {
                       onChange={handleChange}
                       placeholder="club@example.com"
                       required
+                      className={formErrors.email ? 'border-destructive' : ''}
                     />
+                    {formErrors.email && (
+                      <p className="text-sm text-destructive">{formErrors.email}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="password">Password *</Label>
@@ -283,9 +430,13 @@ export default function AdminClubsPage() {
                         type={showPassword ? "text" : "password"}
                         value={form.password}
                         onChange={handleChange}
-                        placeholder="Strong password"
+                        placeholder="At least 8 characters"
                         required
+                        className={formErrors.password ? 'border-destructive pr-10' : 'pr-10'}
                       />
+                      {formErrors.password && (
+                        <p className="text-sm text-destructive mt-1">{formErrors.password}</p>
+                      )}
                       <Button
                         type="button"
                         variant="ghost"
@@ -380,22 +531,80 @@ export default function AdminClubsPage() {
                 )}
 
                 <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
+                  <Label htmlFor="description">Description *</Label>
                   <Textarea
                     id="description"
                     name="description"
                     value={form.description}
                     onChange={handleChange}
-                    placeholder="Brief description of the club..."
+                    placeholder="Brief description of the club (min 10 characters)..."
                     rows={3}
+                    className={formErrors.description ? 'border-destructive' : ''}
                   />
+                  {formErrors.description && (
+                    <p className="text-sm text-destructive">{formErrors.description}</p>
+                  )}
                 </div>
 
-                <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                <div className="space-y-2">
+                  <Label>Logo</Label>
+                  <div className="flex items-start gap-4">
+                    <div className="relative h-24 w-24 rounded-md border overflow-hidden">
+                      {logoPreview ? (
+                        <img
+                          src={logoPreview}
+                          alt="Logo preview"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
+                          <span className="text-xs text-center p-2">No logo selected</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <input
+                        type="file"
+                        id="logo"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleLogoChange}
+                      />
+                      <div className="flex flex-col gap-2">
+                        <Label
+                          htmlFor="logo"
+                          className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-fit cursor-pointer"
+                        >
+                          {logoPreview ? "Change Logo" : "Upload Logo"}
+                        </Label>
+                        <p className="text-xs text-muted-foreground">
+                          JPG, PNG, or WebP. Max 2MB.
+                        </p>
+                      </div>
+                      {formErrors.logo && (
+                        <p className="mt-2 text-sm text-destructive">
+                          {formErrors.logo}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <DialogFooter className="pt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setIsCreateDialogOpen(false)
+                      setFormErrors({})
+                      setLogoPreview(null)
+                    }}
+                  >
                     Cancel
                   </Button>
-                  <Button type="submit">Create Club</Button>
+                  <Button type="submit">
+                    Create Club
+                  </Button>
                 </DialogFooter>
               </form>
             </DialogContent>

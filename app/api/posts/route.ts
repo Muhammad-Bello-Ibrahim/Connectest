@@ -3,17 +3,27 @@ import { z } from "zod";
 import { Post } from "@/lib/models/Post";
 import User from "@/lib/models/User";
 import Club from "@/lib/models/Club";
-import {connectDB} from "@/lib/db";
+import { connectDB } from "@/lib/db";
 import { verifyToken } from "@/lib/auth";
+import { writeFile, mkdir } from "fs/promises";
+import { join } from "path";
+import { v4 as uuidv4 } from 'uuid';
 
 // Validation schema for post creation
 const createPostSchema = z.object({
-  title: z.string().min(3, "Title must be at least 3 characters").max(200, "Title too long"),
-  content: z.string().min(10, "Content must be at least 10 characters").max(5000, "Content too long"),
+  title: z.string().min(3, "Title must be at least 3 characters").max(200, "Title too long").optional(),
+  content: z.string().min(1, "Content is required").max(5000, "Content too long"),
   club: z.string().optional(),
   tags: z.array(z.string().max(50)).max(10, "Maximum 10 tags allowed").optional(),
   isPublic: z.boolean().default(true),
   isPinned: z.boolean().default(false),
+  images: z.array(z.string()).optional(),
+  location: z.object({
+    lat: z.number(),
+    lng: z.number(),
+    name: z.string()
+  }).optional(),
+  scheduledTime: z.string().datetime().optional()
 });
 
 export async function GET(req: NextRequest) {
@@ -107,9 +117,66 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Parse and validate request body
-    const body = await req.json();
-    const validationResult = createPostSchema.safeParse(body);
+    // Parse FormData
+    const formData = await req.formData();
+    
+    // Extract fields from FormData
+    const content = formData.get('content') as string;
+    const locationStr = formData.get('location') as string | null;
+    const scheduledTimeStr = formData.get('scheduledTime') as string | null;
+    const images = formData.getAll('images') as File[];
+    
+    // Prepare post data
+    const postData: any = {
+      content: content || '',
+      isPublic: true,
+      images: []
+    };
+    
+    // Handle location if provided
+    if (locationStr) {
+      try {
+        const location = JSON.parse(locationStr);
+        postData.location = location;
+      } catch (e) {
+        console.error('Error parsing location:', e);
+      }
+    }
+    
+    // Handle scheduled time if provided
+    if (scheduledTimeStr) {
+      postData.scheduledTime = new Date(scheduledTimeStr);
+    }
+    
+    // Handle image uploads
+    if (images && images.length > 0) {
+      const uploadPromises = images.map(async (file) => {
+        if (!(file instanceof File)) return null;
+        
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        
+        // Create uploads directory if it doesn't exist
+        const uploadDir = join(process.cwd(), 'public', 'uploads');
+        await mkdir(uploadDir, { recursive: true });
+        
+        // Generate unique filename
+        const filename = `${uuidv4()}-${file.name}`;
+        const path = join(uploadDir, filename);
+        
+        // Write file to disk
+        await writeFile(path, buffer);
+        
+        return `/uploads/${filename}`;
+      });
+      
+      // Wait for all uploads to complete
+      const uploadedImages = await Promise.all(uploadPromises);
+      postData.images = uploadedImages.filter(Boolean);
+    }
+    
+    // Validate the post data
+    const validationResult = createPostSchema.safeParse(postData);
     
     if (!validationResult.success) {
       return NextResponse.json({ 
@@ -139,17 +206,21 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Only admins can pin posts
-    if (data.isPinned && user.role !== 'admin') {
-      data.isPinned = false;
-    }
+    // Create post data object without undefined or null values
+    const postDataToSave = {
+      ...(data.title && { title: data.title }), // Only include title if it exists
+      content: data.content,
+      author: user._id,
+      tags: data.tags?.map((tag: string) => tag.toLowerCase().trim()) || [],
+      images: postData.images || [],
+      ...(data.club && { club: data.club }), // Only include club if it exists
+      ...(data.isPublic !== undefined && { isPublic: data.isPublic }), // Only include isPublic if it exists
+      ...(data.location && { location: data.location }), // Only include location if it exists
+      ...(data.scheduledTime && { scheduledTime: data.scheduledTime }) // Only include scheduledTime if it exists
+    };
 
     // Create post
-    const newPost = await Post.create({
-      ...data,
-      author: user._id,
-      tags: data.tags?.map(tag => tag.toLowerCase().trim()) || [],
-    });
+    const newPost = await Post.create(postDataToSave);
 
     // Populate the post with author and club data
     const populatedPost = await Post.findById(newPost._id)
@@ -162,9 +233,26 @@ export async function POST(req: NextRequest) {
     }, { status: 201 });
 
   } catch (error: any) {
-    console.error('Error in POST /api/posts:', error);
-    return NextResponse.json({ 
-      error: 'Failed to create post' 
-    }, { status: 500 });
+    console.error('Error in POST /api/posts:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      code: error.code,
+      details: error
+    });
+    
+    // Return more detailed error information in development
+    const errorResponse = {
+      error: 'Failed to create post',
+      ...(process.env.NODE_ENV !== 'production' && {
+        details: error.message,
+        type: error.name,
+        stack: error.stack
+      })
+    };
+    
+    return NextResponse.json(errorResponse, { 
+      status: 500 
+    });
   }
 }
