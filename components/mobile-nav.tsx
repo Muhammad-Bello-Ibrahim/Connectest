@@ -144,7 +144,7 @@ export function MobileNav() {
               item.active ? "text-primary" : "text-muted-foreground hover:text-foreground",
             )}
           >
-            <item.icon className="mb-1 h-5 w-5" />
+            <item.icon className="mb-1 h-6 w-6" />
             <span className="text-[10px] font-medium">{item.label}</span>
           </Link>
         ))}
@@ -162,7 +162,7 @@ export function MobileNav() {
               item.active ? "text-primary" : "text-muted-foreground hover:text-foreground",
             )}
           >
-            <item.icon className="mb-1 h-5 w-5" />
+            <item.icon className="mb-1 h-6 w-6" />
             <span className="text-[10px] font-medium">{item.label}</span>
           </Link>
         ))}
