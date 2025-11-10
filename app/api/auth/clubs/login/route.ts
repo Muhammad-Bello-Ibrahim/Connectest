@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { z } from 'zod'
-import Club from '@/lib/models/Club'
+import User from '@/lib/models/User'
 import {connectDB} from '@/lib/db'
 import { generateTokens, setAuthCookies } from '@/lib/auth'
 
@@ -28,19 +28,20 @@ export async function POST(req: NextRequest) {
 
     const { email, password } = validationResult.data
     
-    // Find club by email (case insensitive)
-    const club = await Club.findOne({ 
-      email: email.toLowerCase().trim() 
+    // Find user by email with role=club (case insensitive)
+    const user = await User.findOne({ 
+      email: email.toLowerCase().trim(),
+      role: 'club'
     }).select('+password')
 
-    if (!club) {
+    if (!user) {
       return NextResponse.json({ 
         error: 'Invalid email or password' 
       }, { status: 401 })
     }
 
     // Verify password
-    const isMatch = await bcrypt.compare(password, club.password)
+    const isMatch = await bcrypt.compare(password, user.password)
     if (!isMatch) {
       return NextResponse.json({ 
         error: 'Invalid email or password' 
@@ -48,26 +49,26 @@ export async function POST(req: NextRequest) {
     }
 
     // Update last login
-    club.lastLogin = new Date()
-    await club.save()
+    user.lastLogin = new Date()
+    await user.save()
 
     // Generate tokens
     const tokens = await generateTokens({
-      id: club._id.toString(),
-      role: 'club',
-      email: club.email,
-      name: club.name
+      id: user._id.toString(),
+      role: user.role,
+      email: user.email,
+      name: user.name
     })
 
-    // Create response
+    // Create response with user object (matching the auth provider's expected format)
     const response = NextResponse.json({
-      club: {
-        _id: club._id,
-        name: club.name,
-        email: club.email,
-        type: club.type,
-        members: club.members,
-        status: club.status
+      user: {
+        _id: user._id.toString(),
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatar,
+        bio: user.bio
       }
     })
 

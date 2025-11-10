@@ -30,6 +30,7 @@ type AuthContextType = {
   login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
   isAuthenticated: () => boolean
+  getRedirectPath: (role?: string) => string
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -155,7 +156,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const isAuthenticated = () => !!user
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout, isAuthenticated }}>
+    <AuthContext.Provider value={{ user, isLoading, login, logout, isAuthenticated, getRedirectPath }}>
       {children}
     </AuthContext.Provider>
   )

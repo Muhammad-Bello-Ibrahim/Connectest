@@ -34,6 +34,11 @@ export default function ClubLoginPage() {
         throw new Error(data.error || 'Login failed')
       }
 
+      // Store user data in localStorage (matching regular login behavior)
+      if (data.user) {
+        localStorage.setItem('connectrix-user', JSON.stringify(data.user))
+      }
+
       toast.success('Login successful')
       router.push('/dashboard/club')
       router.refresh()

@@ -19,6 +19,7 @@ interface ClubStats {
 interface ClubInfo {
   _id: string
   name: string
+  email?: string
   abbreviation?: string
   description?: string
   logo?: string
