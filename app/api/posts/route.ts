@@ -5,9 +5,6 @@ import User from "@/lib/models/User";
 import Club from "@/lib/models/Club";
 import { connectDB } from "@/lib/db";
 import { verifyToken } from "@/lib/auth";
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
-import { v4 as uuidv4 } from 'uuid';
 
 // Validation schema for post creation
 const createPostSchema = z.object({
@@ -117,63 +114,39 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Parse FormData
-    const formData = await req.formData();
+    // Parse JSON body (images are now sent as URLs from Cloudinary)
+    const body = await req.json();
     
-    // Extract fields from FormData
-    const content = formData.get('content') as string;
-    const locationStr = formData.get('location') as string | null;
-    const scheduledTimeStr = formData.get('scheduledTime') as string | null;
-    const images = formData.getAll('images') as File[];
+    // Extract fields from body
+    const content = body.content || '';
+    const images = body.images || []; // Array of Cloudinary URLs
+    const location = body.location || null;
+    const scheduledTime = body.scheduledTime || null;
+    const title = body.title || null;
+    const club = body.club || null;
+    const tags = body.tags || [];
     
     // Prepare post data
     const postData: any = {
-      content: content || '',
+      content: content,
       isPublic: true,
-      images: []
+      images: images // Cloudinary URLs
     };
     
     // Handle location if provided
-    if (locationStr) {
-      try {
-        const location = JSON.parse(locationStr);
-        postData.location = location;
-      } catch (e) {
-        console.error('Error parsing location:', e);
-      }
+    if (location) {
+      postData.location = location;
     }
     
     // Handle scheduled time if provided
-    if (scheduledTimeStr) {
-      postData.scheduledTime = new Date(scheduledTimeStr);
+    if (scheduledTime) {
+      postData.scheduledTime = new Date(scheduledTime);
     }
     
-    // Handle image uploads
-    if (images && images.length > 0) {
-      const uploadPromises = images.map(async (file) => {
-        if (!(file instanceof File)) return null;
-        
-        const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-        
-        // Create uploads directory if it doesn't exist
-        const uploadDir = join(process.cwd(), 'public', 'uploads');
-        await mkdir(uploadDir, { recursive: true });
-        
-        // Generate unique filename
-        const filename = `${uuidv4()}-${file.name}`;
-        const path = join(uploadDir, filename);
-        
-        // Write file to disk
-        await writeFile(path, buffer);
-        
-        return `/uploads/${filename}`;
-      });
-      
-      // Wait for all uploads to complete
-      const uploadedImages = await Promise.all(uploadPromises);
-      postData.images = uploadedImages.filter(Boolean);
-    }
+    // Add title, club, and tags to postData
+    if (title) postData.title = title;
+    if (club) postData.club = club;
+    if (tags && tags.length > 0) postData.tags = tags;
     
     // Validate the post data
     const validationResult = createPostSchema.safeParse(postData);
@@ -189,17 +162,17 @@ export async function POST(req: NextRequest) {
 
     // If posting to a club, verify user is a member
     if (data.club) {
-      const club = await Club.findById(data.club);
-      if (!club) {
+      const clubDoc = await Club.findById(data.club);
+      if (!clubDoc) {
         return NextResponse.json({ error: "Club not found" }, { status: 404 });
       }
 
-      // Check if user is a member of the club
+      // Check if user is a member of the club or is a club account posting to their own club
       const isMember = user.clubs?.some((userClub: any) => 
         userClub.toString() === data.club
       );
 
-      if (!isMember && user.role !== 'admin') {
+      if (!isMember && user.role !== 'admin' && user.role !== 'club') {
         return NextResponse.json({ 
           error: "You must be a member of this club to post" 
         }, { status: 403 });
@@ -212,7 +185,7 @@ export async function POST(req: NextRequest) {
       content: data.content,
       author: user._id,
       tags: data.tags?.map((tag: string) => tag.toLowerCase().trim()) || [],
-      images: postData.images || [],
+      images: images || [],
       ...(data.club && { club: data.club }), // Only include club if it exists
       ...(data.isPublic !== undefined && { isPublic: data.isPublic }), // Only include isPublic if it exists
       ...(data.location && { location: data.location }), // Only include location if it exists

@@ -19,7 +19,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAuth } from "@/components/auth-provider"
 import { toast } from "@/components/ui/use-toast"
 import { cn } from "@/lib/utils"
-import { getImageUrl } from "@/lib/cloudinary"
 import {
   Tooltip,
   TooltipContent,
@@ -316,17 +315,20 @@ export default function ComposePage() {
 
     setIsCreatingPost(true);
     try {
-      const formData = new FormData();
-      formData.append("content", content);
-      images.forEach(img => formData.append("images", img.file));
-      if (location) formData.append("location", JSON.stringify(location));
-      if (scheduledTime) {
-        formData.append("scheduledTime", scheduledTime.toISOString());
-      }
+      // Prepare post data with Cloudinary image URLs
+      const postData = {
+        content: content,
+        images: images.map(img => img.url), // Send Cloudinary URLs
+        ...(location && { location }),
+        ...(scheduledTime && { scheduledTime: scheduledTime.toISOString() })
+      };
 
       const response = await fetch("/api/posts", {
         method: "POST",
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(postData),
       });
 
       const responseData = await response.json();
@@ -375,7 +377,7 @@ export default function ComposePage() {
         title: "Success", 
         description: "Your post has been created!" 
       });
-      router.push("/");
+      router.push("/dashboard");
     } catch (err: any) {
       console.error("Error creating post:", err);
       
@@ -444,14 +446,14 @@ export default function ComposePage() {
       </header>
 
       {/* Main */}
-      <main className="flex-1 pt-1 pb-20 w-[90vw] mx-auto">
+      <main className="flex-1 pt-1 pb-20 w-full max-w-2xl mx-auto px-4 sm:px-6">
         <div className="py-3 w-full">
           <div className="w-full">
             <Textarea
               placeholder="What's happening?"
               value={content}
               onChange={e => setContent(e.target.value)}
-              className="min-h-[120px] border-0 text-lg p-0 focus-visible:ring-0 resize-none w-full"
+              className="min-h-[120px] border-0 text-base sm:text-lg p-0 focus-visible:ring-0 resize-none w-full"
               maxLength={500}
             />
 
@@ -466,7 +468,7 @@ export default function ComposePage() {
                   />
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="text-center p-4">
-                      <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2 text-emerald-500" />
+                      <Loader2 className="h-6 w-6 sm:h-8 sm:w-8 animate-spin mx-auto mb-2 text-emerald-500" />
                       <p className="text-xs text-gray-600 dark:text-gray-300">
                         Uploading... {progress}%
                       </p>
@@ -482,21 +484,10 @@ export default function ComposePage() {
                   className="relative aspect-square rounded-xl overflow-hidden group"
                 >
                   <img
-                    src={getImageUrl({
-                      publicId: image.publicId || image.url.split('/').pop() || '',
-                      width: 400,
-                      height: 400,
-                      crop: 'fill',
-                      quality: 80
-                    })}
+                    src={image.url}
                     alt="Preview"
                     className="w-full h-full object-cover"
-                    onError={(e) => {
-                      // Fallback to original URL if Cloudinary transformation fails
-                      if (e.currentTarget.src !== image.url) {
-                        e.currentTarget.src = image.url;
-                      }
-                    }}
+                    loading="lazy"
                   />
                   <button
                     type="button"
@@ -533,8 +524,8 @@ export default function ComposePage() {
                     className="w-full h-full border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl flex flex-col items-center justify-center text-gray-400 hover:border-emerald-500 hover:text-emerald-500 transition-colors"
                     aria-label="Add images"
                   >
-                    <ImagePlus className="h-8 w-8 mb-1" />
-                    <span className="text-sm">Add Image</span>
+                    <ImagePlus className="h-6 w-6 sm:h-8 sm:w-8 mb-1" />
+                    <span className="text-xs sm:text-sm">Add Image</span>
                     <span className="text-xs text-gray-400 mt-1">
                       {images.length + Object.keys(uploadProgress).length}/4
                     </span>
@@ -605,7 +596,7 @@ export default function ComposePage() {
                 {content.length > 0 && (
                   <div
                     className={cn(
-                      "text-sm",
+                      "text-xs sm:text-sm",
                       content.length > 480
                         ? "text-red-500"
                         : content.length > 450
@@ -638,7 +629,7 @@ export default function ComposePage() {
       </main>
 
       {/* Bottom Action Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background/90 backdrop-blur-sm border-t border-border p-3">
+      <div className="fixed bottom-0 left-0 right-0 bg-background/90 backdrop-blur-sm border-t border-border p-3 sm:hidden">
         <div className="w-full max-w-4xl mx-auto px-4 flex justify-end">
           <button
             onClick={handleCreatePost}
