@@ -157,6 +157,30 @@ export async function POST(req: NextRequest) {
       members: 0, // Start with 0 members
     });
 
+    // Create a User account for the club with role=club
+    try {
+      const clubUser = await User.create({
+        name: data.name,
+        email: data.email.toLowerCase(),
+        password: hashedPassword, // Same password as club
+        role: 'club',
+        bio: data.description || `Official account for ${data.name}`,
+        isActive: true,
+      });
+
+      console.log(`Club user created with ID: ${clubUser._id} for club: ${data.name}`);
+    } catch (userError: any) {
+      // If user creation fails (e.g., duplicate email), log but don't fail club creation
+      console.error('Failed to create club user account:', userError);
+      
+      // Only fail if it's not a duplicate key error
+      if (userError.code !== 11000) {
+        // Rollback club creation
+        await Club.findByIdAndDelete(newClub._id);
+        throw new Error('Failed to create club user account: ' + userError.message);
+      }
+    }
+
     // Return club data without password
     const clubData = await Club.findById(newClub._id).select('-password -__v');
 
