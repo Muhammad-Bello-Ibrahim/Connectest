@@ -122,9 +122,9 @@ export function MobileNav() {
     }
 
     return (
-      <div onClick={handlePlusClick} className="flex flex-col items-center justify-center text-xs flex-1 py-2 cursor-pointer transition-colors text-primary">
-        <div className="mb-1 h-8 w-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center">
-          <Plus className="h-4 w-4" />
+      <div onClick={handlePlusClick} className="flex flex-col items-center justify-center text-xs flex-1 py-1.5 sm:py-2 cursor-pointer transition-all duration-200 text-primary active:scale-95">
+        <div className="mb-0.5 sm:mb-1 h-8 w-8 sm:h-9 sm:w-9 bg-primary text-primary-foreground rounded-full flex items-center justify-center shadow-lg shadow-primary/30 hover:shadow-primary/40 transition-shadow">
+          <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
         </div>
       </div>
     )
@@ -133,19 +133,19 @@ export function MobileNav() {
   return (
     <>
       {/* Bottom Navigation Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 flex h-16 items-center justify-around border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:hidden">
+      <div className="fixed bottom-0 left-0 right-0 z-50 flex h-14 sm:h-16 items-center justify-around border-t bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 md:hidden safe-area-pb">
         {/* First two nav items */}
         {navItems.firstTwo.map((item) => (
           <Link
             key={item.href}
             href={item.href}
             className={cn(
-              "flex flex-col items-center justify-center text-xs flex-1 py-2 transition-colors",
-              item.active ? "text-primary" : "text-muted-foreground hover:text-foreground",
+              "flex flex-col items-center justify-center text-xs flex-1 py-1.5 sm:py-2 transition-all duration-200",
+              item.active ? "text-primary" : "text-muted-foreground hover:text-foreground active:scale-95",
             )}
           >
-            <item.icon className="mb-1 h-6 w-6" />
-            <span className="text-[10px] font-medium">{item.label}</span>
+            <item.icon className={cn("mb-0.5 sm:mb-1 h-5 w-5 sm:h-6 sm:w-6 transition-transform", item.active && "scale-110")} />
+            <span className="text-[10px] sm:text-xs font-medium">{item.label}</span>
           </Link>
         ))}
         
@@ -158,18 +158,18 @@ export function MobileNav() {
             key={item.href}
             href={item.href}
             className={cn(
-              "flex flex-col items-center justify-center text-xs flex-1 py-2 transition-colors",
-              item.active ? "text-primary" : "text-muted-foreground hover:text-foreground",
+              "flex flex-col items-center justify-center text-xs flex-1 py-1.5 sm:py-2 transition-all duration-200",
+              item.active ? "text-primary" : "text-muted-foreground hover:text-foreground active:scale-95",
             )}
           >
-            <item.icon className="mb-1 h-6 w-6" />
-            <span className="text-[10px] font-medium">{item.label}</span>
+            <item.icon className={cn("mb-0.5 sm:mb-1 h-5 w-5 sm:h-6 sm:w-6 transition-transform", item.active && "scale-110")} />
+            <span className="text-[10px] sm:text-xs font-medium">{item.label}</span>
           </Link>
         ))}
       </div>
       
       {/* Spacer to prevent content from being hidden behind bottom nav */}
-      <div className="h-16 md:hidden" />
+      <div className="h-14 sm:h-16 md:hidden" />
     </>
   )
 }
