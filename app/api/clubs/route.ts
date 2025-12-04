@@ -24,6 +24,17 @@ const createClubSchema = z.object({
   createdBy: z.string().optional(),
   role: z.string().default("club"),
   status: z.string().default("active"),
+  isPayable: z.boolean().default(false),
+  membershipFeeAmount: z.number().min(0, "Membership fee must be a positive number").nullable().optional(),
+}).refine((data) => {
+  // If isPayable is true, membershipFeeAmount must be provided and greater than 0
+  if (data.isPayable) {
+    return data.membershipFeeAmount !== null && data.membershipFeeAmount !== undefined && data.membershipFeeAmount > 0;
+  }
+  return true;
+}, {
+  message: "Membership fee amount is required when club is payable",
+  path: ["membershipFeeAmount"],
 });
 
 export async function GET(req: NextRequest) {
@@ -155,6 +166,8 @@ export async function POST(req: NextRequest) {
       password: hashedPassword,
       createdBy: user._id,
       members: 0, // Start with 0 members
+      isPayable: data.isPayable || false,
+      membershipFeeAmount: data.isPayable ? data.membershipFeeAmount : null,
     });
 
     // Create a User account for the club with role=club

@@ -19,6 +19,8 @@ export interface IClub extends mongoose.Document {
   createdBy?: string;
   role?: string;
   lastLogin?: Date;
+  isPayable?: boolean;
+  membershipFeeAmount?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -54,6 +56,8 @@ const ClubSchema = new mongoose.Schema<IClub>(
     createdBy: { type: String }, // Admin ID or reference
     role: { type: String, default: "club" }, // For login separation
     lastLogin: Date,
+    isPayable: { type: Boolean, default: false },
+    membershipFeeAmount: { type: Number, default: null },
   },
   { timestamps: true }
 );

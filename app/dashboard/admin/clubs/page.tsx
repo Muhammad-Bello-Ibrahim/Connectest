@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/select"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Textarea } from "@/components/ui/textarea"
+import { Switch } from "@/components/ui/switch"
 import {
   Dialog,
   DialogContent,
@@ -64,6 +65,8 @@ export default function AdminClubsPage() {
     religion: "",
     description: "",
     logo: "",
+    isPayable: false,
+    membershipFeeAmount: "",
   })
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
@@ -157,6 +160,13 @@ export default function AdminClubsPage() {
     if (form.description.length < 10) {
       errors.description = 'Description must be at least 10 characters'
     }
+
+    // Validate membership fee when club is payable
+    if (form.isPayable) {
+      if (!form.membershipFeeAmount || parseFloat(form.membershipFeeAmount) <= 0) {
+        errors.membershipFeeAmount = 'Please enter a valid membership fee amount'
+      }
+    }
     
     setFormErrors(errors)
     return Object.keys(errors).length === 0
@@ -182,6 +192,10 @@ export default function AdminClubsPage() {
         type: form.type,
         description: form.description.trim(),
         logo: form.logo || undefined,
+        isPayable: form.isPayable,
+        membershipFeeAmount: form.isPayable && form.membershipFeeAmount 
+          ? parseFloat(form.membershipFeeAmount) 
+          : null,
         ...(form.faculty && { faculty: form.faculty }),
         ...(form.department && { department: form.department }),
         ...(form.state && { state: form.state }),
@@ -265,6 +279,8 @@ export default function AdminClubsPage() {
         religion: "",
         description: "",
         logo: "",
+        isPayable: false,
+        membershipFeeAmount: "",
       })
       setLogoPreview(null)
       setFormErrors({})
@@ -543,6 +559,66 @@ export default function AdminClubsPage() {
                   />
                   {formErrors.description && (
                     <p className="text-sm text-destructive">{formErrors.description}</p>
+                  )}
+                </div>
+
+                {/* Membership Fee Section */}
+                <div className="space-y-4 rounded-lg border p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="isPayable" className="text-base font-medium">
+                        Membership Dues
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Is this club payable by students as membership dues?
+                      </p>
+                    </div>
+                    <Switch
+                      id="isPayable"
+                      checked={form.isPayable}
+                      onCheckedChange={(checked) => {
+                        setForm(prev => ({ 
+                          ...prev, 
+                          isPayable: checked,
+                          membershipFeeAmount: checked ? prev.membershipFeeAmount : ""
+                        }))
+                        if (formErrors.membershipFeeAmount) {
+                          setFormErrors(prev => {
+                            const newErrors = { ...prev }
+                            delete newErrors.membershipFeeAmount
+                            return newErrors
+                          })
+                        }
+                      }}
+                    />
+                  </div>
+                  
+                  {form.isPayable && (
+                    <div className="space-y-2 pt-2">
+                      <Label htmlFor="membershipFeeAmount">Membership Fee Amount (NGN) *</Label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                          ₦
+                        </span>
+                        <Input
+                          id="membershipFeeAmount"
+                          name="membershipFeeAmount"
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={form.membershipFeeAmount}
+                          onChange={handleChange}
+                          placeholder="e.g., 5000"
+                          className={`pl-8 ${formErrors.membershipFeeAmount ? 'border-destructive' : ''}`}
+                        />
+                      </div>
+                      {formErrors.membershipFeeAmount && (
+                        <p className="text-sm text-destructive">{formErrors.membershipFeeAmount}</p>
+                      )}
+                      <p className="text-xs text-muted-foreground">
+                        Enter the exact amount to be charged for joining this club
+                      </p>
+                    </div>
                   )}
                 </div>
 
