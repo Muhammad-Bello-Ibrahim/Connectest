@@ -226,8 +226,41 @@
   * {
     @apply border-border;
   }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+  }
+  
+  /* Improved focus states for accessibility */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
+  }
+  
+  /* Better text selection */
+  ::selection {
+    @apply bg-primary/20 text-foreground;
+  }
+  
+  /* Smooth scrollbar for webkit browsers */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-muted/30;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/30 rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/50;
   }
 }
 
@@ -377,39 +410,34 @@
       opacity: 1;
     }
   }
+  
+  /* Safe area padding for mobile devices with notches */
+  .safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+  
+  .safe-area-pt {
+    padding-top: env(safe-area-inset-top, 0);
+  }
 }
 
 @media (max-width: 640px) {
   .container, .md\:container {
     max-width: 100vw !important;
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
-  }
-  .rounded-xl, .rounded-lg {
-    border-radius: 1rem !important;
-  }
-  .flex, .grid, .items-center, .justify-center {
-    width: 100% !important;
-    box-sizing: border-box;
-  }
-  .w-full, .max-w-full, .max-w-xs, .max-w-sm, .max-w-md, .max-w-lg, .max-w-xl, .max-w-2xl, .max-w-3xl, .max-w-4xl, .max-w-5xl, .max-w-6xl, .max-w-7xl {
-    max-width: 100vw !important;
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
   }
 }
 
 @media (max-width: 900px) {
   .dashboard-main, .dashboard-content, .dashboard-feed, .dashboard-post, .dashboard-card, .dashboard-container {
     max-width: 100vw !important;
-    width: 100vw !important;
+    width: 100% !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
     padding-left: 0.5rem !important;
     padding-right: 0.5rem !important;
     box-sizing: border-box !important;
-  }
-  .dashboard-feed > *, .dashboard-post > *, .dashboard-card > * {
-    width: 100% !important;
-    max-width: 100vw !important;
   }
 }
 
