@@ -54,8 +54,8 @@ interface Club {
   status: "active" | "pending"
   isUserMember?: boolean
   executives?: Executive[]
-  duesApplied?: boolean
-  duesAmount?: number
+  isPayable?: boolean
+  membershipFeeAmount?: number
   hasPaidDues?: boolean
 }
 
@@ -442,17 +442,17 @@ export default function ClubDetailPage() {
         </CardContent>
       </Card>
 
-      {/* Pay Dues Section - Only for auto-joined clubs with dues applied */}
-      {isAutoJoined && club.duesApplied && !club.hasPaidDues && (
+      {/* Pay Membership Fee Section - Only for payable clubs where user is a member */}
+      {club.isUserMember && club.isPayable && club.membershipFeeAmount && !club.hasPaidDues && (
         <Card className="mt-4 sm:mt-6 border-primary/50 bg-primary/5">
           <CardContent className="p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-center sm:text-left">
                 <h3 className="font-semibold text-base sm:text-lg mb-1">
-                  Club Dues Payment Required
+                  Membership Fee Payment Required
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Pay your club dues to maintain active membership
+                  Pay your membership fee to complete your registration
                 </p>
               </div>
               <Button
@@ -469,7 +469,7 @@ export default function ClubDetailPage() {
                 ) : (
                   <>
                     <CreditCard className="h-5 w-5" />
-                    Pay Dues - ₦{club.duesAmount?.toLocaleString() || 0}
+                    Pay Membership Fee - ₦{club.membershipFeeAmount?.toLocaleString() || 0}
                   </>
                 )}
               </Button>
@@ -478,8 +478,8 @@ export default function ClubDetailPage() {
         </Card>
       )}
 
-      {/* Dues Paid Confirmation */}
-      {isAutoJoined && club.duesApplied && club.hasPaidDues && (
+      {/* Membership Fee Paid Confirmation */}
+      {club.isUserMember && club.isPayable && club.membershipFeeAmount && club.hasPaidDues && (
         <Card className="mt-4 sm:mt-6 border-green-500/50 bg-green-500/5">
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center gap-3">
@@ -488,10 +488,10 @@ export default function ClubDetailPage() {
               </div>
               <div>
                 <h3 className="font-semibold text-base sm:text-lg text-green-700 dark:text-green-400">
-                  Dues Paid
+                  Membership Fee Paid
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  You have successfully paid your club dues of ₦{club.duesAmount?.toLocaleString() || 0}
+                  You have successfully paid your membership fee of ₦{club.membershipFeeAmount?.toLocaleString() || 0}
                 </p>
               </div>
             </div>

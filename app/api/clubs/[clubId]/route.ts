@@ -18,8 +18,19 @@ const updateClubSchema = z.object({
   religion: z.string().optional(),
   logo: z.string().url().optional(),
   status: z.enum(["active", "inactive", "suspended"]).optional(),
+  isPayable: z.boolean().optional(),
+  membershipFeeAmount: z.number().min(0, "Membership fee must be a positive number").nullable().optional(),
 }).refine(data => Object.keys(data).length > 0, {
   message: "At least one field must be provided for update"
+}).refine((data) => {
+  // If isPayable is explicitly set to true, membershipFeeAmount must be provided and greater than 0
+  if (data.isPayable === true) {
+    return data.membershipFeeAmount !== null && data.membershipFeeAmount !== undefined && data.membershipFeeAmount > 0;
+  }
+  return true;
+}, {
+  message: "Membership fee amount is required when club is payable",
+  path: ["membershipFeeAmount"],
 });
 
 // GET /api/clubs/[clubId] - Get a specific club
