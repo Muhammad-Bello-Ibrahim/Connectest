@@ -38,7 +38,7 @@ export async function POST(
     // Check if club is payable
     if (!club.isPayable) {
       return NextResponse.json(
-        { error: "This club does not require membership dues" },
+        { error: "This club does not require a membership fee" },
         { status: 400 }
       );
     }
@@ -57,7 +57,7 @@ export async function POST(
 
     if (!isMember) {
       return NextResponse.json(
-        { error: "You must be a member of this club to pay dues" },
+        { error: "You must be a member of this club to pay the membership fee" },
         { status: 400 }
       );
     }
