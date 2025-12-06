@@ -75,48 +75,48 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-100 dark:to-gray-400 bg-clip-text text-transparent">
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-100 dark:to-gray-400 bg-clip-text text-transparent">
             System Settings
           </h1>
-          <p className="text-muted-foreground mt-1">Configure system-wide settings and preferences</p>
+          <p className="text-sm md:text-base text-muted-foreground mt-1">Configure system-wide settings and preferences</p>
         </div>
-        <Button variant="outline">
+        <Button variant="outline" size="sm" className="w-full md:w-auto">
           <RefreshCw className="h-4 w-4 mr-2" />
           Reset to Defaults
         </Button>
       </div>
 
       {/* Settings Tabs */}
-      <Tabs defaultValue="general" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="general" className="gap-2">
-            <Globe className="h-4 w-4" />
-            General
+      <Tabs defaultValue="general" className="space-y-4 md:space-y-6">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 gap-2">
+          <TabsTrigger value="general" className="gap-1 md:gap-2 text-xs md:text-sm">
+            <Globe className="h-3 w-3 md:h-4 md:w-4" />
+            <span className="hidden sm:inline">General</span>
           </TabsTrigger>
-          <TabsTrigger value="email" className="gap-2">
-            <Mail className="h-4 w-4" />
-            Email
+          <TabsTrigger value="email" className="gap-1 md:gap-2 text-xs md:text-sm">
+            <Mail className="h-3 w-3 md:h-4 md:w-4" />
+            <span className="hidden sm:inline">Email</span>
           </TabsTrigger>
-          <TabsTrigger value="notifications" className="gap-2">
-            <Bell className="h-4 w-4" />
-            Notifications
+          <TabsTrigger value="notifications" className="gap-1 md:gap-2 text-xs md:text-sm">
+            <Bell className="h-3 w-3 md:h-4 md:w-4" />
+            <span className="hidden sm:inline">Notifications</span>
           </TabsTrigger>
-          <TabsTrigger value="appearance" className="gap-2">
-            <Palette className="h-4 w-4" />
-            Appearance
+          <TabsTrigger value="appearance" className="gap-1 md:gap-2 text-xs md:text-sm">
+            <Palette className="h-3 w-3 md:h-4 md:w-4" />
+            <span className="hidden sm:inline">Appearance</span>
           </TabsTrigger>
-          <TabsTrigger value="maintenance" className="gap-2">
-            <Server className="h-4 w-4" />
-            Maintenance
+          <TabsTrigger value="maintenance" className="gap-1 md:gap-2 text-xs md:text-sm">
+            <Server className="h-3 w-3 md:h-4 md:w-4" />
+            <span className="hidden sm:inline">Maintenance</span>
           </TabsTrigger>
         </TabsList>
 
         {/* General Settings */}
-        <TabsContent value="general" className="space-y-6">
+        <TabsContent value="general" className="space-y-4 md:space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
