@@ -34,23 +34,23 @@ export default function AnalyticsPage() {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">
+        <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">
           Analytics Dashboard
         </h1>
-        <p className="text-muted-foreground mt-1">System performance and insights</p>
+        <p className="text-sm md:text-base text-muted-foreground mt-1">System performance and insights</p>
       </div>
 
       {/* Key Metrics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="border-l-4 border-l-blue-500">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Page Views</CardTitle>
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Total Page Views</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">24,567</div>
+            <div className="text-2xl md:text-3xl font-bold">24,567</div>
             <div className="flex items-center gap-1 text-xs text-green-600 mt-1">
               <ArrowUp className="h-3 w-3" />
               <span>+12.5% from last month</span>
@@ -60,10 +60,10 @@ export default function AnalyticsPage() {
 
         <Card className="border-l-4 border-l-green-500">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">New Users</CardTitle>
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">New Users</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">+420</div>
+            <div className="text-2xl md:text-3xl font-bold">+420</div>
             <div className="flex items-center gap-1 text-xs text-green-600 mt-1">
               <ArrowUp className="h-3 w-3" />
               <span>+18% from last month</span>
@@ -73,10 +73,10 @@ export default function AnalyticsPage() {
 
         <Card className="border-l-4 border-l-purple-500">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Engagement Rate</CardTitle>
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Engagement Rate</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">68.4%</div>
+            <div className="text-2xl md:text-3xl font-bold">68.4%</div>
             <div className="flex items-center gap-1 text-xs text-green-600 mt-1">
               <ArrowUp className="h-3 w-3" />
               <span>+5.2% from last month</span>
@@ -86,10 +86,10 @@ export default function AnalyticsPage() {
 
         <Card className="border-l-4 border-l-orange-500">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Avg. Session Duration</CardTitle>
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Avg. Session Duration</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">12m 34s</div>
+            <div className="text-2xl md:text-3xl font-bold">12m 34s</div>
             <div className="flex items-center gap-1 text-xs text-red-600 mt-1">
               <ArrowDown className="h-3 w-3" />
               <span>-2.1% from last month</span>
