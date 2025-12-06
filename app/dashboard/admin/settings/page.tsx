@@ -92,7 +92,7 @@ export default function SettingsPage() {
 
       {/* Settings Tabs */}
       <Tabs defaultValue="general" className="space-y-4 md:space-y-6">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 gap-2">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
           <TabsTrigger value="general" className="gap-1 md:gap-2 text-xs md:text-sm">
             <Globe className="h-3 w-3 md:h-4 md:w-4" />
             <span className="hidden sm:inline">General</span>

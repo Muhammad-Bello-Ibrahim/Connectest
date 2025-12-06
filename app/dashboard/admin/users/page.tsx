@@ -173,6 +173,14 @@ export default function AdminUsersPage() {
     }
   }
 
+  const getStatusBadge = (status: string) => {
+    return status === "active" ? (
+      <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400">Active</Badge>
+    ) : (
+      <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400">Inactive</Badge>
+    )
+  }
+
   return (
     <div className="space-y-4 md:space-y-6">
       {/* Header */}
@@ -345,11 +353,7 @@ export default function AdminUsersPage() {
                             {/* Mobile-only: Show role and status */}
                             <div className="flex gap-2 mt-1 sm:hidden">
                               {getRoleBadge(user.role)}
-                              {user.status === "active" ? (
-                                <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400">Active</Badge>
-                              ) : (
-                                <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400">Inactive</Badge>
-                              )}
+                              {getStatusBadge(user.status)}
                             </div>
                           </div>
                         </div>
