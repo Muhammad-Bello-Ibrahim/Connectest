@@ -1,9 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function OfflinePage() {
   const [isOnline, setIsOnline] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     setIsOnline(navigator.onLine);
@@ -23,9 +25,9 @@ export default function OfflinePage() {
   useEffect(() => {
     if (isOnline) {
       // Redirect to home when back online
-      window.location.href = '/';
+      router.push('/');
     }
-  }, [isOnline]);
+  }, [isOnline, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">

@@ -5,6 +5,7 @@ const RUNTIME_CACHE = 'connectrix-runtime';
 // Assets to cache on install
 const STATIC_ASSETS = [
   '/',
+  '/offline',
   '/manifest.json',
   '/icon-192x192.png',
   '/icon-512x512.png',
@@ -94,7 +95,13 @@ self.addEventListener('fetch', (event) => {
               return cachedResponse;
             }
             // Return offline page if available
-            return caches.match('/');
+            return caches.match('/offline').then((offlinePage) => {
+              if (offlinePage) {
+                return offlinePage;
+              }
+              // Final fallback to homepage
+              return caches.match('/');
+            });
           });
         })
     );
@@ -157,7 +164,7 @@ self.addEventListener('push', (event) => {
   const options = {
     body: event.data ? event.data.text() : 'New notification',
     icon: '/icon-192x192.png',
-    badge: '/icon-96x96.png',
+    badge: '/icon-72x72.png',
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
