@@ -360,25 +360,25 @@ export default function AdminClubsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
             Club Management
           </h1>
-          <p className="text-muted-foreground mt-1">Manage all clubs and societies</p>
+          <p className="text-sm md:text-base text-muted-foreground mt-1">Manage all clubs and societies</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Export
+          <Button variant="outline" size="sm" className="flex-1 md:flex-initial">
+            <Download className="h-4 w-4 md:mr-2" />
+            <span className="hidden md:inline">Export</span>
           </Button>
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
-              <Button size="sm">
-                <Plus className="h-4 w-4 mr-2" />
-                Create Club
+              <Button size="sm" className="flex-1 md:flex-initial">
+                <Plus className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">Create Club</span>
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">

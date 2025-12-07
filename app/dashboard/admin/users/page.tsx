@@ -173,93 +173,101 @@ export default function AdminUsersPage() {
     }
   }
 
+  const getStatusBadge = (status: string) => {
+    return status === "active" ? (
+      <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400">Active</Badge>
+    ) : (
+      <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400">Inactive</Badge>
+    )
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             User Management
           </h1>
-          <p className="text-muted-foreground mt-1">Manage all users, roles, and permissions</p>
+          <p className="text-sm md:text-base text-muted-foreground mt-1">Manage all users, roles, and permissions</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Export
+          <Button variant="outline" size="sm" className="flex-1 md:flex-initial">
+            <Download className="h-4 w-4 md:mr-2" />
+            <span className="hidden md:inline">Export</span>
           </Button>
-          <Button variant="outline" size="sm">
-            <Upload className="h-4 w-4 mr-2" />
-            Import
+          <Button variant="outline" size="sm" className="flex-1 md:flex-initial">
+            <Upload className="h-4 w-4 md:mr-2" />
+            <span className="hidden md:inline">Import</span>
           </Button>
-          <Button size="sm">
-            <UserPlus className="h-4 w-4 mr-2" />
-            Add User
+          <Button size="sm" className="flex-1 md:flex-initial">
+            <UserPlus className="h-4 w-4 md:mr-2" />
+            <span className="hidden md:inline">Add User</span>
           </Button>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
+      <div className="grid gap-3 md:gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
         <Card className="border-l-4 border-l-blue-500">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Users</CardTitle>
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Total Users</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{stats.total}</div>
+            <div className="text-2xl md:text-3xl font-bold">{stats.total}</div>
           </CardContent>
         </Card>
         
         <Card className="border-l-4 border-l-green-500">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Students</CardTitle>
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Students</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{stats.students}</div>
+            <div className="text-2xl md:text-3xl font-bold">{stats.students}</div>
           </CardContent>
         </Card>
         
         <Card className="border-l-4 border-l-purple-500">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Deans</CardTitle>
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Deans</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{stats.deans}</div>
+            <div className="text-2xl md:text-3xl font-bold">{stats.deans}</div>
           </CardContent>
         </Card>
         
         <Card className="border-l-4 border-l-red-500">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Admins</CardTitle>
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Admins</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{stats.admins}</div>
+            <div className="text-2xl md:text-3xl font-bold">{stats.admins}</div>
           </CardContent>
         </Card>
         
         <Card className="border-l-4 border-l-emerald-500">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Active</CardTitle>
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Active</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-emerald-600">{stats.active}</div>
+            <div className="text-2xl md:text-3xl font-bold text-emerald-600">{stats.active}</div>
           </CardContent>
         </Card>
         
         <Card className="border-l-4 border-l-orange-500">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Inactive</CardTitle>
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Inactive</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-orange-600">{stats.inactive}</div>
+            <div className="text-2xl md:text-3xl font-bold text-orange-600">{stats.inactive}</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Filters and Search */}
       <Card>
-        <CardHeader>
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <CardHeader className="pb-3">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4">
             <div className="flex-1 max-w-md">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -267,13 +275,13 @@ export default function AdminUsersPage() {
                   placeholder="Search by name, email, or student ID..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 text-sm"
                 />
               </div>
             </div>
             <div className="flex gap-2">
               <Select value={selectedRole} onValueChange={setSelectedRole}>
-                <SelectTrigger className="w-[140px]">
+                <SelectTrigger className="w-full md:w-[140px] text-sm">
                   <SelectValue placeholder="Role" />
                 </SelectTrigger>
                 <SelectContent>
@@ -285,7 +293,7 @@ export default function AdminUsersPage() {
               </Select>
               
               <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                <SelectTrigger className="w-[140px]">
+                <SelectTrigger className="w-full md:w-[140px] text-sm">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -295,58 +303,63 @@ export default function AdminUsersPage() {
                 </SelectContent>
               </Select>
               
-              <Button variant="outline" size="icon">
+              <Button variant="outline" size="icon" className="flex-shrink-0">
                 <RefreshCw className="h-4 w-4" />
               </Button>
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="rounded-md border">
+          <div className="rounded-md border overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>User</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Faculty/Department</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Last Login</TableHead>
+                  <TableHead className="min-w-[200px] md:min-w-0">User</TableHead>
+                  <TableHead className="hidden sm:table-cell">Role</TableHead>
+                  <TableHead className="hidden md:table-cell">Faculty/Department</TableHead>
+                  <TableHead className="hidden lg:table-cell">Status</TableHead>
+                  <TableHead className="hidden lg:table-cell">Last Login</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredUsers.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground text-sm">
                       No users found
                     </TableCell>
                   </TableRow>
                 ) : (
                   filteredUsers.map((user) => (
                     <TableRow key={user.id} className="hover:bg-muted/50">
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <Avatar className="h-10 w-10">
-                            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white font-semibold">
+                      <TableCell className="min-w-[200px] md:min-w-0">
+                        <div className="flex items-center gap-2 md:gap-3">
+                          <Avatar className="h-8 w-8 md:h-10 md:w-10 flex-shrink-0">
+                            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white font-semibold text-xs md:text-sm">
                               {user.name.split(' ').map(n => n[0]).join('')}
                             </AvatarFallback>
                           </Avatar>
-                          <div>
-                            <div className="font-medium">{user.name}</div>
-                            <div className="text-sm text-muted-foreground flex items-center gap-1">
-                              <Mail className="h-3 w-3" />
-                              {user.email}
+                          <div className="min-w-0">
+                            <div className="font-medium text-sm md:text-base truncate">{user.name}</div>
+                            <div className="text-xs md:text-sm text-muted-foreground flex items-center gap-1 truncate">
+                              <Mail className="h-3 w-3 flex-shrink-0" />
+                              <span className="truncate">{user.email}</span>
                             </div>
                             {user.studentId && (
                               <div className="text-xs text-muted-foreground mt-0.5">
                                 ID: {user.studentId}
                               </div>
                             )}
+                            {/* Mobile-only: Show role and status */}
+                            <div className="flex gap-2 mt-1 sm:hidden">
+                              {getRoleBadge(user.role)}
+                              {getStatusBadge(user.status)}
+                            </div>
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>{getRoleBadge(user.role)}</TableCell>
-                      <TableCell>
+                      <TableCell className="hidden sm:table-cell">{getRoleBadge(user.role)}</TableCell>
+                      <TableCell className="hidden md:table-cell">
                         {user.faculty && (
                           <div>
                             <div className="font-medium text-sm">{user.faculty}</div>
@@ -356,7 +369,7 @@ export default function AdminUsersPage() {
                           </div>
                         )}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="hidden lg:table-cell">
                         <div className="flex items-center gap-2">
                           {user.status === "active" ? (
                             <div className="flex items-center gap-1.5 text-emerald-600">
@@ -371,7 +384,7 @@ export default function AdminUsersPage() {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="hidden lg:table-cell">
                         <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                           <Clock className="h-3 w-3" />
                           {new Date(user.lastLogin).toLocaleDateString()}
@@ -380,40 +393,40 @@ export default function AdminUsersPage() {
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                               <MoreVertical className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuLabel className="text-xs">Actions</DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem>
-                              <Edit className="h-4 w-4 mr-2" />
+                            <DropdownMenuItem className="text-xs">
+                              <Edit className="h-3 w-3 mr-2" />
                               Edit User
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleToggleStatus(user.id)}>
+                            <DropdownMenuItem onClick={() => handleToggleStatus(user.id)} className="text-xs">
                               {user.status === "active" ? (
                                 <>
-                                  <UserX className="h-4 w-4 mr-2" />
+                                  <UserX className="h-3 w-3 mr-2" />
                                   Deactivate
                                 </>
                               ) : (
                                 <>
-                                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                                  <CheckCircle2 className="h-3 w-3 mr-2" />
                                   Activate
                                 </>
                               )}
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Lock className="h-4 w-4 mr-2" />
+                            <DropdownMenuItem className="text-xs">
+                              <Lock className="h-3 w-3 mr-2" />
                               Reset Password
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem 
-                              className="text-red-600"
+                              className="text-red-600 text-xs"
                               onClick={() => handleDeleteUser(user.id)}
                             >
-                              <Trash2 className="h-4 w-4 mr-2" />
+                              <Trash2 className="h-3 w-3 mr-2" />
                               Delete User
                             </DropdownMenuItem>
                           </DropdownMenuContent>
