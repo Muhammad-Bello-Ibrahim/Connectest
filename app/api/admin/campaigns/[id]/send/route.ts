@@ -1,13 +1,17 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { connectDB } from "@/lib/db"
 import EmailCampaign from "@/lib/models/EmailCampaign"
 import User from "@/lib/models/User"
 import { createAuditLog } from "@/lib/utils/audit"
+import { requireAdmin } from "@/lib/admin-auth"
 
 export async function POST(
-  req: Request,
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const auth = await requireAdmin(req)
+  if (!auth.authorized) return auth.response
+
   try {
     await connectDB()
 
@@ -61,8 +65,8 @@ export async function POST(
 
     // Log audit
     await createAuditLog({
-      userId: campaign.createdBy.toString(),
-      userEmail: "admin@system.com",
+      userId: auth.payload.id,
+      userEmail: auth.payload.email || "unknown",
       action: "bulk_operation",
       targetType: "system",
       details: {

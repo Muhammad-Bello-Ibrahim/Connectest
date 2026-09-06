@@ -1,23 +1,27 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { connectDB } from "@/lib/db"
 import Event from "@/lib/models/Event"
 import { createAuditLog } from "@/lib/utils/audit"
+import { requireAdmin } from "@/lib/admin-auth"
 
 export async function POST(
-  req: Request,
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const auth = await requireAdmin(req)
+  if (!auth.authorized) return auth.response
+
   try {
     await connectDB()
 
     const body = await req.json()
-    const { approvedBy, approved } = body
+    const { approved } = body
 
     const event = await Event.findByIdAndUpdate(
       params.id,
       {
         isApproved: approved,
-        approvedBy: approved ? approvedBy : null,
+        approvedBy: approved ? auth.payload.id : null,
         approvedAt: approved ? new Date() : null,
         status: approved ? "published" : "draft",
       },
@@ -31,14 +35,16 @@ export async function POST(
       )
     }
 
-    // Log audit
+    // Log audit. Note: "event_approved"/"event_rejected" are not valid
+    // values in the AuditLog schema's action enum, so we log this as
+    // "event_updated" and record the approval outcome in details instead.
     await createAuditLog({
-      userId: approvedBy,
-      userEmail: "admin@system.com", // TODO: Get from session
-      action: approved ? "event_approved" : "event_rejected",
+      userId: auth.payload.id,
+      userEmail: auth.payload.email || "unknown",
+      action: "event_updated",
       targetType: "event",
       targetId: event._id.toString(),
-      details: { title: event.title },
+      details: { title: event.title, approved },
     })
 
     return NextResponse.json({
