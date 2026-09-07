@@ -1,12 +1,16 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { connectDB } from "@/lib/db"
 import Event from "@/lib/models/Event"
 import { createAuditLog } from "@/lib/utils/audit"
+import { requireAdmin } from "@/lib/admin-auth"
 
 export async function GET(
-  req: Request,
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const auth = await requireAdmin(req)
+  if (!auth.authorized) return auth.response
+
   try {
     await connectDB()
 
@@ -35,9 +39,12 @@ export async function GET(
 }
 
 export async function PATCH(
-  req: Request,
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const auth = await requireAdmin(req)
+  if (!auth.authorized) return auth.response
+
   try {
     await connectDB()
 
@@ -57,8 +64,8 @@ export async function PATCH(
 
     // Log audit
     await createAuditLog({
-      userId: body.updatedBy || "system",
-      userEmail: "admin@system.com", // TODO: Get from session
+      userId: auth.payload.id,
+      userEmail: auth.payload.email || "unknown",
       action: "event_updated",
       targetType: "event",
       targetId: event._id.toString(),
@@ -76,9 +83,12 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  req: Request,
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const auth = await requireAdmin(req)
+  if (!auth.authorized) return auth.response
+
   try {
     await connectDB()
 
@@ -93,8 +103,8 @@ export async function DELETE(
 
     // Log audit
     await createAuditLog({
-      userId: "admin", // TODO: Get from session
-      userEmail: "admin@system.com",
+      userId: auth.payload.id,
+      userEmail: auth.payload.email || "unknown",
       action: "event_deleted",
       targetType: "event",
       targetId: params.id,

@@ -1,616 +1,755 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
+import { Space_Grotesk, IBM_Plex_Sans } from "next/font/google"
 import { Button } from "@/components/ui/button"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import { useAuth } from "@/components/auth-provider"
 import {
-  Users,
-  Calendar,
-  Zap,
-  Shield,
-  ArrowRight,
+  GraduationCap,
+  Building2,
+  Newspaper,
+  Megaphone,
+  ShieldCheck,
+  Layers,
+  CalendarCheck2,
+  Landmark,
+  MessageSquare,
+  Fingerprint,
   User,
-  Sparkles,
-  TrendingUp,
-  Globe,
-  Heart,
-  Star,
-  CheckCircle2,
-  Menu,
-  X,
   MapPin,
   Mail,
   Phone,
+  Heart,
+  MessageCircle,
+  Share2,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react"
+
+const display = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["500", "700"],
+  variable: "--font-display",
+})
+
+const body = IBM_Plex_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-body",
+})
+
+const FACULTIES = [
+  { code: "AS", name: "Arts & Social Sciences" },
+  { code: "ED", name: "Education" },
+  { code: "LL", name: "Law" },
+  { code: "MD", name: "Medicine" },
+  { code: "PH", name: "Pharmacy" },
+  { code: "SC", name: "Science" },
+]
+
+const ROLE_PATHS = [
+  {
+    tag: "STUDENT",
+    title: "Find your clubs, follow the feed",
+    description:
+      "Sign up with your GSU student ID and Connectrix matches you to your faculty and department automatically — no manual club codes to hunt down.",
+    bullets: [
+      "Auto-matched to your faculty & department",
+      "Join clubs, post to the campus feed",
+      "Register for events in a couple of taps",
+    ],
+    cta: { label: "Create your account", href: "/register" },
+  },
+  {
+    tag: "CLUB",
+    title: "Run your club from one dashboard",
+    description:
+      "Post updates, review membership, and manage events for your club without juggling group chats and spreadsheets.",
+    bullets: [
+      "A dedicated login separate from members",
+      "Post directly to your club's followers",
+      "Track membership and event attendance",
+    ],
+    cta: { label: "Club login", href: "/club-login" },
+  },
+  {
+    tag: "ADMIN",
+    title: "Oversee the whole campus network",
+    description:
+      "Approve events, moderate the feed, and keep a full audit trail of every administrative action, across every faculty.",
+    bullets: [
+      "User, club, and event management",
+      "Event approval workflow",
+      "Full audit log of admin activity",
+    ],
+    cta: { label: "Sign in", href: "/login" },
+  },
+]
+
+const FAQS = [
+  {
+    q: "Do I need to already belong to a club to sign up?",
+    a: "No. Registration only needs your name, GSU student ID, and a few contact details. Club membership happens afterward, from inside the app.",
+  },
+  {
+    q: "How does Connectrix know my faculty and department?",
+    a: "Your student ID follows GSU's own format — Connectrix reads the faculty and department codes directly out of it, so you don't fill that in by hand.",
+  },
+  {
+    q: "Can a club have more than one person managing it?",
+    a: "A club has its own single login, separate from any individual student account, so anyone with those credentials can post and manage it on the club's behalf.",
+  },
+  {
+    q: "Is Connectrix only for Gombe State University?",
+    a: "Right now, yes — the whole platform, from ID parsing to faculty lists, is built specifically around GSU.",
+  },
+]
 
 export default function Home() {
   const { user, isAuthenticated } = useAuth()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className={`${display.variable} ${body.variable} cx-root flex min-h-screen flex-col`}>
+      <style jsx>{`
+        .cx-root {
+          --ink: #181a22;
+          --paper: #f8f4ea;
+          --paper-deep: #efe8d8;
+          --marigold: #f0a93b;
+          --marigold-deep: #cf8a1f;
+          --coral: #e35c55;
+          --forest: #26594a;
+          --line: #e3dac4;
+          font-family: var(--font-body), sans-serif;
+          background: var(--paper);
+          color: var(--ink);
+        }
+        .cx-root :global(h1),
+        .cx-root :global(h2),
+        .cx-root :global(h3),
+        .cx-root :global(.cx-display) {
+          font-family: var(--font-display), sans-serif;
+        }
+        .cx-badge {
+          border: 1px solid var(--line);
+          background: #fff;
+          border-radius: 14px;
+          position: relative;
+        }
+        .cx-badge::before {
+          content: "";
+          position: absolute;
+          top: -7px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 34px;
+          height: 14px;
+          border-radius: 8px;
+          background: var(--ink);
+        }
+        .cx-pin {
+          width: 8px;
+          height: 8px;
+          border-radius: 999px;
+          background: var(--marigold);
+          display: inline-block;
+        }
+        .cx-hairline {
+          border-color: var(--line);
+        }
+        .cx-marquee-track {
+          display: flex;
+          width: max-content;
+          animation: cx-scroll 32s linear infinite;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .cx-marquee-track {
+            animation: none;
+          }
+        }
+        @keyframes cx-scroll {
+          from {
+            transform: translateX(0);
+          }
+          to {
+            transform: translateX(-50%);
+          }
+        }
+      `}</style>
+
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 sm:h-16 items-center px-4 sm:px-6">
-          <div className="mr-4 flex">
-            <Link href="/" className="mr-6 flex items-center space-x-2 group">
-              <span className="font-bold text-xl sm:text-2xl text-primary transition-colors group-hover:text-primary/80">Connectrix</span>
-            </Link>
-          </div>
-          <div className="flex flex-1 items-center justify-end space-x-2 sm:space-x-4">
-            <nav className="flex items-center space-x-1 sm:space-x-2">
-              {isAuthenticated() ? (
-                <>
-                  <span className="hidden sm:inline text-sm text-muted-foreground">
-                    Welcome, {user?.name || 'User'}
-                  </span>
-                  <Link href="/dashboard">
-                    <Button variant="ghost" size="sm" className="px-2 sm:px-3">
-                      <User className="h-4 w-4 sm:mr-2" />
-                      <span className="hidden sm:inline">Dashboard</span>
-                    </Button>
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Link href="/login">
-                    <Button variant="ghost" size="sm" className="px-2 sm:px-3">
-                      Login
-                    </Button>
-                  </Link>
-                  <Link href="/register">
-                    <Button size="sm" className="px-3 sm:px-4">Register</Button>
-                  </Link>
-                </>
-              )}
-            </nav>
+      <header className="sticky top-0 z-50 w-full border-b cx-hairline bg-[var(--paper)]/95 backdrop-blur-md">
+        <div className="container flex h-16 items-center justify-between px-4 sm:px-6">
+          <Link href="/" className="flex items-center gap-2">
+            <span
+              className="flex h-8 w-8 items-center justify-center rounded-md text-sm font-bold text-white"
+              style={{ background: "var(--ink)" }}
+            >
+              C
+            </span>
+            <span className="cx-display text-xl font-bold">Connectrix</span>
+          </Link>
+
+          <nav className="hidden items-center gap-8 text-sm font-medium text-[var(--ink)]/70 md:flex">
+            <Link href="#clubs" className="hover:text-[var(--ink)]">Clubs</Link>
+            <Link href="#feed" className="hover:text-[var(--ink)]">Newsfeed</Link>
+            <Link href="#events" className="hover:text-[var(--ink)]">Events</Link>
+            <Link href="#roles" className="hover:text-[var(--ink)]">For your role</Link>
+            <Link href="#faq" className="hover:text-[var(--ink)]">FAQ</Link>
+          </nav>
+
+          <div className="flex items-center gap-2 sm:gap-3">
+            {isAuthenticated() ? (
+              <>
+                <span className="hidden text-sm text-[var(--ink)]/60 sm:inline">
+                  Welcome, {user?.name || "back"}
+                </span>
+                <Link href="/dashboard">
+                  <Button
+                    size="sm"
+                    className="rounded-full px-4 text-white hover:opacity-90"
+                    style={{ background: "var(--ink)" }}
+                  >
+                    <User className="mr-2 h-4 w-4" />
+                    Dashboard
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/login">
+                  <Button variant="ghost" size="sm" className="px-3 text-[var(--ink)]">
+                    Sign in
+                  </Button>
+                </Link>
+                <Link href="/register">
+                  <Button
+                    size="sm"
+                    className="rounded-full px-4 text-white hover:opacity-90"
+                    style={{ background: "var(--ink)" }}
+                  >
+                    Join Connectrix
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
 
       <main className="flex-1">
-        {/* Hero Section - Completely Redesigned */}
-        <section className="relative min-h-screen w-full flex items-center justify-center overflow-hidden">
-          {/* Animated Background */}
-          <div className="absolute inset-0">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/10"></div>
-            <div className="absolute top-0 left-0 w-full h-full opacity-30">
-              <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full mix-blend-multiply filter blur-3xl animate-pulse-soft"></div>
-              <div className="absolute top-40 right-10 w-72 h-72 bg-purple-300/20 rounded-full mix-blend-multiply filter blur-3xl animate-pulse-soft" style={{animationDelay: '2s'}}></div>
-              <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-pink-300/20 rounded-full mix-blend-multiply filter blur-3xl animate-pulse-soft" style={{animationDelay: '4s'}}></div>
-            </div>
-          </div>
+        {/* Hero */}
+        <section className="w-full px-4 pb-16 pt-14 sm:px-6 sm:pt-20 md:pb-24">
+          <div className="container grid gap-12 md:grid-cols-2 md:items-center md:gap-8">
+            <div>
+              <h1 className="cx-display text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
+                Every club, every post,
+                <br />
+                one campus network.
+              </h1>
+              <p className="mt-6 max-w-md text-base leading-relaxed text-[var(--ink)]/70 sm:text-lg">
+                Connectrix is Gombe State University's own club and community
+                platform — verified by your student ID, matched to your
+                faculty, and built to keep every club's activity in one feed.
+              </p>
 
-          <div className="w-full relative z-10 px-4 sm:px-6 md:px-8 py-12 sm:py-16 md:py-20">
-            <div className="w-full">
-              {/* Hero Content */}
-              <div className="text-center space-y-6 sm:space-y-8 animate-fade-in">
-                {/* Badge */}
-                <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-sm">
-                  <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
-                  <span className="text-xs sm:text-sm font-semibold text-primary">Your Campus's #1 Club Platform</span>
-                </div>
-
-                {/* Main Heading */}
-                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black tracking-tight leading-[1.1]">
-                  <span className="block bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary to-purple-600">
-                    Connect.
-                  </span>
-                  <span className="block bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-600 to-primary">
-                    Engage.
-                  </span>
-                  <span className="block text-foreground">
-                    Thrive.
-                  </span>
-                </h1>
-
-                {/* Subheading */}
-                <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-2">
-                  The ultimate platform for campus club management, student engagement, and community building
-                </p>
-
-                {/* CTA Buttons */}
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-2 sm:pt-4">
-                  <Link href="/register" className="w-full sm:w-auto">
-                    <Button size="lg" className="w-full sm:w-auto px-6 sm:px-10 py-5 sm:py-6 text-base sm:text-lg font-semibold shadow-xl shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.02] transition-all duration-300 group">
-                      Start For Free
-                      <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
-                    </Button>
-                  </Link>
-                  <Link href="#demo" className="w-full sm:w-auto">
-                    <Button size="lg" variant="outline" className="w-full sm:w-auto px-6 sm:px-10 py-5 sm:py-6 text-base sm:text-lg font-semibold hover:bg-primary/5 transition-all duration-300">
-                      Watch Demo
-                    </Button>
-                  </Link>
-                </div>
-
-                {/* Trust Indicators */}
-                <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 md:gap-8 pt-4 sm:pt-6 text-xs sm:text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1.5 sm:gap-2">
-                    <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
-                    <span>Free Forever</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 sm:gap-2">
-                    <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
-                    <span>No Credit Card</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 sm:gap-2">
-                    <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
-                    <span>Setup in 2 Minutes</span>
-                  </div>
-                </div>
-
-                {/* Stats */}
-                <div className="grid grid-cols-3 gap-4 sm:gap-6 md:gap-8 max-w-2xl mx-auto pt-8 sm:pt-12">
-                  <div className="space-y-1 sm:space-y-2">
-                    <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">50+</div>
-                    <div className="text-xs sm:text-sm text-muted-foreground">Active Clubs</div>
-                  </div>
-                  <div className="space-y-1 sm:space-y-2">
-                    <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">1K+</div>
-                    <div className="text-xs sm:text-sm text-muted-foreground">Students</div>
-                  </div>
-                  <div className="space-y-1 sm:space-y-2">
-                    <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-600 to-primary">100+</div>
-                    <div className="text-xs sm:text-sm text-muted-foreground">Events</div>
-                  </div>
-                </div>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Link href="/register">
+                  <Button
+                    size="lg"
+                    className="w-full rounded-full px-7 text-white hover:opacity-90 sm:w-auto"
+                    style={{ background: "var(--marigold-deep)" }}
+                  >
+                    Create your account
+                  </Button>
+                </Link>
+                <Link href="/login">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="w-full rounded-full border-[var(--ink)]/20 px-7 text-[var(--ink)] hover:bg-[var(--ink)]/5 sm:w-auto"
+                  >
+                    Sign in
+                  </Button>
+                </Link>
               </div>
 
-              {/* Dashboard Preview */}
-              <div className="mt-12 sm:mt-16 md:mt-20 animate-scale-in px-2 sm:px-4 md:px-8 lg:px-16">
-                <div className="relative w-full max-w-6xl mx-auto">
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-purple-600/20 rounded-2xl sm:rounded-3xl blur-2xl sm:blur-3xl"></div>
-                  <div className="relative rounded-xl sm:rounded-2xl overflow-hidden border-2 sm:border-4 border-primary/20 shadow-xl sm:shadow-2xl hover-lift">
-                    <img
-                      src="/userphone.png"
-                      alt="Connectrix Dashboard"
-                      className="w-full h-auto"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Scroll Indicator */}
-          <div className="absolute bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 animate-bounce hidden sm:flex">
-            <div className="w-6 h-10 rounded-full border-2 border-primary/50 flex items-start justify-center p-2">
-              <div className="w-1 h-3 bg-primary rounded-full animate-pulse"></div>
-            </div>
-          </div>
-        </section>
-
-        {/* Features Section - Redesigned */}
-        <section id="features" className="py-16 sm:py-20 md:py-24 lg:py-32 relative overflow-hidden w-full">
-          <div className="w-full px-4 sm:px-6 md:px-8">
-            {/* Section Header */}
-            <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16 md:mb-20 space-y-3 sm:space-y-4">
-              <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 border border-primary/20">
-                <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
-                <span className="text-xs sm:text-sm font-semibold text-primary">Powerful Features</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold px-2">
-                Everything You Need,<br />
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">
-                  All In One Place
-                </span>
-              </h2>
-              <p className="text-sm sm:text-base md:text-lg text-muted-foreground px-4">
-                Built for students, clubs, and administrators to collaborate seamlessly
+              <p className="mt-4 flex items-center gap-2 text-sm text-[var(--ink)]/55">
+                <Fingerprint className="h-4 w-4" />
+                Verified with your GSU student ID — no separate club codes.
               </p>
             </div>
 
-            {/* Features Grid */}
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 w-full">
-              {/* Feature 1 */}
-              <div className="group relative p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl border bg-card hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-xl sm:rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="relative space-y-3 sm:space-y-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-lg sm:rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Users className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-primary" />
+            {/* Badge/card stack visual */}
+            <div className="relative mx-auto h-[360px] w-full max-w-sm sm:h-[400px]">
+              <div className="cx-badge absolute left-1/2 top-0 w-72 -translate-x-1/2 p-5 shadow-sm">
+                <div className="flex items-center justify-between text-xs font-medium text-[var(--ink)]/50">
+                  <span>GSU STUDENT</span>
+                  <span className="cx-pin" />
+                </div>
+                <div className="mt-4 flex items-center gap-3">
+                  <div
+                    className="flex h-12 w-12 items-center justify-center rounded-full text-white"
+                    style={{ background: "var(--forest)" }}
+                  >
+                    <User className="h-6 w-6" />
                   </div>
-                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold">Club Management</h3>
-                  <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-                    Create, join, and manage clubs effortlessly. Track memberships, activities, and engagement all in one dashboard.
-                  </p>
+                  <div>
+                    <p className="font-semibold">Hauwa Bello</p>
+                    <p className="text-xs text-[var(--ink)]/55">UG22/SCCS/1102</p>
+                  </div>
+                </div>
+                <div className="mt-4 flex gap-2 text-xs">
+                  <span className="rounded-full bg-[var(--paper-deep)] px-2.5 py-1">Science</span>
+                  <span className="rounded-full bg-[var(--paper-deep)] px-2.5 py-1">Comp. Science</span>
                 </div>
               </div>
 
-              {/* Feature 2 */}
-              <div className="group relative p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl border bg-card hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent rounded-xl sm:rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="relative space-y-3 sm:space-y-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-lg sm:rounded-xl bg-purple-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Calendar className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-purple-600" />
-                  </div>
-                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold">Event Management</h3>
-                  <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-                    Schedule, promote, and manage events with RSVP tracking, reminders, and post-event feedback collection.
-                  </p>
+              <div className="cx-badge absolute bottom-2 left-2 w-64 rotate-[-6deg] p-4 shadow-md">
+                <p className="text-xs font-medium text-[var(--ink)]/50">CS DEPARTMENTAL CLUB</p>
+                <p className="mt-1 text-sm leading-snug">
+                  "Hackathon sign-ups close Friday — see you at the lab!"
+                </p>
+                <div className="mt-3 flex items-center gap-4 text-xs text-[var(--ink)]/50">
+                  <span className="flex items-center gap-1"><Heart className="h-3.5 w-3.5" />24</span>
+                  <span className="flex items-center gap-1"><MessageCircle className="h-3.5 w-3.5" />6</span>
+                  <span className="flex items-center gap-1"><Share2 className="h-3.5 w-3.5" />2</span>
                 </div>
               </div>
 
-              {/* Feature 3 */}
-              <div className="group relative p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl border bg-card hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                <div className="absolute inset-0 bg-gradient-to-br from-pink-500/5 to-transparent rounded-xl sm:rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="relative space-y-3 sm:space-y-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-lg sm:rounded-xl bg-pink-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-pink-600" />
-                  </div>
-                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold">Analytics & Insights</h3>
-                  <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-                    Get detailed reports on club performance, member engagement, and event attendance with visual dashboards.
-                  </p>
-                </div>
-              </div>
-
-              {/* Feature 4 */}
-              <div className="group relative p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl border bg-card hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent rounded-xl sm:rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="relative space-y-3 sm:space-y-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-lg sm:rounded-xl bg-green-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Shield className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-green-600" />
-                  </div>
-                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold">Secure Elections</h3>
-                  <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-                    Conduct transparent club elections with built-in voting system, real-time results, and audit trails.
-                  </p>
-                </div>
-              </div>
-
-              {/* Feature 5 */}
-              <div className="group relative p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl border bg-card hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent rounded-xl sm:rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="relative space-y-3 sm:space-y-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-lg sm:rounded-xl bg-blue-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Globe className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-blue-600" />
-                  </div>
-                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold">Social Feed</h3>
-                  <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-                    Stay connected with a campus-wide social feed featuring posts, announcements, and updates from all clubs.
-                  </p>
-                </div>
-              </div>
-
-              {/* Feature 6 */}
-              <div className="group relative p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl border bg-card hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent rounded-xl sm:rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="relative space-y-3 sm:space-y-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-lg sm:rounded-xl bg-orange-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Heart className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-orange-600" />
-                  </div>
-                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold">Member Engagement</h3>
-                  <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-                    Foster community with discussion forums, polls, resource sharing, and direct messaging between members.
-                  </p>
+              <div className="cx-badge absolute bottom-10 right-0 w-52 rotate-[5deg] p-4 shadow-md">
+                <p className="text-xs font-medium text-[var(--ink)]/50">EVENT REQUEST</p>
+                <p className="mt-1 text-sm font-semibold">Faculty of Law Moot Court</p>
+                <div className="mt-3 flex gap-2">
+                  <span className="flex items-center gap-1 rounded-full bg-[var(--forest)]/10 px-2.5 py-1 text-xs font-medium text-[var(--forest)]">
+                    <CheckCircle2 className="h-3.5 w-3.5" /> Approve
+                  </span>
+                  <span className="flex items-center gap-1 rounded-full bg-[var(--coral)]/10 px-2.5 py-1 text-xs font-medium text-[var(--coral)]">
+                    <XCircle className="h-3.5 w-3.5" /> Hold
+                  </span>
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Marquee strip */}
+          <div className="container mt-14 overflow-hidden border-y cx-hairline py-3">
+            <div className="cx-marquee-track gap-10 text-sm font-medium text-[var(--ink)]/55">
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="flex shrink-0 items-center gap-10 pr-10">
+                  <span>6 faculties on the network</span>
+                  <span>·</span>
+                  <span>30+ departments auto-matched</span>
+                  <span>·</span>
+                  <span>Student ID verified sign-up</span>
+                  <span>·</span>
+                  <span>One feed for every club</span>
+                  <span>·</span>
+                  <span>Built for Gombe State University</span>
+                  <span>·</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </section>
 
-        {/* Testimonials Section - Redesigned */}
-        <section className="py-16 sm:py-20 md:py-24 lg:py-32 bg-muted/30 w-full">
-          <div className="w-full px-4 sm:px-6 md:px-8">
-            <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16 md:mb-20 space-y-3 sm:space-y-4">
-              <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 border border-primary/20">
-                <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary fill-primary" />
-                <span className="text-xs sm:text-sm font-semibold text-primary">Loved by Students & Clubs</span>
+        {/* Faculty stat band */}
+        <section
+          className="w-full py-14 text-[var(--paper)]"
+          style={{ background: "var(--ink)" }}
+        >
+          <div className="container grid grid-cols-1 gap-8 sm:grid-cols-3">
+            {[
+              { n: "6", label: "Faculties mapped, from Arts to Medicine" },
+              { n: "30+", label: "Departments matched from your student ID" },
+              { n: "1", label: "Feed shared across the whole campus" },
+            ].map((stat, i) => (
+              <div key={i} className="flex items-center gap-4 sm:justify-center">
+                {i > 0 && <span className="hidden h-10 w-px bg-white/15 sm:block" />}
+                <div>
+                  <div className="cx-display text-4xl font-bold">{stat.n}</div>
+                  <div className="mt-1 text-sm text-white/60">{stat.label}</div>
+                </div>
               </div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold px-2">
-                What Our <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">Community</span> Says
+            ))}
+          </div>
+        </section>
+
+        {/* Feature panel 1: Clubs */}
+        <section id="clubs" className="w-full py-20 sm:py-28">
+          <div className="container grid gap-12 md:grid-cols-2 md:items-center md:gap-16">
+            <div className="order-2 md:order-1">
+              <div className="rounded-2xl border cx-hairline bg-white p-5 shadow-sm">
+                <p className="mb-3 text-xs font-semibold text-[var(--ink)]/45">CLUB DIRECTORY</p>
+                {[
+                  { name: "Computer Science Club", tag: "Faculty of Science", color: "var(--forest)" },
+                  { name: "Law Students Association", tag: "Faculty of Law", color: "var(--coral)" },
+                  { name: "Debate & Rhetoric Society", tag: "Open to all faculties", color: "var(--marigold-deep)" },
+                ].map((club, i) => (
+                  <div
+                    key={i}
+                    className={`flex items-center justify-between py-3 ${i > 0 ? "border-t cx-hairline" : ""}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span
+                        className="flex h-9 w-9 items-center justify-center rounded-lg text-white"
+                        style={{ background: club.color }}
+                      >
+                        <Building2 className="h-4 w-4" />
+                      </span>
+                      <div>
+                        <p className="text-sm font-semibold">{club.name}</p>
+                        <p className="text-xs text-[var(--ink)]/50">{club.tag}</p>
+                      </div>
+                    </div>
+                    <Button size="sm" variant="outline" className="rounded-full border-[var(--ink)]/15 text-xs">
+                      Join
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="order-1 md:order-2">
+              <span
+                className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-white"
+                style={{ background: "var(--forest)" }}
+              >
+                <Layers className="h-5 w-5" />
+              </span>
+              <h2 className="cx-display mt-5 text-3xl font-bold leading-tight sm:text-4xl">
+                Clubs matched to your faculty, not a search bar
               </h2>
+              <p className="mt-4 text-base leading-relaxed text-[var(--ink)]/70">
+                Your student ID already tells us your faculty and department —
+                Connectrix uses that to surface the clubs most relevant to
+                you first, while still keeping the full directory open to
+                browse.
+              </p>
+              <ul className="mt-6 space-y-3 text-sm text-[var(--ink)]/75">
+                <li className="flex gap-2">
+                  <GraduationCap className="mt-0.5 h-4 w-4 shrink-0 text-[var(--forest)]" />
+                  Departmental and cross-faculty clubs, side by side
+                </li>
+                <li className="flex gap-2">
+                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[var(--forest)]" />
+                  Every membership tracked against a real student account
+                </li>
+              </ul>
             </div>
+          </div>
+        </section>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 w-full">
-              {/* Testimonial 1 */}
-              <div className="group p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl border bg-card hover:shadow-lg transition-all duration-300">
-                <div className="flex gap-0.5 sm:gap-1 mb-3 sm:mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-yellow-400" />
-                  ))}
+        {/* Feature panel 2: Newsfeed */}
+        <section id="feed" className="w-full py-20" style={{ background: "var(--paper-deep)" }}>
+          <div className="container grid gap-12 md:grid-cols-2 md:items-center md:gap-16">
+            <div>
+              <span
+                className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-white"
+                style={{ background: "var(--coral)" }}
+              >
+                <Newspaper className="h-5 w-5" />
+              </span>
+              <h2 className="cx-display mt-5 text-3xl font-bold leading-tight sm:text-4xl">
+                One feed for the whole campus
+              </h2>
+              <p className="mt-4 text-base leading-relaxed text-[var(--ink)]/70">
+                Clubs post announcements, students share updates, and
+                everything lands in a single, searchable feed — filterable
+                by club, tag, or the people you follow.
+              </p>
+              <ul className="mt-6 space-y-3 text-sm text-[var(--ink)]/75">
+                <li className="flex gap-2">
+                  <MessageSquare className="mt-0.5 h-4 w-4 shrink-0 text-[var(--coral)]" />
+                  Comments, likes, and shares on every post
+                </li>
+                <li className="flex gap-2">
+                  <Megaphone className="mt-0.5 h-4 w-4 shrink-0 text-[var(--coral)]" />
+                  Club accounts post directly to their followers
+                </li>
+              </ul>
+            </div>
+            <div className="rounded-2xl border cx-hairline bg-white p-5 shadow-sm">
+              <div className="flex items-start gap-3">
+                <div
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white"
+                  style={{ background: "var(--ink)" }}
+                >
+                  <Building2 className="h-4 w-4" />
                 </div>
-                <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 leading-relaxed">
-                  "Connectrix made it so easy to join clubs and stay updated on events! I love how I can access all my club resources in one place."
-                </p>
-                <div className="flex items-center gap-2.5 sm:gap-3">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-white font-bold text-sm sm:text-base">
-                    AG
-                  </div>
-                  <div>
-                    <div className="font-semibold text-sm sm:text-base">Adams Geek</div>
-                    <div className="text-xs sm:text-sm text-muted-foreground">Computer Science Student</div>
-                  </div>
+                <div>
+                  <p className="text-sm font-semibold">
+                    Debate & Rhetoric Society <span className="font-normal text-[var(--ink)]/45">· Club</span>
+                  </p>
+                  <p className="text-xs text-[var(--ink)]/45">2 hours ago</p>
                 </div>
               </div>
-
-              {/* Testimonial 2 */}
-              <div className="group p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl border bg-card hover:shadow-lg transition-all duration-300">
-                <div className="flex gap-0.5 sm:gap-1 mb-3 sm:mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-yellow-400" />
-                  ))}
-                </div>
-                <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 leading-relaxed">
-                  "Managing our club has never been smoother. The election system is a game-changer for ensuring transparent leadership transitions!"
-                </p>
-                <div className="flex items-center gap-2.5 sm:gap-3">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center text-white font-bold text-sm sm:text-base">
-                    IM
-                  </div>
-                  <div>
-                    <div className="font-semibold text-sm sm:text-base">Isma'il Danladi</div>
-                    <div className="text-xs sm:text-sm text-muted-foreground">NACOS President</div>
-                  </div>
-                </div>
+              <p className="mt-3 text-sm leading-relaxed text-[var(--ink)]/80">
+                Inter-faculty debate finals move to the Main Auditorium,
+                Saturday 10am. Come support your faculty's team!
+              </p>
+              <div className="mt-4 flex gap-2 text-xs">
+                <span className="rounded-full bg-[var(--paper-deep)] px-2.5 py-1">#debate</span>
+                <span className="rounded-full bg-[var(--paper-deep)] px-2.5 py-1">#finals</span>
               </div>
-
-              {/* Testimonial 3 */}
-              <div className="group p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl border bg-card hover:shadow-lg transition-all duration-300">
-                <div className="flex gap-0.5 sm:gap-1 mb-3 sm:mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-yellow-400" />
-                  ))}
-                </div>
-                <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 leading-relaxed">
-                  "Connectrix has transformed how we oversee club activities. The analytics and approval system save me hours of work each week."
-                </p>
-                <div className="flex items-center gap-2.5 sm:gap-3">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-pink-600 to-orange-600 flex items-center justify-center text-white font-bold text-sm sm:text-base">
-                    HB
-                  </div>
-                  <div>
-                    <div className="font-semibold text-sm sm:text-base">Dr. Hassana Y. Bello</div>
-                    <div className="text-xs sm:text-sm text-muted-foreground">Dean of Student Affairs</div>
-                  </div>
-                </div>
+              <div className="mt-4 flex items-center gap-5 border-t cx-hairline pt-3 text-xs font-medium text-[var(--ink)]/55">
+                <span className="flex items-center gap-1.5"><Heart className="h-4 w-4" /> 58</span>
+                <span className="flex items-center gap-1.5"><MessageCircle className="h-4 w-4" /> 12</span>
+                <span className="flex items-center gap-1.5"><Share2 className="h-4 w-4" /> 4</span>
               </div>
             </div>
           </div>
         </section>
 
-        {/* CTA Section */}
-        <section className="relative w-full py-12 sm:py-16 md:py-20 lg:py-32 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-primary/80 z-0"></div>
-          <div className="absolute inset-0 bg-[url('/studentBgi.jpeg')] opacity-10 bg-cover bg-center"></div>
-          {/* Animated circles */}
-          <div className="absolute top-10 left-10 w-32 sm:w-48 md:w-64 h-32 sm:h-48 md:h-64 bg-white/10 rounded-full blur-2xl sm:blur-3xl animate-pulse-soft"></div>
-          <div className="absolute bottom-10 right-10 w-48 sm:w-64 md:w-96 h-48 sm:h-64 md:h-96 bg-white/5 rounded-full blur-2xl sm:blur-3xl animate-pulse-soft" style={{animationDelay: '1s'}}></div>
-          
-          <div className="container relative z-10 px-4 sm:px-6 md:px-8">
-            <div className="flex flex-col items-center justify-center space-y-6 sm:space-y-8 text-center animate-fade-in">
-              <div className="space-y-4 sm:space-y-6 max-w-3xl">
-                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-white px-2">
-                  Ready to Transform Campus Club Management?
-                </h2>
-                <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90 leading-relaxed px-4">
-                  Join Connectrix today and experience the future of student engagement. Get started in minutes.
-                </p>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-4 sm:mt-6 w-full sm:w-auto px-4 sm:px-0">
-                <Link href="/register" className="w-full sm:w-auto">
-                  <Button size="lg" variant="secondary" className="w-full sm:w-auto px-6 sm:px-10 py-5 sm:py-6 text-base sm:text-lg shadow-xl hover:scale-[1.02] transition-all duration-300">
-                    Get Started Free
-                    <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+        {/* Feature panel 3: Events */}
+        <section id="events" className="w-full py-20 sm:py-28">
+          <div className="container grid gap-12 md:grid-cols-2 md:items-center md:gap-16">
+            <div className="order-2 md:order-1 rounded-2xl border cx-hairline bg-white p-5 shadow-sm">
+              <p className="mb-3 text-xs font-semibold text-[var(--ink)]/45">EVENT APPROVAL</p>
+              <div className="rounded-xl border cx-hairline p-4">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold">Pharmacy Week Health Fair</p>
+                  <span className="rounded-full bg-[var(--marigold)]/20 px-2.5 py-0.5 text-xs font-medium text-[var(--marigold-deep)]">
+                    Pending
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-[var(--ink)]/50">Faculty of Pharmacy · Fri, 10:00am · Quadrangle</p>
+                <div className="mt-4 flex gap-2">
+                  <Button size="sm" className="rounded-full text-white" style={{ background: "var(--forest)" }}>
+                    Approve
                   </Button>
-                </Link>
-                <Link href="/login" className="w-full sm:w-auto">
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto px-6 sm:px-10 py-5 sm:py-6 text-base sm:text-lg border-white text-white hover:bg-white/10 transition-all duration-300">
-                    Sign In
+                  <Button size="sm" variant="outline" className="rounded-full border-[var(--ink)]/15">
+                    Send back
                   </Button>
-                </Link>
+                </div>
               </div>
-              {/* Trust indicators */}
-              <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 md:gap-8 pt-4 sm:pt-6 text-white/80 text-xs sm:text-sm">
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  <span>Free to use</span>
+              <div className="mt-3 flex items-center justify-between rounded-xl border cx-hairline p-4">
+                <div>
+                  <p className="text-sm font-semibold">Freshers' Welcome Night</p>
+                  <p className="text-xs text-[var(--ink)]/50">Open to all faculties · 142 registered</p>
                 </div>
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  <span>No credit card required</span>
-                </div>
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  <span>Setup in minutes</span>
-                </div>
+                <CalendarCheck2 className="h-5 w-5 text-[var(--forest)]" />
               </div>
             </div>
+            <div className="order-1 md:order-2">
+              <span
+                className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-white"
+                style={{ background: "var(--marigold-deep)" }}
+              >
+                <CalendarCheck2 className="h-5 w-5" />
+              </span>
+              <h2 className="cx-display mt-5 text-3xl font-bold leading-tight sm:text-4xl">
+                Events that go through a real approval step
+              </h2>
+              <p className="mt-4 text-base leading-relaxed text-[var(--ink)]/70">
+                Clubs submit events with a date, venue, and category. Admins
+                review and approve before they go live — so the campus
+                calendar stays reliable, not a free-for-all.
+              </p>
+              <ul className="mt-6 space-y-3 text-sm text-[var(--ink)]/75">
+                <li className="flex gap-2">
+                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[var(--marigold-deep)]" />
+                  Registration and attendance tracked per event
+                </li>
+                <li className="flex gap-2">
+                  <Landmark className="mt-0.5 h-4 w-4 shrink-0 text-[var(--marigold-deep)]" />
+                  Every approval recorded in the admin audit log
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        {/* Why Connectrix - 2x2 */}
+        <section className="w-full py-20" style={{ background: "var(--paper-deep)" }}>
+          <div className="container">
+            <div className="max-w-xl">
+              <h2 className="cx-display text-3xl font-bold leading-tight sm:text-4xl">
+                Built around how a university actually runs
+              </h2>
+              <p className="mt-4 text-base leading-relaxed text-[var(--ink)]/70">
+                Not a generic social app repurposed for campus life — every
+                part of Connectrix maps to something real at GSU.
+              </p>
+            </div>
+            <div className="mt-12 grid gap-6 sm:grid-cols-2">
+              {[
+                {
+                  icon: Fingerprint,
+                  title: "Verified by student ID",
+                  body: "Registration reads your real GSU student ID format, so faculty and department are never self-reported.",
+                },
+                {
+                  icon: GraduationCap,
+                  title: "Faculty & department matching",
+                  body: "Every account is tagged to a real faculty and department, straight from admissions-style records.",
+                },
+                {
+                  icon: Building2,
+                  title: "Clubs have their own accounts",
+                  body: "Club logins are separate from student logins, so club content is posted by the club, not an individual member.",
+                },
+                {
+                  icon: ShieldCheck,
+                  title: "Admin oversight, on the record",
+                  body: "User, club, and event changes are logged in an audit trail admins can review at any time.",
+                },
+              ].map((item, i) => (
+                <div key={i} className="rounded-2xl border cx-hairline bg-white p-6">
+                  <span
+                    className="flex h-10 w-10 items-center justify-center rounded-lg"
+                    style={{ background: "var(--paper-deep)" }}
+                  >
+                    <item.icon className="h-5 w-5" style={{ color: "var(--forest)" }} />
+                  </span>
+                  <h3 className="mt-4 text-base font-semibold">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--ink)]/65">{item.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Role paths (replaces pricing) */}
+        <section id="roles" className="w-full py-20 sm:py-28">
+          <div className="container">
+            <div className="max-w-xl">
+              <h2 className="cx-display text-3xl font-bold leading-tight sm:text-4xl">
+                Three ways to use Connectrix
+              </h2>
+              <p className="mt-4 text-base leading-relaxed text-[var(--ink)]/70">
+                Every account on the network is one of these three — pick
+                where you fit.
+              </p>
+            </div>
+            <div className="mt-12 grid gap-6 lg:grid-cols-3">
+              {ROLE_PATHS.map((role, i) => (
+                <div
+                  key={i}
+                  className="cx-badge flex flex-col p-6"
+                  style={i === 0 ? { borderColor: "var(--ink)", borderWidth: 2 } : undefined}
+                >
+                  <span className="text-xs font-semibold tracking-wide text-[var(--ink)]/45">{role.tag}</span>
+                  <h3 className="cx-display mt-3 text-xl font-bold leading-snug">{role.title}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-[var(--ink)]/70">{role.description}</p>
+                  <ul className="mt-5 space-y-2 text-sm text-[var(--ink)]/75">
+                    {role.bullets.map((b, j) => (
+                      <li key={j} className="flex gap-2">
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[var(--forest)]" />
+                        {b}
+                      </li>
+                    ))}
+                  </ul>
+                  <Link href={role.cta.href} className="mt-6">
+                    <Button
+                      className="w-full rounded-full text-white hover:opacity-90"
+                      style={{ background: i === 0 ? "var(--marigold-deep)" : "var(--ink)" }}
+                    >
+                      {role.cta.label}
+                    </Button>
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section id="faq" className="w-full py-20" style={{ background: "var(--paper-deep)" }}>
+          <div className="container max-w-2xl">
+            <h2 className="cx-display text-center text-3xl font-bold sm:text-4xl">Questions, answered</h2>
+            <Accordion type="single" collapsible className="mt-10">
+              {FAQS.map((item, i) => (
+                <AccordionItem key={i} value={`item-${i}`} className="cx-hairline">
+                  <AccordionTrigger className="text-left text-base font-semibold">
+                    {item.q}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-sm leading-relaxed text-[var(--ink)]/70">
+                    {item.a}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        </section>
+
+        {/* CTA band */}
+        <section className="w-full py-16" style={{ background: "var(--marigold)" }}>
+          <div className="container flex flex-col items-center gap-6 text-center">
+            <h2 className="cx-display max-w-lg text-3xl font-bold leading-tight text-[var(--ink)] sm:text-4xl">
+              Find your people on campus
+            </h2>
+            <Link href="/register">
+              <Button
+                size="lg"
+                className="rounded-full px-8 text-white hover:opacity-90"
+                style={{ background: "var(--ink)" }}
+              >
+                Create your account
+              </Button>
+            </Link>
           </div>
         </section>
       </main>
 
       {/* Footer */}
-      <footer className="border-t py-8 sm:py-10 md:py-12 lg:py-16 bg-background">
-        <div className="container px-4 sm:px-6 md:px-8">
-          <div className="grid gap-6 sm:gap-8 grid-cols-2 md:grid-cols-2 lg:grid-cols-4">
-            <div className="col-span-2 sm:col-span-1 space-y-3 sm:space-y-4">
-              <h3 className="text-base sm:text-lg font-bold text-primary">Connectrix</h3>
-              <p className="text-xs sm:text-sm text-muted-foreground">Empowering Campus Communities</p>
-              <div className="flex space-x-3 sm:space-x-4">
-                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-4 w-4 sm:h-5 sm:w-5"
-                  >
-                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
-                  </svg>
-                  <span className="sr-only">Facebook</span>
-                </Link>
-                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-4 w-4 sm:h-5 sm:w-5"
-                  >
-                    <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path>
-                  </svg>
-                  <span className="sr-only">Twitter</span>
-                </Link>
-                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-4 w-4 sm:h-5 sm:w-5"
-                  >
-                    <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
-                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
-                  </svg>
-                  <span className="sr-only">Instagram</span>
-                </Link>
-                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-4 w-4 sm:h-5 sm:w-5"
-                  >
-                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
-                    <rect width="4" height="12" x="2" y="9"></rect>
-                    <circle cx="4" cy="4" r="2"></circle>
-                  </svg>
-                  <span className="sr-only">LinkedIn</span>
-                </Link>
-              </div>
+      <footer className="w-full py-14 text-[var(--paper)]" style={{ background: "var(--ink)" }}>
+        <div className="container grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="flex h-8 w-8 items-center justify-center rounded-md bg-white text-sm font-bold text-[var(--ink)]">
+                C
+              </span>
+              <span className="cx-display text-lg font-bold">Connectrix</span>
             </div>
-            <div className="space-y-3 sm:space-y-4">
-              <h3 className="text-sm sm:text-base font-bold">Quick Links</h3>
-              <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
-                <li>
-                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    About Us
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#features" className="text-muted-foreground hover:text-primary transition-colors">
-                    Features
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    Pricing
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    Contact Us
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div className="space-y-3 sm:space-y-4">
-              <h3 className="text-sm sm:text-base font-bold">Resources</h3>
-              <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
-                <li>
-                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    Blog
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    Documentation
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    Help Center
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/privacy" className="text-muted-foreground hover:text-primary transition-colors">
-                    Privacy Policy
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div className="col-span-2 sm:col-span-1 space-y-3 sm:space-y-4">
-              <h3 className="text-sm sm:text-base font-bold">Contact</h3>
-              <ul className="space-y-2 sm:space-y-3 text-xs sm:text-sm">
-                <li className="flex items-start">
-                  <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-primary mr-1.5 sm:mr-2 shrink-0 mt-0.5" />
-                  <span className="text-muted-foreground">University Campus, Gombe State University, Nigeria</span>
-                </li>
-                <li className="flex items-start">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-4 w-4 sm:h-5 sm:w-5 text-primary mr-1.5 sm:mr-2 shrink-0 mt-0.5"
-                  >
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                  </svg>
-                  <span className="text-muted-foreground">+234 903 250 9094</span>
-                </li>
-                <li className="flex items-start">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-4 w-4 sm:h-5 sm:w-5 text-primary mr-1.5 sm:mr-2 shrink-0 mt-0.5"
-                  >
-                    <rect width="20" height="16" x="2" y="4" rx="2"></rect>
-                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
-                  </svg>
-                  <span className="text-muted-foreground break-all">info@connectrix.edu.ng</span>
-                </li>
-              </ul>
-            </div>
+            <p className="mt-4 text-sm text-white/55">
+              The club and community network built for Gombe State University.
+            </p>
           </div>
-          <div className="mt-8 sm:mt-10 md:mt-12 border-t pt-6 sm:pt-8 text-center text-xs sm:text-sm text-muted-foreground">
-            <p>© 2025 Connectrix. All rights reserved.</p>
+          <div>
+            <h3 className="text-sm font-semibold">Platform</h3>
+            <ul className="mt-4 space-y-2 text-sm text-white/55">
+              <li><Link href="#clubs" className="hover:text-white">Clubs</Link></li>
+              <li><Link href="#feed" className="hover:text-white">Newsfeed</Link></li>
+              <li><Link href="#events" className="hover:text-white">Events</Link></li>
+              <li><Link href="#roles" className="hover:text-white">For your role</Link></li>
+            </ul>
           </div>
+          <div>
+            <h3 className="text-sm font-semibold">Faculties</h3>
+            <ul className="mt-4 space-y-2 text-sm text-white/55">
+              {FACULTIES.map((f) => (
+                <li key={f.code}>{f.name}</li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold">Contact</h3>
+            <ul className="mt-4 space-y-3 text-sm text-white/55">
+              <li className="flex items-start gap-2">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
+                Gombe State University, Nigeria
+              </li>
+              <li className="flex items-start gap-2">
+                <Phone className="mt-0.5 h-4 w-4 shrink-0" />
+                +234 903 250 9094
+              </li>
+              <li className="flex items-start gap-2">
+                <Mail className="mt-0.5 h-4 w-4 shrink-0" />
+                info@connectrix.edu.ng
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div className="container mt-10 border-t border-white/10 pt-6 text-center text-xs text-white/45">
+          © 2026 Connectrix, Gombe State University. All rights reserved.
         </div>
       </footer>
     </div>
   )
 }
-

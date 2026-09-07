@@ -1,15 +1,19 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { connectDB } from "@/lib/db"
 import User from "@/lib/models/User"
 import { createAuditLog } from "@/lib/utils/audit"
+import { requireAdmin } from "@/lib/admin-auth"
 
 // Send bulk email to users
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  const auth = await requireAdmin(req)
+  if (!auth.authorized) return auth.response
+
   try {
     await connectDB()
 
     const body = await req.json()
-    const { subject, message, recipients, adminId } = body
+    const { subject, message, recipients } = body
 
     if (!subject || !message) {
       return NextResponse.json(
@@ -44,8 +48,8 @@ export async function POST(req: Request) {
 
     // Log audit
     await createAuditLog({
-      userId: adminId,
-      userEmail: "admin@system.com",
+      userId: auth.payload.id,
+      userEmail: auth.payload.email || "unknown",
       action: "bulk_operation",
       targetType: "user",
       details: {

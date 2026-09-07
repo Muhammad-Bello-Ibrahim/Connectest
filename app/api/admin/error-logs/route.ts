@@ -1,7 +1,11 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { getErrorLogs, getErrorStats } from "@/lib/utils/errorLogger"
+import { requireAdmin } from "@/lib/admin-auth"
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
+  const auth = await requireAdmin(req)
+  if (!auth.authorized) return auth.response
+
   try {
     const { searchParams } = new URL(req.url)
     

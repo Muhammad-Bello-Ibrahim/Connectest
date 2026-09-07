@@ -1,9 +1,13 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { connectDB } from "@/lib/db"
 import Event from "@/lib/models/Event"
 import { createAuditLog } from "@/lib/utils/audit"
+import { requireAdmin } from "@/lib/admin-auth"
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
+  const auth = await requireAdmin(req)
+  if (!auth.authorized) return auth.response
+
   try {
     await connectDB()
 
@@ -47,7 +51,10 @@ export async function GET(req: Request) {
   }
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  const auth = await requireAdmin(req)
+  if (!auth.authorized) return auth.response
+
   try {
     await connectDB()
 
@@ -56,8 +63,8 @@ export async function POST(req: Request) {
 
     // Log audit
     await createAuditLog({
-      userId: body.createdBy,
-      userEmail: "admin@system.com", // TODO: Get from session
+      userId: auth.payload.id,
+      userEmail: auth.payload.email || "unknown",
       action: "event_created",
       targetType: "event",
       targetId: event._id.toString(),

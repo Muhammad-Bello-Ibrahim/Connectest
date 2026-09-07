@@ -1,10 +1,14 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { connectDB } from "@/lib/db"
 import User from "@/lib/models/User"
 import Club from "@/lib/models/Club"
+import { requireAdmin } from "@/lib/admin-auth"
 // import Event from "@/lib/models/Event"
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
+  const auth = await requireAdmin(req)
+  if (!auth.authorized) return auth.response
+
   try {
     await connectDB()
 

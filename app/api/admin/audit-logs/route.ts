@@ -1,15 +1,12 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { getAuditLogs } from "@/lib/utils/audit"
-import { getServerSession } from "next-auth"
+import { requireAdmin } from "@/lib/admin-auth"
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
+  const auth = await requireAdmin(req)
+  if (!auth.authorized) return auth.response
+
   try {
-    // TODO: Add authentication check
-    // const session = await getServerSession()
-    // if (!session || session.user.role !== "admin") {
-    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    // }
-
     const { searchParams } = new URL(req.url)
     
     const filters = {

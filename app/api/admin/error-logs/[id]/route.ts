@@ -1,10 +1,14 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { resolveError } from "@/lib/utils/errorLogger"
+import { requireAdmin } from "@/lib/admin-auth"
 
 export async function PATCH(
-  req: Request,
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const auth = await requireAdmin(req)
+  if (!auth.authorized) return auth.response
+
   try {
     const body = await req.json()
     const { resolvedBy, notes } = body

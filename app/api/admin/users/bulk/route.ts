@@ -1,16 +1,20 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { connectDB } from "@/lib/db"
 import User from "@/lib/models/User"
 import { createAuditLog } from "@/lib/utils/audit"
+import { requireAdmin } from "@/lib/admin-auth"
 import bcrypt from "bcryptjs"
 
 // Bulk import users from CSV
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  const auth = await requireAdmin(req)
+  if (!auth.authorized) return auth.response
+
   try {
     await connectDB()
 
     const body = await req.json()
-    const { users, adminId } = body
+    const { users } = body
 
     if (!Array.isArray(users) || users.length === 0) {
       return NextResponse.json(
@@ -52,8 +56,8 @@ export async function POST(req: Request) {
 
         // Log audit
         await createAuditLog({
-          userId: adminId,
-          userEmail: "admin@system.com",
+          userId: auth.payload.id,
+          userEmail: auth.payload.email || "unknown",
           action: "user_created",
           targetType: "user",
           targetId: user._id.toString(),
@@ -84,7 +88,10 @@ export async function POST(req: Request) {
 }
 
 // Bulk export users
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
+  const auth = await requireAdmin(req)
+  if (!auth.authorized) return auth.response
+
   try {
     await connectDB()
 
