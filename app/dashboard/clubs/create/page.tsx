@@ -24,13 +24,13 @@ const formSchema = z.object({
     message: "Description must be at least 10 characters.",
   }),
   category: z.string({
-    required_error: "Please select a category.",
+    error: "Please select a category.",
   }),
   meetingLocation: z.string().min(3, {
     message: "Meeting location must be at least 3 characters.",
   }),
   meetingFrequency: z.string({
-    required_error: "Please select a meeting frequency.",
+    error: "Please select a meeting frequency.",
   }),
   objectives: z.string().min(10, {
     message: "Objectives must be at least 10 characters.",

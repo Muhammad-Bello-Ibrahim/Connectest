@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import Club from "@/lib/models/Club";
 import User from "@/lib/models/User";
 import {connectDB} from "@/lib/db";
 import { verifyToken } from "@/lib/auth";
-import { types } from "mongoose";
 export async function GET(req: NextRequest) {
   await connectDB();
   try {
@@ -11,11 +9,7 @@ export async function GET(req: NextRequest) {
     if (!cookie) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     const payload = await verifyToken(cookie);
     if (!payload || !payload.id) return NextResponse.json({ error: "Invalid token" }, { status: 403 });
-    const userId = typeof payload.id === "string"
-      ? payload.id
-      : payload.id?.buffer
-        ? Buffer.from(Object.values(payload.id.buffer)).toString("hex")
-        : null;
+    const userId = typeof payload.id === "string" ? payload.id : null;
     if (!userId) return NextResponse.json({ error: "Invalid user id in token" }, { status: 403 });
     const user = await User.findById(userId).populate("clubs");
     if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -33,6 +27,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ clubs: validClubs });
   } catch (error) {
     console.error("Error in /api/auth/user/clubs:", error);
-    return NextResponse.json({ error: "Server error", details: error?.message || error }, { status: 500 });
+    return NextResponse.json({ error: "Server error", details: error instanceof Error ? error.message : String(error) }, { status: 500 });
   }
 }

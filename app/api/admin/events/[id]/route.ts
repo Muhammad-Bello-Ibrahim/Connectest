@@ -6,7 +6,7 @@ import { requireAdmin } from "@/lib/admin-auth"
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await requireAdmin(req)
   if (!auth.authorized) return auth.response
@@ -14,7 +14,7 @@ export async function GET(
   try {
     await connectDB()
 
-    const event = await Event.findById(params.id)
+    const event = await Event.findById((await params).id)
       .populate("clubId", "name abbreviation logo")
       .populate("createdBy", "name email")
       .populate("approvedBy", "name email")
@@ -40,7 +40,7 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await requireAdmin(req)
   if (!auth.authorized) return auth.response
@@ -49,8 +49,9 @@ export async function PATCH(
     await connectDB()
 
     const body = await req.json()
+    const { id } = await params
     const event = await Event.findByIdAndUpdate(
-      params.id,
+      id,
       body,
       { new: true, runValidators: true }
     )
@@ -84,7 +85,7 @@ export async function PATCH(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await requireAdmin(req)
   if (!auth.authorized) return auth.response
@@ -92,7 +93,8 @@ export async function DELETE(
   try {
     await connectDB()
 
-    const event = await Event.findByIdAndDelete(params.id)
+    const { id } = await params
+    const event = await Event.findByIdAndDelete(id)
 
     if (!event) {
       return NextResponse.json(
@@ -107,7 +109,7 @@ export async function DELETE(
       userEmail: auth.payload.email || "unknown",
       action: "event_deleted",
       targetType: "event",
-      targetId: params.id,
+      targetId: id,
       details: { title: event.title },
     })
 

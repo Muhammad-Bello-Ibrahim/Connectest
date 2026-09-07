@@ -150,7 +150,7 @@ export async function POST(req: NextRequest) {
     const departmentFull = DEPARTMENT_MAP[departmentAbbr] || departmentAbbr;
 
     // Club assignment is now handled separately
-    const clubs = [];
+    const clubs: string[] = [];
 
     const user = await User.create({
       name: data.name.trim(),

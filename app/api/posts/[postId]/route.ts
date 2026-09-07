@@ -4,12 +4,13 @@ import { connectDB } from '@/lib/db'
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { postId: string } }
+  { params }: { params: Promise<{ postId: string }> }
 ) {
   await connectDB()
 
   try {
-    const post = await Post.findById(params.postId)
+    const { postId } = await params
+    const post = await Post.findById(postId)
       .populate('author', 'name avatar')
       .populate('club', 'name abbreviation')
       .lean() as any

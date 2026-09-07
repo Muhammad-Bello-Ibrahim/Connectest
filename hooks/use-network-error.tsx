@@ -79,7 +79,7 @@ export function useNetworkError() {
       return
     }
 
-    if (error.status >= 500) {
+    if ((error.status ?? 0) >= 500) {
       toast({
         variant: "destructive",
         title: "Server Error",

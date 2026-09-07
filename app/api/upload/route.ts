@@ -54,15 +54,8 @@ export async function POST(request: Request) {
           }
         }
       );
-      
-      const blob = new Blob([buffer]);
-      const reader = new FileReader();
-      reader.onload = () => {
-        const arrayBuffer = reader.result as ArrayBuffer;
-        const uint8Array = new Uint8Array(arrayBuffer);
-        uploadStream.end(Buffer.from(uint8Array));
-      };
-      reader.readAsArrayBuffer(blob);
+
+      uploadStream.end(buffer);
     });
 
     return NextResponse.json({ 

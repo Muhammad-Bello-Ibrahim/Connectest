@@ -6,7 +6,7 @@ import { verifyToken } from "@/lib/auth";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { clubId: string } }
+  { params }: { params: Promise<{ clubId: string }> }
 ) {
   await connectDB();
 
@@ -22,7 +22,7 @@ export async function POST(
       return NextResponse.json({ error: "Invalid token" }, { status: 403 });
     }
 
-    const { clubId } = params;
+    const { clubId } = await params;
 
     // Validate clubId
     if (!clubId) {
