@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useAuth } from "@/components/auth-provider"
+import { useTheme } from "next-themes"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
@@ -13,7 +14,9 @@ import { MobileNav } from "@/components/mobile-nav"
 import { Moon, Bell, Shield, CreditCard } from "lucide-react"
 
 export default function SettingsPage() {
-  const { user, toggleDarkMode } = useAuth()
+  const { user } = useAuth()
+  const { resolvedTheme, setTheme } = useTheme()
+  const darkMode = resolvedTheme === "dark"
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
 
@@ -67,7 +70,7 @@ export default function SettingsPage() {
                   <Moon className="h-5 w-5" />
                   <Label htmlFor="dark-mode">Dark Mode</Label>
                 </div>
-                <Switch id="dark-mode" checked={user.darkMode} onCheckedChange={toggleDarkMode} />
+                <Switch id="dark-mode" checked={darkMode} onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")} />
               </div>
             </CardContent>
             <CardFooter>

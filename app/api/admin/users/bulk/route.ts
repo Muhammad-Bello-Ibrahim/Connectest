@@ -23,7 +23,10 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const results = {
+    const results: {
+      success: { email: string; name: string }[]
+      failed: { email: any; reason: string }[]
+    } = {
       success: [],
       failed: [],
     }

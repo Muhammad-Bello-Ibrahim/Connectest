@@ -33,6 +33,7 @@ export default function ClubSettingsPage() {
     },
     membership: {
       requireApproval: true,
+      autoApproveMembers: false,
       allowInvitations: true,
       maxMembers: 500,
       minimumLevel: "none"

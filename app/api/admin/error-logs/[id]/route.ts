@@ -4,7 +4,7 @@ import { requireAdmin } from "@/lib/admin-auth"
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await requireAdmin(req)
   if (!auth.authorized) return auth.response
@@ -12,6 +12,7 @@ export async function PATCH(
   try {
     const body = await req.json()
     const { resolvedBy, notes } = body
+    const { id } = await params
 
     if (!resolvedBy) {
       return NextResponse.json(
@@ -20,7 +21,7 @@ export async function PATCH(
       )
     }
 
-    const error = await resolveError(params.id, resolvedBy, notes)
+    const error = await resolveError(id, resolvedBy, notes)
 
     if (!error) {
       return NextResponse.json(

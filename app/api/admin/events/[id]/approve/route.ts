@@ -6,7 +6,7 @@ import { requireAdmin } from "@/lib/admin-auth"
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await requireAdmin(req)
   if (!auth.authorized) return auth.response
@@ -16,9 +16,10 @@ export async function POST(
 
     const body = await req.json()
     const { approved } = body
+    const { id } = await params
 
     const event = await Event.findByIdAndUpdate(
-      params.id,
+      id,
       {
         isApproved: approved,
         approvedBy: approved ? auth.payload.id : null,

@@ -1,23 +1,18 @@
 import type React from "react"
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import "./globals.css"
 import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from "@/components/auth-provider"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { ErrorBoundary } from "@/components/error-boundary"
 import { PWAProvider } from "@/components/pwa-provider"
+import { ThemeProvider } from "@/components/theme-provider"
 
 export const metadata: Metadata = {
   title: "Connectrix - University Club Management",
   description: "Streamline and digitize student club activities",
   generator: 'v0.dev',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-  },
   manifest: '/manifest.json',
-  themeColor: '#000000',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
@@ -33,6 +28,13 @@ export const metadata: Metadata = {
       { url: '/apple-touch-icon.png', sizes: '192x192', type: 'image/png' },
     ],
   },
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: '#000000',
 }
 
 export default function RootLayout({
@@ -53,14 +55,16 @@ export default function RootLayout({
       </head>
       <body className="font-sans">
         <ErrorBoundary>
-          <AuthProvider>
-            <SidebarProvider>
-              <PWAProvider>
-                {children}
-                <Toaster />
-              </PWAProvider>
-            </SidebarProvider>
-          </AuthProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+            <AuthProvider>
+              <SidebarProvider>
+                <PWAProvider>
+                  {children}
+                  <Toaster />
+                </PWAProvider>
+              </SidebarProvider>
+            </AuthProvider>
+          </ThemeProvider>
         </ErrorBoundary>
       </body>
     </html>

@@ -3,7 +3,7 @@ import mongoose from "mongoose"
 import bcrypt from "bcryptjs"
 import dotenv from "dotenv"
 import User from "../lib/models/User"
-import connectDB from "../lib/db"
+import { connectDB } from "../lib/db"
 
 dotenv.config()
 

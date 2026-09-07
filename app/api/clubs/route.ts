@@ -14,7 +14,7 @@ const createClubSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
   description: z.string().min(10, "Description must be at least 10 characters").max(500, "Description too long"),
   type: z.enum(["faculty", "department", "state", "religion", "general"], {
-    required_error: "Please select a club type"
+    error: "Please select a club type"
   }),
   faculty: z.string().max(100).optional(),
   department: z.string().max(100).optional(),

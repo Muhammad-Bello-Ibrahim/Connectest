@@ -24,8 +24,8 @@ export function DashboardHeader() {
 
   // Get appropriate dashboard link based on user role
   const getDashboardLink = () => {
-    if (user?.role === "dean") return "/dashboard/dean"
     if (user?.role === "admin") return "/dashboard/admin"
+    if (user?.role === "club") return "/dashboard/club"
     return "/dashboard"
   }
 

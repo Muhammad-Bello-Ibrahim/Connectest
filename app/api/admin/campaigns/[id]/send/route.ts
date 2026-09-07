@@ -7,7 +7,7 @@ import { requireAdmin } from "@/lib/admin-auth"
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await requireAdmin(req)
   if (!auth.authorized) return auth.response
@@ -15,7 +15,8 @@ export async function POST(
   try {
     await connectDB()
 
-    const campaign = await EmailCampaign.findById(params.id)
+    const { id } = await params
+    const campaign = await EmailCampaign.findById(id)
 
     if (!campaign) {
       return NextResponse.json(

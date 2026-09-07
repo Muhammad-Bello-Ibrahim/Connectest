@@ -36,12 +36,12 @@ const updateClubSchema = z.object({
 // GET /api/clubs/[clubId] - Get a specific club
 export async function GET(
   req: NextRequest,
-  { params }: { params: { clubId: string } }
+  { params }: { params: Promise<{ clubId: string }> }
 ) {
   await connectDB();
   
   try {
-    const { clubId } = params;
+    const { clubId } = await params;
     
     // Find the club and exclude sensitive data
     const club = await Club.findById(clubId)
@@ -70,12 +70,12 @@ export async function GET(
 // PATCH /api/clubs/[clubId] - Partially update a club
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { clubId: string } }
+  { params }: { params: Promise<{ clubId: string }> }
 ) {
   await connectDB();
   
   try {
-    const { clubId } = params;
+    const { clubId } = await params;
     
     // Verify authentication
     const cookie = req.cookies.get("connectrix-token")?.value;
@@ -88,14 +88,16 @@ export async function PATCH(
       return NextResponse.json({ error: "Invalid token" }, { status: 403 });
     }
 
-    // Check if user is admin or club admin
+    // Check if user is admin or the club's own account
     const user = await User.findById(payload.id);
     const isAdmin = user?.role === 'admin';
-    const isClubAdmin = user?.clubs?.some((club: any) => 
-      club.club.toString() === clubId && club.role === 'admin'
-    );
-    
-    if (!isAdmin && !isClubAdmin) {
+    let isClubAccount = false;
+    if (!isAdmin && user?.role === 'club') {
+      const club = await Club.findById(clubId).select('email');
+      isClubAccount = !!club && club.email === user.email;
+    }
+
+    if (!isAdmin && !isClubAccount) {
       return NextResponse.json(
         { error: "Insufficient permissions" }, 
         { status: 403 }
@@ -182,22 +184,23 @@ export async function PATCH(
 // PUT /api/clubs/[clubId] - Replace a club (full update)
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { clubId: string } }
+  { params }: { params: Promise<{ clubId: string }> }
 ) {
   // For full updates, we can use the same handler as PATCH
   // since we're already validating all fields in the schema
-  return PATCH(req, { params });
+  const { clubId } = await params
+  return PATCH(req, { params: Promise.resolve({ clubId }) });
 }
 
 // DELETE /api/clubs/[clubId] - Delete a club
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { clubId: string } }
+  { params }: { params: Promise<{ clubId: string }> }
 ) {
   await connectDB();
 
   try {
-    const { clubId } = params;
+    const { clubId } = await params;
 
     // Verify authentication
     const cookie = req.cookies.get("connectrix-token")?.value;

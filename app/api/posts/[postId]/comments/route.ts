@@ -13,12 +13,12 @@ const createCommentSchema = z.object({
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { postId: string } }
+  { params }: { params: Promise<{ postId: string }> }
 ) {
   await connectDB();
   
   try {
-    const { postId } = params;
+    const { postId } = await params;
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50);
@@ -81,7 +81,7 @@ export async function GET(
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { postId: string } }
+  { params }: { params: Promise<{ postId: string }> }
 ) {
   await connectDB();
   
@@ -97,7 +97,7 @@ export async function POST(
       return NextResponse.json({ error: "Invalid token" }, { status: 403 });
     }
 
-    const { postId } = params;
+    const { postId } = await params;
     
     // Check if post exists
     const post = await Post.findById(postId);

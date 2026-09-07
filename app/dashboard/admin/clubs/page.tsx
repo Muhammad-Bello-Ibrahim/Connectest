@@ -223,7 +223,7 @@ export default function AdminClubsPage() {
           }));
           
           // Scroll to the first error field
-          const errorField = document.querySelector(`[name="${data.field}"]`);
+          const errorField = document.querySelector(`[name="${data.field}"]`) as HTMLElement | null;
           if (errorField) {
             errorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
             errorField.focus();
@@ -244,7 +244,7 @@ export default function AdminClubsPage() {
           // Scroll to the first error field if possible
           const firstErrorField = data.details[0]?.field;
           if (firstErrorField) {
-            const fieldElement = document.querySelector(`[name="${firstErrorField}"]`);
+            const fieldElement = document.querySelector(`[name="${firstErrorField}"]`) as HTMLElement | null;
             if (fieldElement) {
               fieldElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
               fieldElement.focus();
