@@ -1,95 +1,42 @@
 "use client"
 
+import { FormEvent, useState } from "react"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Bell, User, Settings, Search } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { Bell, Search, User, Settings, LogOut } from "lucide-react"
 import { useAuth } from "@/components/auth-provider"
-import { SidebarTrigger } from "@/components/ui/sidebar"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useState } from "react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 export function DashboardHeader() {
   const { user, logout } = useAuth()
-  const [showSearch, setShowSearch] = useState(false)
-
-  // Get appropriate dashboard link based on user role
-  const getDashboardLink = () => {
-    if (user?.role === "admin") return "/dashboard/admin"
-    if (user?.role === "club") return "/dashboard/club"
-    return "/dashboard"
+  const router = useRouter()
+  const [query, setQuery] = useState("")
+  function search(event: FormEvent) {
+    event.preventDefault()
+    if (query.trim()) router.push(`/dashboard?search=${encodeURIComponent(query.trim())}`)
   }
-
-  return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-14 items-center px-4 md:container">
-        <div className="md:hidden mr-2">
-          <SidebarTrigger />
-        </div>
-        <div className="flex-1 flex items-center">
-          <span className="font-semibold text-lg text-primary hidden sm:block">Dashboard</span>
-        </div>
-        <div className="flex items-center gap-2 ml-auto">
-          <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setShowSearch(true)}>
-            <Search className="h-5 w-5" />
-            <span className="sr-only">Search</span>
-          </Button>
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-5 w-5" />
-            <span className="sr-only">Notifications</span>
-            <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-primary"></span>
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage
-                    src={user?.avatar || "/placeholder.svg?height=32&width=32"}
-                    alt={user?.name || "User"}
-                  />
-                  <AvatarFallback>{user?.name?.charAt(0) || "U"}</AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-              <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{user?.name}</p>
-                  <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
-                  {user?.role && (
-                    <p className="text-xs leading-none text-muted-foreground capitalize">Role: {user.role}</p>
-                  )}
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/dashboard/profile">
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href={`${getDashboardLink()}/settings`}>
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Settings</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={logout}>Log out</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
-    </header>
-  )
+  return <header className="sticky top-0 z-40 -mx-4 mb-5 border-b bg-background/95 px-4 backdrop-blur md:mx-0 md:rounded-b-xl">
+    <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 sm:gap-4">
+      <Link href="/dashboard" className="hidden text-lg font-extrabold tracking-tight text-primary sm:block">connectrix.</Link>
+      <form onSubmit={search} role="search" className="relative flex-1 sm:ml-4 sm:max-w-xl">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input aria-label="Search campus posts" placeholder="Search campus posts" value={query} onChange={e => setQuery(e.target.value)} className="rounded-xl pl-9" />
+      </form>
+      <Button asChild variant="ghost" size="icon" aria-label="Notifications"><Link href="/dashboard/notifications"><Bell className="h-5 w-5" /></Link></Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="rounded-full" aria-label="Open profile menu"><Avatar className="h-9 w-9"><AvatarImage src={user?.avatar || ""} /><AvatarFallback>{user?.name?.slice(0, 1) || <User className="h-4 w-4" />}</AvatarFallback></Avatar></Button></DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuLabel><span className="block truncate">{user?.name}</span><span className="block truncate text-xs font-normal text-muted-foreground">{user?.email}</span></DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem asChild><Link href="/dashboard/profile"><User className="mr-2 h-4 w-4" />Profile</Link></DropdownMenuItem>
+          {user?.role === "student" && <><DropdownMenuItem asChild><Link href="/dashboard/vendor">Vendor hub</Link></DropdownMenuItem><DropdownMenuItem asChild><Link href="/dashboard/receipts">My receipts</Link></DropdownMenuItem></>}
+          <DropdownMenuItem asChild><Link href={user?.role === "club" ? "/dashboard/club/settings" : "/dashboard/settings"}><Settings className="mr-2 h-4 w-4" />Settings</Link></DropdownMenuItem>
+          <DropdownMenuSeparator /><DropdownMenuItem onClick={logout}><LogOut className="mr-2 h-4 w-4" />Log out</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  </header>
 }
-

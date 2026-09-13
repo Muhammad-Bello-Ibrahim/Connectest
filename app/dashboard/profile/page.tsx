@@ -10,7 +10,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { MobileNav } from "@/components/mobile-nav"
 import { 
   Pencil, 
   X,
@@ -510,7 +509,6 @@ export default function ProfilePage() {
     </div>
 
     {/* Mobile Bottom Navigation */}
-    <MobileNav />
     </>
   )
 }

@@ -20,7 +20,6 @@ import {
 } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { toast } from "@/components/ui/use-toast"
-import { MobileNav } from "@/components/mobile-nav"
 
 interface Notification {
   _id: string
@@ -282,7 +281,6 @@ export default function NotificationsPage() {
     </div>
 
     {/* Mobile Bottom Navigation */}
-    <MobileNav />
     </>
   )
 }

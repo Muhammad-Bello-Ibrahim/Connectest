@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
+import Link from "next/link"
 import { useAuth } from "@/components/auth-provider"
 import { Button } from "@/components/ui/button"
 import {
@@ -23,7 +24,6 @@ import {
   CreditCard,
 } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
-import { MobileNav } from "@/components/mobile-nav"
 
 interface Executive {
   _id: string
@@ -57,6 +57,8 @@ interface Club {
   isPayable?: boolean
   membershipFeeAmount?: number
   hasPaidDues?: boolean
+  duesPeriod?: string
+  receiptNumber?: string
 }
 
 export default function ClubDetailPage() {
@@ -158,55 +160,8 @@ export default function ClubDetailPage() {
     club &&
     ["src", "faculty", "department", "state", "religion"].includes(club.type)
 
-  const handlePayDues = async () => {
-    if (!club) return
-
-    setIsPayingDues(true)
-    try {
-      const res = await fetch(`/api/clubs/${club._id}/pay-dues`, {
-        method: "POST",
-        credentials: "include",
-      })
-
-      const data = await res.json()
-
-      if (res.ok) {
-        toast({
-          title: "Payment Initiated!",
-          description: data.message || "Redirecting to payment...",
-        })
-
-        // Update club state to reflect payment
-        setClub((prev) =>
-          prev
-            ? {
-                ...prev,
-                hasPaidDues: true,
-              }
-            : null
-        )
-
-        // Redirect to payment page if provided
-        if (data.paymentUrl) {
-          window.location.href = data.paymentUrl
-        }
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: data.error || "Failed to initiate payment",
-        })
-      }
-    } catch (error) {
-      console.error("Failed to pay dues:", error)
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Network error. Please try again.",
-      })
-    } finally {
-      setIsPayingDues(false)
-    }
+  const handlePayDues = () => {
+    toast({ title: "Pay the club in person", description: "An authorized club officer can record the payment and issue your receipt. Online payment is not available yet." })
   }
 
   if (isLoading) {
@@ -222,7 +177,7 @@ export default function ClubDetailPage() {
             <div className="h-3 sm:h-4 bg-muted rounded w-2/3"></div>
           </CardContent>
         </Card>
-        <MobileNav />
+
       </div>
     )
   }
@@ -238,7 +193,7 @@ export default function ClubDetailPage() {
             </p>
           </CardContent>
         </Card>
-        <MobileNav />
+
       </div>
     )
   }
@@ -449,10 +404,10 @@ export default function ClubDetailPage() {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-center sm:text-left">
                 <h3 className="font-semibold text-base sm:text-lg mb-1">
-                  Membership Fee Payment Required
+                  Dues for this period
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Pay your membership fee to complete your registration
+                  Pay your club in person. A club officer will issue the receipt after receiving your dues.
                 </p>
               </div>
               <Button
@@ -469,7 +424,7 @@ export default function ClubDetailPage() {
                 ) : (
                   <>
                     <CreditCard className="h-5 w-5" />
-                    Pay Membership Fee - ₦{club.membershipFeeAmount?.toLocaleString() || 0}
+                    How to pay · ₦{club.membershipFeeAmount?.toLocaleString() || 0}
                   </>
                 )}
               </Button>
@@ -488,18 +443,19 @@ export default function ClubDetailPage() {
               </div>
               <div>
                 <h3 className="font-semibold text-base sm:text-lg text-green-700 dark:text-green-400">
-                  Membership Fee Paid
+                  Dues recorded
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  You have successfully paid your membership fee of ₦{club.membershipFeeAmount?.toLocaleString() || 0}
+                  Your club recorded ₦{club.membershipFeeAmount?.toLocaleString() || 0} for {club.duesPeriod || "Current semester"}. Receipt: {club.receiptNumber}
                 </p>
+                <Link href="/dashboard/receipts" className="text-sm font-semibold text-primary underline">View receipt</Link>
               </div>
             </div>
           </CardContent>
         </Card>
       )}
 
-      <MobileNav />
+
     </div>
   )
 }

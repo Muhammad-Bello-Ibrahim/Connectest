@@ -24,7 +24,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { toast } from "@/components/ui/use-toast"
-import { MobileNav } from "@/components/mobile-nav"
 
 interface Post {
   _id: string
@@ -314,7 +313,7 @@ export default function PostDetailPage() {
         </article>
       </div>
 
-      <MobileNav />
+
     </div>
   )
 }

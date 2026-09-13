@@ -62,23 +62,16 @@ export async function POST(
       );
     }
 
-    // In a real implementation, this would integrate with a payment gateway
-    // For now, we'll return a mock response indicating payment initiation
+    // A payment attempt is not evidence of a completed payment. Keep existing
+    // membership data and offer the club-admin in-person receipt flow instead.
     return NextResponse.json({
-      message: "Payment initiated successfully",
+      error: "Online dues payment is not configured. Pay the club in person and ask an authorized club officer to record it.",
       club: {
         _id: club._id,
         name: club.name,
         membershipFeeAmount: club.membershipFeeAmount,
       },
-      // In production, this would be a real payment gateway URL
-      paymentUrl: null,
-      paymentDetails: {
-        amount: club.membershipFeeAmount,
-        currency: "NGN",
-        description: `Membership dues for ${club.name}`,
-      },
-    });
+    }, { status: 503 });
   } catch (error) {
     console.error("Error processing dues payment:", error);
     return NextResponse.json(

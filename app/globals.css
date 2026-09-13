@@ -440,4 +440,9 @@
     box-sizing: border-box !important;
   }
 }
-
+@media print {
+  body * { visibility: hidden !important; }
+  #print-receipt, #print-receipt * { visibility: visible !important; }
+  #print-receipt { position: absolute; left: 0; top: 0; width: 100%; border: 0; box-shadow: none; }
+  #print-receipt .print-hide { display: none !important; }
+}

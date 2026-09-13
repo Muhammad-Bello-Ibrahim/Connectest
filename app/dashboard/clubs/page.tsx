@@ -31,7 +31,6 @@ import {
   SelectTrigger,
   SelectValue 
 } from "@/components/ui/select"
-import { MobileNav } from "@/components/mobile-nav"
 
 interface Club {
   _id: string
@@ -396,7 +395,7 @@ export default function ClubsPage() {
       )}
 
       {/* Mobile Navigation */}
-      <MobileNav />
+
     </div>
   )
 }

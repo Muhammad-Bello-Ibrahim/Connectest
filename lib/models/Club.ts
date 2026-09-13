@@ -21,6 +21,7 @@ export interface IClub extends mongoose.Document {
   lastLogin?: Date;
   isPayable?: boolean;
   membershipFeeAmount?: number;
+  duesPeriod?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -58,6 +59,7 @@ const ClubSchema = new mongoose.Schema<IClub>(
     lastLogin: Date,
     isPayable: { type: Boolean, default: false },
     membershipFeeAmount: { type: Number, default: null },
+    duesPeriod: { type: String, trim: true, maxlength: 80, default: "Current semester" },
   },
   { timestamps: true }
 );
