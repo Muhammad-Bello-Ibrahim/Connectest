@@ -12,7 +12,7 @@ import {
   SidebarMenuButton,
 } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
-import { LayoutDashboard, Users, Settings, LogOut, User, Plus } from "lucide-react"
+import { LayoutDashboard, Users, Settings, LogOut, User, Plus, Map, BookOpen, ShoppingBag, Receipt } from "lucide-react"
 import { useAuth } from "@/components/auth-provider"
 import {
   Dialog,
@@ -101,7 +101,7 @@ export function DashboardSidebar() {
       <SidebarContent>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive("/dashboard")}>
+            <SidebarMenuButton asChild isActive={pathname === "/dashboard"}>
               <Link href="/dashboard">
                 <LayoutDashboard className="h-4 w-4" />
                 <span>Home</span>
@@ -116,6 +116,15 @@ export function DashboardSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          {[
+            { href: "/dashboard/map", label: "Campus Map", icon: Map },
+            { href: "/dashboard/resources", label: "Resources", icon: BookOpen },
+            { href: "/dashboard/marketplace", label: "Marketplace", icon: ShoppingBag },
+            { href: "/dashboard/vendor", label: "Vendor hub", icon: ShoppingBag },
+            { href: "/dashboard/receipts", label: "My receipts", icon: Receipt },
+          ].map(item => <SidebarMenuItem key={item.href}>
+            <SidebarMenuButton asChild isActive={isActive(item.href)}><Link href={item.href}><item.icon className="h-4 w-4" /><span>{item.label}</span></Link></SidebarMenuButton>
+          </SidebarMenuItem>)}
           
           {/* Central Add Post Button */}
           <SidebarMenuItem>
@@ -187,4 +196,3 @@ export function DashboardSidebar() {
     </Sidebar>
   )
 }
-

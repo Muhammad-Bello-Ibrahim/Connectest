@@ -28,6 +28,8 @@ import {
   ChevronDown,
   Calendar,
   Mail,
+  ShoppingBag,
+  Map,
 } from "lucide-react"
 import { useAuth } from "@/components/auth-provider"
 
@@ -80,6 +82,8 @@ export function AdminSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          <SidebarMenuItem><SidebarMenuButton asChild isActive={isActive("/dashboard/admin/vendors")}><Link href="/dashboard/admin/vendors"><ShoppingBag className="h-4 w-4" /><span>Vendor reviews</span></Link></SidebarMenuButton></SidebarMenuItem>
+          <SidebarMenuItem><SidebarMenuButton asChild isActive={isActive("/dashboard/admin/campus")}><Link href="/dashboard/admin/campus"><Map className="h-4 w-4" /><span>Campus content</span></Link></SidebarMenuButton></SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={isActive("/dashboard/admin/bulk-operations")}>
               <Link href="/dashboard/admin/bulk-operations">
@@ -163,4 +167,3 @@ export function AdminSidebar() {
     </Sidebar>
   )
 }
-

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { formatDistanceToNow } from "date-fns"
 import {
   MessageCircle,
@@ -25,7 +25,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useAuth } from "@/components/auth-provider"
 import { toast } from "@/components/ui/use-toast"
-import { MobileNav } from "@/components/mobile-nav"
 
 interface Post {
   _id: string
@@ -53,10 +52,12 @@ interface Post {
 export default function DashboardPage() {
   const { user } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const searchTerm = searchParams.get('search') || ''
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [likingPosts, setLikingPosts] = useState<Set<string>>(new Set())
-  const [activeFeed, setActiveFeed] = useState<'forYou' | 'following'>('forYou')
+  const [activeFeed, setActiveFeed] = useState<'general' | 'for-you'>('general')
 
   // Secure redirect for unauthorized or wrong-role users
   useEffect(() => {
@@ -70,12 +71,13 @@ export default function DashboardPage() {
     if (user && user.role === "student") {
       fetchPosts()
     }
-  }, [user])
+  }, [user, activeFeed, searchTerm])
 
   const fetchPosts = async () => {
     try {
       setLoading(true)
-      const res = await fetch('/api/posts', {
+      const query = new URLSearchParams({ feed: activeFeed, ...(searchTerm ? { search: searchTerm } : {}) })
+      const res = await fetch(`/api/posts?${query}`, {
         credentials: 'include'
       })
       
@@ -324,7 +326,7 @@ export default function DashboardPage() {
           {/* Header */}
           <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border">
             <div className="flex items-center justify-between px-3 sm:px-4 h-[53px]">
-              <h1 className="text-xl font-bold">Connectrix</h1>
+              <h1 className="text-xl font-bold">{searchTerm ? `Search: ${searchTerm}` : 'Campus feed'}</h1>
               <Button variant="ghost" size="icon" className="rounded-full">
                 {/* <Sparkles className="h-5 w-5" /> */}
               </Button>
@@ -333,30 +335,36 @@ export default function DashboardPage() {
             {/* Feed Tabs */}
             <div className="flex border-b border-border">
               <button
-                onClick={() => setActiveFeed('forYou')}
+                onClick={() => setActiveFeed('general')}
                 className={`flex-1 py-3 sm:py-4 text-sm sm:text-[15px] font-medium hover:bg-accent/50 transition-colors relative ${
-                  activeFeed === 'forYou' ? 'font-bold' : 'text-muted-foreground'
+                  activeFeed === 'general' ? 'font-bold' : 'text-muted-foreground'
                 }`}
               >
-                For you
-                {activeFeed === 'forYou' && (
+                General
+                {activeFeed === 'general' && (
                   <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-full" />
                 )}
               </button>
               <button
-                onClick={() => setActiveFeed('following')}
+                onClick={() => setActiveFeed('for-you')}
                 className={`flex-1 py-3 sm:py-4 text-sm sm:text-[15px] font-medium hover:bg-accent/50 transition-colors relative ${
-                  activeFeed === 'following' ? 'font-bold' : 'text-muted-foreground'
+                  activeFeed === 'for-you' ? 'font-bold' : 'text-muted-foreground'
                 }`}
               >
-                Following
-                {activeFeed === 'following' && (
+                For You
+                {activeFeed === 'for-you' && (
                   <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-full" />
                 )}
               </button>
             </div>
           </div>
 
+          {!searchTerm && <div className="m-4 rounded-2xl bg-gradient-to-br from-emerald-800 to-teal-600 p-6 text-white shadow-lg">
+            <p className="text-xs font-bold uppercase tracking-widest text-emerald-100">Your campus, connected</p>
+            <h2 className="mt-2 text-xl font-bold">Good ideas start with a connection.</h2>
+            <p className="mt-2 text-sm text-emerald-50">Catch up with people, join a club, and discover what is happening around you.</p>
+            <div className="mt-4 flex flex-wrap gap-2"><Link href="/dashboard/clubs" className="rounded-lg bg-white px-3 py-2 text-xs font-bold text-emerald-900">Explore clubs</Link><Link href="/dashboard/compose" className="rounded-lg border border-white/50 px-3 py-2 text-xs font-bold">Create a post</Link></div>
+          </div>}
           {/* Posts Feed */}
           {loading ? (
             <div>
@@ -382,7 +390,7 @@ export default function DashboardPage() {
               <MessageCircle className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
               <h3 className="text-lg font-medium mb-2">No posts yet</h3>
               <p className="text-muted-foreground text-sm">
-                Be the first to share something!
+                {activeFeed === 'for-you' ? 'Join clubs and post to build a feed around your interests.' : 'Be the first to share something!'}
               </p>
             </div>
           )}
@@ -390,8 +398,6 @@ export default function DashboardPage() {
       </div>
 
 
-      {/* Mobile Bottom Navigation */}
-      <MobileNav />
     </>
   )
 }

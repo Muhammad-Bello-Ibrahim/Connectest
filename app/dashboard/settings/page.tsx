@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
-import { MobileNav } from "@/components/mobile-nav"
 import { Moon, Bell, Shield, CreditCard } from "lucide-react"
 
 export default function SettingsPage() {
@@ -181,7 +180,7 @@ export default function SettingsPage() {
       </Tabs>
 
       {/* Mobile navigation */}
-      <MobileNav />
+
     </div>
   )
 }

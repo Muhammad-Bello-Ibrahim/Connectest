@@ -60,8 +60,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const isAdminRoute = pathname.startsWith("/dashboard/admin")
 
-  const isDashboardHome = pathname === "/dashboard"
-
   return (
     <div className="min-h-screen">
       <div className="flex min-h-screen">
@@ -71,27 +69,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
         
         {/* Main Content */}
-        <main className={`flex-1 w-full ${
-          isDashboardHome 
-            ? 'p-4' 
-            : isAdminRoute 
+        <main className={`min-w-0 flex-1 w-full ${
+          isAdminRoute
               ? 'p-6 md:p-8 lg:p-12 pb-20 md:pb-4' 
               : 'p-4 pb-20 md:pb-4'
         }`}>
-          {/* Mobile Header - Visible only on mobile, but not on dashboard home */}
-          {!isDashboardHome && (
-            <div className="md:hidden mb-4">
-              <DashboardHeader />
-            </div>
-          )}
+          <DashboardHeader />
           
           <div className={isAdminRoute ? 'w-full h-full' : ''}>
             {children}
           </div>
         </main>
         
-        {/* Mobile Navigation - Hidden on desktop and dashboard home (has its own nav) */}
-        {!isDashboardHome && <MobileNav />}
+        <MobileNav />
       </div>
     </div>
   )

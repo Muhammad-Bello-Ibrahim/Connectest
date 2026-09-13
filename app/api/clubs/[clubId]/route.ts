@@ -4,6 +4,8 @@ import Club from "@/lib/models/Club"
 import User from "@/lib/models/User"
 import { connectDB } from "@/lib/db"
 import { verifyToken } from "@/lib/auth"
+import { currentUser } from "@/lib/server-user"
+import DuesReceipt from "@/lib/models/DuesReceipt"
 
 // Validation schema for club updates
 const updateClubSchema = z.object({
@@ -20,6 +22,7 @@ const updateClubSchema = z.object({
   status: z.enum(["active", "inactive", "suspended"]).optional(),
   isPayable: z.boolean().optional(),
   membershipFeeAmount: z.number().min(0, "Membership fee must be a positive number").nullable().optional(),
+  duesPeriod: z.string().trim().min(3).max(80).optional(),
 }).refine(data => Object.keys(data).length > 0, {
   message: "At least one field must be provided for update"
 }).refine((data) => {
@@ -47,7 +50,7 @@ export async function GET(
     const club = await Club.findById(clubId)
       .select('-password -__v -createdAt -updatedAt')
       .populate('createdBy', 'name email')
-      .lean();
+      .lean<any>();
 
     if (!club) {
       return NextResponse.json(
@@ -56,7 +59,11 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ club });
+    const user = await currentUser(req);
+    const isUserMember = user?.role === "student" && user.clubs?.some((id: any) => String(id) === String(club._id));
+    const period = club.duesPeriod || "Current semester";
+    const receipt = isUserMember ? await DuesReceipt.findOne({ club: club._id, student: user._id, period }) : null;
+    return NextResponse.json({ club: { ...club, isUserMember: Boolean(isUserMember), hasPaidDues: Boolean(receipt), duesPeriod: period, receiptNumber: receipt?.receiptNumber } });
     
   } catch (error) {
     console.error("Error fetching club:", error);

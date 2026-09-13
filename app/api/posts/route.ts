@@ -5,6 +5,7 @@ import User from "@/lib/models/User";
 import Club from "@/lib/models/Club";
 import { connectDB } from "@/lib/db";
 import { verifyToken } from "@/lib/auth";
+import { currentUser } from "@/lib/server-user";
 
 // Validation schema for post creation
 const createPostSchema = z.object({
@@ -35,6 +36,7 @@ export async function GET(req: NextRequest) {
     const author = searchParams.get('author');
     const tag = searchParams.get('tag');
     const search = searchParams.get('search');
+    const feed = searchParams.get('feed');
     
     // Build filter
     const filter: any = { isPublic: true };
@@ -43,11 +45,22 @@ export async function GET(req: NextRequest) {
     if (author) filter.author = author;
     if (tag) filter.tags = { $in: [tag] };
     if (search) {
+      const safeSearch = search.slice(0, 80).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       filter.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { content: { $regex: search, $options: 'i' } },
-        { tags: { $regex: search, $options: 'i' } }
+        { title: { $regex: safeSearch, $options: 'i' } },
+        { content: { $regex: safeSearch, $options: 'i' } },
+        { tags: { $regex: safeSearch, $options: 'i' } }
       ];
+    }
+    if (feed === 'for-you') {
+      const user = await currentUser(req);
+      if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const topics = [user.department, user.faculty].filter(Boolean);
+      filter.$and = [{ $or: [
+        { author: user._id },
+        { club: { $in: user.clubs || [] } },
+        ...(topics.length ? [{ tags: { $in: topics } }] : []),
+      ] }];
     }
 
     // Calculate skip for pagination

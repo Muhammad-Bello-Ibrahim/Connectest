@@ -19,6 +19,7 @@ import {
   LogOut,
   User,
   Plus,
+  Receipt,
 } from "lucide-react"
 import { useAuth } from "@/components/auth-provider"
 import {
@@ -126,6 +127,7 @@ export function ClubSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          <SidebarMenuItem><SidebarMenuButton asChild isActive={isActive("/dashboard/club/dues")}><Link href="/dashboard/club/dues"><Receipt className="h-4 w-4" /><span>Dues & receipts</span></Link></SidebarMenuButton></SidebarMenuItem>
           
           {/* Central Add Post Button */}
           <SidebarMenuItem>
@@ -202,4 +204,3 @@ export function ClubSidebar() {
     </Sidebar>
   )
 }
-
